@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "409083412762",
+    "project_id": "ecoexpense-1cde6",
+    "storage_bucket": "ecoexpense-1cde6.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:409083412762:android:6f28d8a9153c03b687eca3",
+        "android_client_info": {
+          "package_name": "com.example.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAf2bVIAxMPsWksVSIM3SMUEi5FAVsB3iw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
