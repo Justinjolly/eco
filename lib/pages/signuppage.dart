@@ -96,6 +96,7 @@ class _SignUpPageState extends State<SignUpPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Sign Up'),
+        automaticallyImplyLeading: false,
       ),
       body: Container(
         child: Center(

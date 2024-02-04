@@ -58,6 +58,7 @@ flutter:
   assets:
     - lib/assets/g.png
     - lib/assets/logo.jpg
+    - lib/assets/bk.jpg
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
