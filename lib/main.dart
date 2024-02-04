@@ -41,9 +41,20 @@ class YourMainWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
       body: Stack(
         children: [
+          Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Color.fromARGB(255, 10, 83, 132),
+                  Color.fromARGB(237, 116, 130, 136)
+                ],
+              ),
+            ),
+          ),
           Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -81,11 +92,16 @@ class YourMainWidget extends StatelessWidget {
                     primary: Colors.blue, // Change the color to your preference
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(60),
+                      side: BorderSide(
+                        color: Color.fromARGB(182, 0, 5,
+                            1), // Change the color to your preference
+                        width: 0.6, // Adjust the width as needed
+                      ),
                     ),
                   ),
                   child: Container(
-                    width: 150,
-                    height: 45,
+                    width: 300,
+                    height: 50,
                     child: Center(
                       child: Text('Login', style: TextStyle(fontSize: 20)),
                     ),
@@ -103,11 +119,16 @@ class YourMainWidget extends StatelessWidget {
                     primary: Colors.blue, // Change the color to your preference
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(60),
+                      side: BorderSide(
+                        color: Color.fromARGB(182, 0, 5,
+                            1), // Change the color to your preference
+                        width: 0.5, // Adjust the width as needed
+                      ),
                     ),
                   ),
                   child: Container(
-                    width: 150,
-                    height: 45,
+                    width: 300,
+                    height: 50,
                     child: Center(
                       child: Text('Signup', style: TextStyle(fontSize: 18)),
                     ),
@@ -121,6 +142,7 @@ class YourMainWidget extends StatelessWidget {
     );
   }
 }
+
 
 // import 'package:flutter/material.dart';
 // import 'package:firebase_core/firebase_core.dart';

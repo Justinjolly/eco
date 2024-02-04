@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'loginpage.dart';
 
 class ForgotPasswordPage extends StatelessWidget {
   TextEditingController _emailController = TextEditingController();
