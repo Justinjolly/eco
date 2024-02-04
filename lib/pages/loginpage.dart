@@ -1,7 +1,9 @@
+// loginpage.dart
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'signuppage.dart';
 import 'homepage.dart';
+import 'package:app/pages/forgotpassword.dart'; // Import the new page
 
 class LoginPage extends StatefulWidget {
   @override
@@ -102,7 +104,13 @@ class _LoginPageState extends State<LoginPage> {
                   alignment: Alignment.centerRight,
                   child: TextButton(
                     onPressed: () {
-                      print('Forgot Password clicked');
+                      // Navigate to the ForgotPasswordPage when clicked
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ForgotPasswordPage(),
+                        ),
+                      );
                     },
                     child: Text(
                       'Forgot Password?',
