@@ -141,7 +141,8 @@ class _LoginPageState extends State<LoginPage> {
                   child: Text(
                     "Don't have an account? Sign up",
                     style: TextStyle(
-                        color: Colors.black), // Set text color to black
+                      color: Colors.black,
+                    ),
                   ),
                 ),
               ],
