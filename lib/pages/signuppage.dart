@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart'; // Import Firestore package
 import 'loginpage.dart';
 
 class SignUpPage extends StatefulWidget {
@@ -13,6 +14,9 @@ class _SignUpPageState extends State<SignUpPage> {
   TextEditingController _mobileController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
   bool _isLoading = false;
+
+  // Define a Firestore instance
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   void _showErrorPopup(String message) {
     showDialog(
@@ -46,6 +50,27 @@ class _SignUpPageState extends State<SignUpPage> {
     });
   }
 
+  // Method to add user data to Firestore
+  Future<void> _addUserDataToFirestore(
+    String userId,
+    String fullName,
+    String email,
+    String mobileNumber,
+    String password,
+  ) async {
+    try {
+      await _firestore.collection('users').doc(userId).set({
+        'fullName': fullName,
+        'email': email,
+        'mobileNumber': mobileNumber,
+        'password': password,
+      });
+    } catch (e) {
+      // Handle error while adding user data to Firestore
+      print('Error adding user data to Firestore: $e');
+    }
+  }
+
   void _handleEmailSignUp() async {
     try {
       // Start loading
@@ -69,9 +94,19 @@ class _SignUpPageState extends State<SignUpPage> {
       }
 
       // Use Firebase Authentication for signup
-      await FirebaseAuth.instance.createUserWithEmailAndPassword(
+      UserCredential userCredential =
+          await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: email,
         password: password,
+      );
+
+      // Add user data to Firestore
+      await _addUserDataToFirestore(
+        userCredential.user!.uid,
+        fullName,
+        email,
+        mobileNumber,
+        password,
       );
 
       // Stop loading

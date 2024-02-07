@@ -1,8 +1,8 @@
 // loginpage.dart
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'signuppage.dart';
-import 'homepage.dart';
+import 'package:app/pages/SignUpPage.dart';
+import 'package:app/pages/HomePage.dart';
 import 'package:app/pages/forgotpassword.dart'; // Import the new page
 
 class LoginPage extends StatefulWidget {
