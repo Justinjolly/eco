@@ -21,11 +21,19 @@ class _SplitPageState extends State<SplitPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            TextField(
-              controller: _amountController,
-              keyboardType: TextInputType.number,
-              decoration: InputDecoration(
-                labelText: 'Enter Amount',
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 6.0),
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.black, width: 2.0),
+                borderRadius: BorderRadius.circular(10.0),
+              ),
+              child: TextField(
+                controller: _amountController,
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(
+                  hintText: 'Enter Amount',
+                  border: InputBorder.none,
+                ),
               ),
             ),
             SizedBox(height: 20),
@@ -61,7 +69,7 @@ class _SplitPageState extends State<SplitPage> {
                 onPressed: () {
                   // Implement functionality for submitting the expense
                 },
-                child: Text('Submit'),
+                child: Text('Create Group'),
               ),
             ),
           ],
