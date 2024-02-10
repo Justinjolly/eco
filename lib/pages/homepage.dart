@@ -357,7 +357,7 @@ class UserInfoSection extends StatelessWidget {
         children: [
           SizedBox(height: 8.0),
           Image.asset(
-            'lib/assets/g.png', // Replace 'assets/predefined_image.jpg' with the path to your predefined image
+            'assets/predefined_image.jpg', // Replace 'assets/predefined_image.jpg' with the path to your predefined image
             width: 80, // Adjust the width to your preference
             height: 80, // Adjust the height to your preference
           ),
