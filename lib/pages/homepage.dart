@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -354,16 +355,38 @@ class UserInfoSection extends StatelessWidget {
       padding: EdgeInsets.all(16.0),
       child: Column(
         children: [
-          CircleAvatar(
-            radius: 40.0,
-            backgroundImage: NetworkImage(
-                currentUser.photoURL ?? ''), // Use currentUser's photoURL
+          SizedBox(height: 8.0),
+          Image.asset(
+            'lib/assets/g.png', // Replace 'assets/predefined_image.jpg' with the path to your predefined image
+            width: 80, // Adjust the width to your preference
+            height: 80, // Adjust the height to your preference
           ),
           SizedBox(height: 8.0),
-          Text(
-            currentUser.displayName ??
-                'Your Name', // Use currentUser's displayName or default text
-            style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
+          FutureBuilder<DocumentSnapshot>(
+            future: FirebaseFirestore.instance
+                .collection('users')
+                .doc(currentUser.uid)
+                .get(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return CircularProgressIndicator();
+              }
+              if (snapshot.hasError) {
+                return Text('Error: ${snapshot.error}');
+              }
+              if (snapshot.hasData && snapshot.data != null) {
+                final userData = snapshot.data!;
+                final fullName = userData['fullName'];
+                return Text(
+                  fullName ?? 'Your Full Name',
+                  style: TextStyle(
+                    fontSize: 18.0,
+                    fontWeight: FontWeight.bold,
+                  ),
+                );
+              }
+              return Text('Your Full Name');
+            },
           ),
         ],
       ),
