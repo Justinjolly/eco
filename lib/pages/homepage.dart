@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:app/pages/split.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -385,12 +386,16 @@ class OptionsSection extends StatelessWidget {
             children: [
               ElevatedButton(
                 onPressed: () {
-                  // Handle Split option
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => SplitPage()),
+                    ); // Handle Split option
                 },
                 child: Text('Split'),
               ),
               ElevatedButton(
                 onPressed: () {
+                 
                   // Handle Request option
                 },
                 child: Text('Request'),
