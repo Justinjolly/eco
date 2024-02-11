@@ -1,80 +1,75 @@
 import 'package:flutter/material.dart';
 
-class SplitPage extends StatefulWidget {
-  @override
-  _SplitPageState createState() => _SplitPageState();
+void main() {
+  runApp(MyApp());
 }
 
-class _SplitPageState extends State<SplitPage> {
-  TextEditingController _amountController = TextEditingController();
-  TextEditingController _noteController = TextEditingController();
-  List<String> _members = ['John', 'Alice', 'Bob']; // Example list of members
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Expense Tracker',
+      theme: ThemeData(
+        scaffoldBackgroundColor: Colors.black,
+        appBarTheme: AppBarTheme(
+          backgroundColor: Colors.black,
+        ),
+      ),
+      home: ExpenseEntryScreen(),
+    );
+  }
+}
 
+class ExpenseEntryScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Expense Splitter'),
+        title: Text('Expense Entry', style: TextStyle(color: Colors.white)),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: EdgeInsets.only(left:150.0,bottom: 20.0,top: 20.0,right: 150.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: 6.0),
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.black, width: 2.0),
-                borderRadius: BorderRadius.circular(10.0),
-              ),
-              child: TextField(
-                controller: _amountController,
-                keyboardType: TextInputType.number,
-                decoration: InputDecoration(
-                  hintText: 'Enter Amount',
-                  border: InputBorder.none,
-                ),
-              ),
-            ),
-            SizedBox(height: 20),
-            TextField(
-              controller: _noteController,
-              decoration: InputDecoration(
-                labelText: 'Add Note',
-              ),
-            ),
-            SizedBox(height: 20),
-            Text(
-              'Add Members to Split:',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 10),
-            Expanded(
-              child: ListView.builder(
-                itemCount: _members.length,
-                itemBuilder: (context, index) {
-                  return CheckboxListTile(
-                    title: Text(_members[index]),
-                    value: false, // Implement functionality for member selection
-                    onChanged: (value) {
-                      // Implement functionality for member selection
-                    },
-                  );
-                },
-              ),
-            ),
-            SizedBox(height: 20),
-            Center(
-              child: ElevatedButton(
-                onPressed: () {
-                  // Implement functionality for submitting the expense
-                },
-                child: Text('Create Group'),
-              ),
-            ),
+            _buildAmountTextField(),
+            SizedBox(height: 17.0),
+            _buildNoteTextField(),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildAmountTextField() {
+    return TextField(
+      decoration: InputDecoration(
+        labelText: 'Amount',
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10.0), // Rounded corners
+          borderSide: BorderSide(color: Colors.black),
+        ),
+        filled: true,
+        fillColor: const Color.fromARGB(255, 52, 52, 52),
+        contentPadding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 10.0), // Adjust padding
+      ),
+      keyboardType: TextInputType.number,
+    );
+  }
+
+  Widget _buildNoteTextField() {
+    return TextField(
+      decoration: InputDecoration(
+        labelText: 'Note',
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10.0), // Rounded corners
+          borderSide: BorderSide(color: Colors.black),
+        ),
+        filled: true,
+        fillColor: Color.fromARGB(255, 212, 218, 240),
+        contentPadding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 10.0), // Adjust padding
+      ),
+      maxLines: 1,
     );
   }
 }
