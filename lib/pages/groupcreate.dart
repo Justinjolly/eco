@@ -28,7 +28,7 @@ class _SplitFormState extends State<SplitForm> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Create a Group'),
+        title: Text('Create Group'),
         centerTitle: true,
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
