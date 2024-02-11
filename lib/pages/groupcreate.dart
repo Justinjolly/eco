@@ -32,7 +32,7 @@ class _SplitFormState extends State<SplitForm> {
       appBar: AppBar(
         title: Text('Create a Group'),
         leading: Image.asset(
-          'assets/logo2.png',  // Replace with the actual path to your logo image
+          'lib/assets/logo2.jpg',  // Replace with the actual path to your logo image
           width: 50,  // Adjust the width as needed
           height: 60, // Adjust the height as needed
         ),
