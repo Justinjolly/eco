@@ -9,9 +9,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Expense Splitter',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
+      theme: ThemeData.dark(), // Set the theme to dark
       home: SplitForm(),
     );
   }
@@ -31,10 +29,12 @@ class _SplitFormState extends State<SplitForm> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Create a Group'),
-        leading: Image.asset(
-          'lib/assets/logo2.jpg',  // Replace with the actual path to your logo image
-          width: 50,  // Adjust the width as needed
-          height: 60, // Adjust the height as needed
+        centerTitle: true,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pop(context);
+          },
         ),
       ),
       body: Padding(
@@ -44,32 +44,33 @@ class _SplitFormState extends State<SplitForm> {
           children: [
             TextField(
               controller: groupNameController,
-              decoration: InputDecoration(labelText: 'Group Name'),
+              decoration: InputDecoration(
+                labelText: 'Group Name',
+                labelStyle: TextStyle(color: Colors.white),
+              ),
             ),
-            SizedBox(height: 16),
+            SizedBox(height: 8),
             TextField(
               controller: groupTypeController,
-              decoration: InputDecoration(labelText: 'Group Type'),
+              decoration: InputDecoration(
+                labelText: 'Group Type',
+                labelStyle: TextStyle(color: Colors.white),
+              ),
             ),
-            SizedBox(height: 32),
+            SizedBox(height: 16),
             ElevatedButton(
               onPressed: () {
-                // Handle button press here
                 String groupName = groupNameController.text;
                 String groupType = groupTypeController.text;
 
-                // Validate and create group if needed
                 if (groupName.isNotEmpty && groupType.isNotEmpty) {
-                  // Create the group or perform any other necessary actions
                   print('Group Name: $groupName');
                   print('Group Type: $groupType');
-                  // You can add logic here to create the group
                 } else {
-                  // Show an error message or handle the case when required fields are not filled
                   print('Please fill in all required fields');
                 }
               },
-              child: Text('Create Group'),
+              child: Text('Create Group', style: TextStyle(color: Colors.white)),
             ),
           ],
         ),

@@ -105,6 +105,12 @@ class _FriendsPageState extends State<FriendsPage> {
           ),
         ),
         centerTitle: true, // Center the title
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
         actions: [
           IconButton(
             icon: Icon(Icons.person_add, size: 24.0),
