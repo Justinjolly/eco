@@ -1,15 +1,31 @@
+import 'package:app/pages/emailsettings.dart';
 import 'package:flutter/material.dart';
 import 'package:app/pages/balances.dart';
 import 'package:app/pages/qr.dart';
 import 'package:app/pages/settings.dart';
+import 'thememanager.dart'; // Import the theme manager
+import 'package:provider/provider.dart';
 
-void main() => runApp(MyApp());
+void main() => runApp(ChangeNotifierProvider<ThemeManager>(
+      create: (_) => ThemeManager(),
+      child: MyApp(),
+    ));
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: AccountPage(),
+    return Consumer<ThemeManager>(
+      builder: (context, themeManager, child) {
+        return MaterialApp(
+          home: AccountPage(),
+          theme: themeManager.themeData,
+        );
+      },
     );
   }
 }
@@ -25,7 +41,7 @@ class AccountPage extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: Image.asset(
-                'assets/logo2.jpg',
+                'lib/assets/logo2.jpg',
                 width: 50.0,
                 height: 60.0,
               ),
@@ -146,15 +162,20 @@ class AccountPage extends StatelessWidget {
           ),
           ListTile(
             leading: Icon(
-              Icons.edit,
+              Icons.email,
               size: 30,
             ),
             title: Text(
-              'Edit profile',
+              'Email Settings',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             onTap: () {
-              // Navigate to edit profile page
+              // Navigate to email settings page
+            Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => EmailSettingsPage()),
+    );
+
             },
           ),
           ListTile(

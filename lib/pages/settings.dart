@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'thememanager.dart';
 
 class SettingsPage extends StatefulWidget {
   @override
@@ -63,6 +65,16 @@ class _SettingsPageState extends State<SettingsPage> {
               },
               child: Text('Save Changes'),
             ),
+
+            ElevatedButton(
+  onPressed: () {
+    // Toggle theme
+    Provider.of<ThemeManager>(context, listen: false).toggleTheme();
+  },
+  child: Text('Dark Theme'),
+),
+
+
             Spacer(),
             ElevatedButton(
               style: ElevatedButton.styleFrom(primary: Colors.red),
