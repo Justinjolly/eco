@@ -27,49 +27,71 @@ class ExpenseEntryScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text('Expense Entry', style: TextStyle(color: Colors.white)),
       ),
-      body: Padding(
-        padding: EdgeInsets.only(left:150.0,bottom: 20.0,top: 20.0,right: 150.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            _buildAmountTextField(),
-            SizedBox(height: 17.0),
-            _buildNoteTextField(),
-          ],
+      body: Center(
+        child: Container(
+          height: 100,
+          margin: EdgeInsets.symmetric(horizontal: 20),
+          decoration: BoxDecoration(
+            color: Colors.grey[300], // Change the color as needed
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              SectionButton(
+                title: 'Section 1',
+                onPressed: () {
+                  // Handle navigation or action for section 1
+                },
+              ),
+              SectionButton(
+                title: 'Section 2',
+                onPressed: () {
+                  // Handle navigation or action for section 2
+                },
+              ),
+              SectionButton(
+                title: 'Section 3',
+                onPressed: () {
+                  // Handle navigation or action for section 3
+                },
+              ),
+              SectionButton(
+                title: 'Section 4',
+                onPressed: () {
+                  // Handle navigation or action for section 4
+                },
+              ),
+            ],
+          ),
         ),
       ),
-    );
-  }
-
-  Widget _buildAmountTextField() {
-    return TextField(
-      decoration: InputDecoration(
-        labelText: 'Amount',
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10.0), // Rounded corners
-          borderSide: BorderSide(color: Colors.black),
-        ),
-        filled: true,
-        fillColor: const Color.fromARGB(255, 52, 52, 52),
-        contentPadding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 10.0), // Adjust padding
-      ),
-      keyboardType: TextInputType.number,
-    );
-  }
-
-  Widget _buildNoteTextField() {
-    return TextField(
-      decoration: InputDecoration(
-        labelText: 'Note',
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10.0), // Rounded corners
-          borderSide: BorderSide(color: Colors.black),
-        ),
-        filled: true,
-        fillColor: Color.fromARGB(255, 212, 218, 240),
-        contentPadding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 10.0), // Adjust padding
-      ),
-      maxLines: 1,
     );
   }
 }
+
+class SectionButton extends StatelessWidget {
+  final String title;
+  final VoidCallback onPressed;
+
+  const SectionButton({
+    Key? key,
+    required this.title,
+    required this.onPressed,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onPressed,
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Text(
+          title,
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+        ),
+      ),
+    );
+  }
+}
+gu
