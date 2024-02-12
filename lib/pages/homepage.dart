@@ -14,7 +14,7 @@ class _SplitwiseScreenState extends State<HomePage> {
     GroupWidget(name: 'Group 1', totalDebt: 100),
     GroupWidget(name: 'Group 2', totalDebt: 50),
     GroupWidget(name: 'Group 3', totalDebt: 30),
-    GroupWidget(name: 'Group 4', totalDebt: -20), // Negative for groups that owe you
+    GroupWidget(name: 'Group 4', totalDebt: 20), // Negative for groups that owe you
   ];
 
   List<GroupWidget> displayedGroups = [];
@@ -25,7 +25,7 @@ class _SplitwiseScreenState extends State<HomePage> {
 
   List<GroupWidget> groupsOweMe = [
     GroupWidget(name: 'Group 3', totalDebt: 30),
-    GroupWidget(name: 'Group 4', totalDebt: -20),
+    GroupWidget(name: 'Group 4', totalDebt: 20),
   ];
 
   FilterType currentFilter = FilterType.All;
@@ -53,12 +53,14 @@ class _SplitwiseScreenState extends State<HomePage> {
       home: Scaffold(
         appBar: AppBar(
           automaticallyImplyLeading: false,
-          title: Text(
+          title: Center(
+          child: Text(
             'Groups',
             style: TextStyle(
               fontSize: 20.0,
               fontWeight: FontWeight.bold,
               color: Colors.white,
+            ),
             ),
           ),
           actions: [
@@ -149,30 +151,36 @@ class _SplitwiseScreenState extends State<HomePage> {
         return 'Groups That Owe Me';
     }
   }
-
-  Widget _buildGroupSection(String title, List<GroupWidget> groups) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
+Widget _buildGroupSection(String title, List<GroupWidget> groups) {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      if (title != 'Groups That Owe Me' &&
+          (currentFilter == FilterType.GroupsIOwe ||
+              currentFilter != FilterType.All)) ...{
         SizedBox(height: 8.0),
-        if (title != 'Groups That Owe Me' ||
-            currentFilter != FilterType.All) ...{
-          Text(
-            title,
-            style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold, color: Colors.white),
+        Text(
+          title,
+          style: TextStyle(
+            fontSize: 18.0,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
           ),
-        },
-        SizedBox(height: 8.0),
-        ListView.builder(
-          shrinkWrap: true,
-          itemCount: groups.length,
-          itemBuilder: (context, index) {
-            return groups[index];
-          },
         ),
-      ],
-    );
-  }
+      },
+      SizedBox(height: 8.0),
+      ListView.builder(
+        shrinkWrap: true,
+        itemCount: groups.length,
+        itemBuilder: (context, index) {
+          return groups[index];
+        },
+      ),
+    ],
+  );
+}
+
+
 
   void _applyFilter() {
     switch (currentFilter) {
@@ -206,14 +214,29 @@ class GroupWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Color textColor = totalDebt > 0 ? Colors.red : Colors.green;
+    Color amountColor = totalDebt > 0 ? Colors.red : Colors.green;
 
     return ListTile(
-      title: Text(name, style: TextStyle(color: textColor)),
-      subtitle: Text('Total Debt: \$${totalDebt.toString()}', style: TextStyle(color: textColor)),
+      title: Text(
+        name,
+        style: TextStyle(color: Colors.white),
+      ),
+      subtitle: Text(
+        'Total Debt: \$${totalDebt.toString()}',
+        style: TextStyle(
+          color: Colors.white,
+        ),
+      ),
+      trailing: Text(
+        totalDebt.toString(),
+        style: TextStyle(
+          color: amountColor,
+        ),
+      ),
     );
   }
 }
+
 
 class UserInfoSection extends StatelessWidget {
   final User currentUser; // Add this variable
