@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:project/balances.dart';
-import 'package:project/qr.dart';
-import 'package:project/settings.dart';
+import 'package:app/pages/balances.dart';
+import 'package:app/pages/qr.dart';
+import 'package:app/pages/settings.dart';
 
 void main() => runApp(MyApp());
 
