@@ -81,13 +81,14 @@ class _ExpenseEntryScreenState extends State<ExpenseEntryScreen> {
                     ),
                     Expanded(
                       child: SectionButton(
-                        title: 'Section 3',
+                        title: 'Percentage',
                         onPressed: () {
-                          // Handle navigation or action for section 3
+                          // Handle navigation or action for percentage calculation
                         },
+                        textColor: Colors.white, // Setting text color to white
                       ),
                     ),
-                  
+                 
                   ],
                 ),
                 Visibility(
@@ -140,7 +141,6 @@ class _ExpenseEntryScreenState extends State<ExpenseEntryScreen> {
     return TextField(
       decoration: InputDecoration(
         labelText: 'Amount',
-       
       ),
       keyboardType: TextInputType.number,
     );
@@ -163,23 +163,40 @@ class _ExpenseEntryScreenState extends State<ExpenseEntryScreen> {
   }
 
   Widget _buildGroupMembersList() {
-    // Replace this with your list of group members
+    List<String> groupMembers = ['Member 1', 'Member 2', 'Member 3']; // Replace with your list of group members
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Member 1',
-          style: TextStyle(color: Colors.white),
-        ),
-        Text(
-          'Member 2',
-          style: TextStyle(color: Colors.white),
-        ),
-        Text(
-          'Member 3',
-          style: TextStyle(color: Colors.white),
-        ),
-      ],
+      children: groupMembers.map((memberName) {
+        return Row(
+          children: [
+            Expanded(
+              child: Text(
+                memberName,
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+            SizedBox(width: 10),
+            Expanded(
+              flex: 2,
+              child: TextField(
+                decoration: InputDecoration(
+                  
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                    borderSide: BorderSide(color: Colors.black),
+                  ),
+                  filled: true,
+                  fillColor: const Color.fromARGB(255, 52, 52, 52),
+                  contentPadding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 10.0),
+                ),
+                keyboardType: TextInputType.number,
+                enabled: false,
+              ),
+            ),
+          ],
+        );
+      }).toList(),
     );
   }
 
@@ -209,7 +226,6 @@ class _ExpenseEntryScreenState extends State<ExpenseEntryScreen> {
           flex: 2,
           child: TextField(
             decoration: InputDecoration(
-              labelText: 'Amount',
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10.0),
                 borderSide: BorderSide(color: Colors.black),
