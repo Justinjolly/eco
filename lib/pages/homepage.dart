@@ -14,7 +14,7 @@ class _SplitwiseScreenState extends State<HomePage> {
     GroupWidget(name: 'Group 1', totalDebt: 100),
     GroupWidget(name: 'Group 2', totalDebt: 50),
     GroupWidget(name: 'Group 3', totalDebt: 30),
-    GroupWidget(name: 'Group 4', totalDebt: 20),
+    GroupWidget(name: 'Group 4', totalDebt: 20), // Negative for groups that owe you
   ];
 
   List<GroupWidget> displayedGroups = [];
@@ -25,17 +25,7 @@ class _SplitwiseScreenState extends State<HomePage> {
 
   List<GroupWidget> groupsOweMe = [
     GroupWidget(name: 'Group 3', totalDebt: 30),
-    GroupWidget(name: 'Group 4', totalDebt: 50),
-  ];
-
-  List<FriendWidget> friendsIOwe = [
-    FriendWidget(name: 'Friend 1', totalDebt: 50),
-    FriendWidget(name: 'Friend 2', totalDebt: 30),
-  ];
-
-  List<FriendOweMeWidget> friendsOweMe = [
-    FriendOweMeWidget(name: 'Friend 3', totalDebt: 40),
-    FriendOweMeWidget(name: 'Friend 4', totalDebt: 25),
+    GroupWidget(name: 'Group 4', totalDebt: 20),
   ];
 
   FilterType currentFilter = FilterType.All;
@@ -58,84 +48,65 @@ class _SplitwiseScreenState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        title: Row(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Image.asset(
-                'lib/assets/logo2.jpg',
-                width: 50.0,
-                height: 60.0,
-              ),
+    return MaterialApp(
+      theme: ThemeData.dark(),
+      home: Scaffold(
+        appBar: AppBar(
+          automaticallyImplyLeading: false,
+          title: Center(
+          child: Text(
+            'Groups',
+            style: TextStyle(
+              fontSize: 20.0,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
             ),
-            Text(
-              'EcoExpense',
-              style: TextStyle(
-                fontSize: 20.0,
-                fontWeight: FontWeight.bold,
-              ),
+            ),
+          ),
+          actions: [
+            PopupMenuButton<FilterType>(
+              icon: Icon(Icons.filter_list, color: Colors.white),
+              onSelected: (FilterType result) {
+                setState(() {
+                  currentFilter = result;
+                  _applyFilter();
+                });
+              },
+              itemBuilder: (BuildContext context) =>
+                  <PopupMenuEntry<FilterType>>[
+                PopupMenuItem<FilterType>(
+                  value: FilterType.All,
+                  child: Text('All Groups'),
+                ),
+                PopupMenuItem<FilterType>(
+                  value: FilterType.GroupsIOwe,
+                  child: Text('Groups I Owe'),
+                ),
+                PopupMenuItem<FilterType>(
+                  value: FilterType.GroupsOweMe,
+                  child: Text('Groups That Owe Me'),
+                ),
+              ],
             ),
           ],
         ),
-        actions: [
-          PopupMenuButton<FilterType>(
-            icon: Icon(Icons.filter_list),
-            onSelected: (FilterType result) {
-              setState(() {
-                currentFilter = result;
-                _applyFilter();
-              });
-            },
-            itemBuilder: (BuildContext context) => <PopupMenuEntry<FilterType>>[
-              PopupMenuItem<FilterType>(
-                value: FilterType.All,
-                child: Text('All Groups'),
-              ),
-              PopupMenuItem<FilterType>(
-                value: FilterType.GroupsIOwe,
-                child: Text('Groups I Owe'),
-              ),
-              PopupMenuItem<FilterType>(
-                value: FilterType.GroupsOweMe,
-                child: Text('Groups That Owe Me'),
-              ),
-              PopupMenuItem<FilterType>(
-                value: FilterType.FriendsIOwe,
-                child: Text('Friends I Owe'),
-              ),
-              PopupMenuItem<FilterType>(
-                value: FilterType.FriendsOweMe,
-                child: Text('Friends That Owe Me'),
-              ),
+        body: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              UserInfoSection(
+                  currentUser:
+                      _currentUser), // Pass currentUser to UserInfoSection
+              OptionsSection(),
+              if (currentFilter == FilterType.GroupsIOwe ||
+                  currentFilter == FilterType.GroupsOweMe) ...{
+                GroupsSection(),
+              } else ...{
+                // Display all groups by default
+                GroupsSection(),
+              }
             ],
           ),
-        ],
-      ),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            UserInfoSection(
-                currentUser:
-                    _currentUser), // Pass currentUser to UserInfoSection
-            OptionsSection(),
-            if (currentFilter == FilterType.GroupsIOwe ||
-                currentFilter == FilterType.GroupsOweMe) ...{
-              GroupsSection(),
-            } else if (currentFilter == FilterType.FriendsIOwe) ...{
-              FriendsIOweSection(),
-            } else if (currentFilter == FilterType.FriendsOweMe) ...{
-              FriendsOweMeSection(),
-            } else ...{
-              // Display all groups by default
-              GroupsSection(),
-              FriendsIOweSection(),
-              FriendsOweMeSection(),
-            }
-          ],
         ),
       ),
     );
@@ -149,7 +120,7 @@ class _SplitwiseScreenState extends State<HomePage> {
         children: [
           Text(
             _getHeading(),
-            style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
+            style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold, color: Colors.white),
           ),
           if (currentFilter == FilterType.All &&
               groupsIOwe.isNotEmpty &&
@@ -170,52 +141,6 @@ class _SplitwiseScreenState extends State<HomePage> {
     );
   }
 
-  Widget FriendsIOweSection() {
-    return Container(
-      padding: EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Friends I Owe',
-            style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
-          ),
-          SizedBox(height: 8.0),
-          ListView.builder(
-            shrinkWrap: true,
-            itemCount: friendsIOwe.length,
-            itemBuilder: (context, index) {
-              return friendsIOwe[index];
-            },
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget FriendsOweMeSection() {
-    return Container(
-      padding: EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Friends That Owe Me',
-            style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
-          ),
-          SizedBox(height: 8.0),
-          ListView.builder(
-            shrinkWrap: true,
-            itemCount: friendsOweMe.length,
-            itemBuilder: (context, index) {
-              return friendsOweMe[index];
-            },
-          ),
-        ],
-      ),
-    );
-  }
-
   String _getHeading() {
     switch (currentFilter) {
       case FilterType.All:
@@ -224,36 +149,38 @@ class _SplitwiseScreenState extends State<HomePage> {
         return 'Groups I Owe';
       case FilterType.GroupsOweMe:
         return 'Groups That Owe Me';
-      case FilterType.FriendsIOwe:
-        return 'Friends I Owe';
-      case FilterType.FriendsOweMe:
-        return 'Friends That Owe Me';
     }
   }
-
-  Widget _buildGroupSection(String title, List<GroupWidget> groups) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
+Widget _buildGroupSection(String title, List<GroupWidget> groups) {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      if (title != 'Groups That Owe Me' &&
+          (currentFilter == FilterType.GroupsIOwe ||
+              currentFilter != FilterType.All)) ...{
         SizedBox(height: 8.0),
-        if (title != 'Groups That Owe Me' ||
-            currentFilter != FilterType.All) ...{
-          Text(
-            title,
-            style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
+        Text(
+          title,
+          style: TextStyle(
+            fontSize: 18.0,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
           ),
-        },
-        SizedBox(height: 8.0),
-        ListView.builder(
-          shrinkWrap: true,
-          itemCount: groups.length,
-          itemBuilder: (context, index) {
-            return groups[index];
-          },
         ),
-      ],
-    );
-  }
+      },
+      SizedBox(height: 8.0),
+      ListView.builder(
+        shrinkWrap: true,
+        itemCount: groups.length,
+        itemBuilder: (context, index) {
+          return groups[index];
+        },
+      ),
+    ],
+  );
+}
+
+
 
   void _applyFilter() {
     switch (currentFilter) {
@@ -275,26 +202,6 @@ class _SplitwiseScreenState extends State<HomePage> {
           displayedGroups = List.from(groupsOweMe);
         });
         break;
-      case FilterType.FriendsIOwe:
-        // Add logic to populate friendsIOwe list
-        setState(() {
-          // Replace this with actual data
-          friendsIOwe = [
-            FriendWidget(name: 'Friend 1', totalDebt: 50),
-            FriendWidget(name: 'Friend 2', totalDebt: 30),
-          ];
-        });
-        break;
-      case FilterType.FriendsOweMe:
-        // Add logic to populate friendsOweMe list
-        setState(() {
-          // Replace this with actual data
-          friendsOweMe = [
-            FriendOweMeWidget(name: 'Friend 3', totalDebt: 40),
-            FriendOweMeWidget(name: 'Friend 4', totalDebt: 25),
-          ];
-        });
-        break;
     }
   }
 }
@@ -307,42 +214,29 @@ class GroupWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Color amountColor = totalDebt > 0 ? Colors.red : Colors.green;
+
     return ListTile(
-      title: Text(name),
-      subtitle: Text('Total Debt: \$${totalDebt.toString()}'),
+      title: Text(
+        name,
+        style: TextStyle(color: Colors.white),
+      ),
+      subtitle: Text(
+        'Total Debt: \$${totalDebt.toString()}',
+        style: TextStyle(
+          color: Colors.white,
+        ),
+      ),
+      trailing: Text(
+        totalDebt.toString(),
+        style: TextStyle(
+          color: amountColor,
+        ),
+      ),
     );
   }
 }
 
-class FriendWidget extends StatelessWidget {
-  final String name;
-  final double totalDebt;
-
-  const FriendWidget({required this.name, required this.totalDebt});
-
-  @override
-  Widget build(BuildContext context) {
-    return ListTile(
-      title: Text(name),
-      subtitle: Text('Total Debt: \$${totalDebt.toString()}'),
-    );
-  }
-}
-
-class FriendOweMeWidget extends StatelessWidget {
-  final String name;
-  final double totalDebt;
-
-  const FriendOweMeWidget({required this.name, required this.totalDebt});
-
-  @override
-  Widget build(BuildContext context) {
-    return ListTile(
-      title: Text(name),
-      subtitle: Text('Total Debt: \$${totalDebt.toString()}'),
-    );
-  }
-}
 
 class UserInfoSection extends StatelessWidget {
   final User currentUser; // Add this variable
@@ -355,12 +249,12 @@ class UserInfoSection extends StatelessWidget {
       padding: EdgeInsets.all(16.0),
       child: Column(
         children: [
-          
           SizedBox(height: 8.0),
-          Image.asset(
-            'lib/assets/g.png', // Replace 'assets/predefined_image.jpg' with the path to your predefined image
-            width: 80, // Adjust the width to your preference
-            height: 80, // Adjust the height to your preference
+          CircleAvatar(
+            radius: 40.0,
+            backgroundImage: AssetImage(
+              'lib/assets/g.png', // Replace 'assets/predefined_image.jpg' with the path to your predefined image
+            ),
           ),
           SizedBox(height: 8.0),
           FutureBuilder<DocumentSnapshot>(
@@ -373,7 +267,7 @@ class UserInfoSection extends StatelessWidget {
                 return CircularProgressIndicator();
               }
               if (snapshot.hasError) {
-                return Text('Error: ${snapshot.error}');
+                return Text('Error: ${snapshot.error}', style: TextStyle(color: Colors.white));
               }
               if (snapshot.hasData && snapshot.data != null) {
                 final userData = snapshot.data!;
@@ -383,10 +277,11 @@ class UserInfoSection extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 18.0,
                     fontWeight: FontWeight.bold,
+                    color: Colors.white,
                   ),
                 );
               }
-              return Text('Your Full Name');
+              return Text('Your Full Name', style: TextStyle(color: Colors.white));
             },
           ),
         ],
@@ -430,6 +325,7 @@ class OptionsSection extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 16.0,
                   fontWeight: FontWeight.bold,
+                  color: Colors.white,
                 ),
               ),
               Text(
@@ -452,6 +348,4 @@ enum FilterType {
   All,
   GroupsIOwe,
   GroupsOweMe,
-  FriendsIOwe,
-  FriendsOweMe,
 }
