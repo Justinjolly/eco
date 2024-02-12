@@ -25,7 +25,7 @@ class AccountPage extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: Image.asset(
-                'assets/logo2.jpg',
+                'lib/assets/logo2.jpg',
                 width: 50.0,
                 height: 60.0,
               ),
