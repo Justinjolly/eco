@@ -15,7 +15,6 @@ class MyApp extends StatelessWidget {
 }
 
 class AccountPage extends StatelessWidget {
-  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -107,9 +106,9 @@ class AccountPage extends StatelessWidget {
             onTap: () {
               // Navigate to balances page
               Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => QRScanPage()),
-    );
+                context,
+                MaterialPageRoute(builder: (context) => QRScanPage()),
+              );
             },
           ),
           ListTile(
@@ -140,9 +139,9 @@ class AccountPage extends StatelessWidget {
             onTap: () {
               // Navigate to settings page
               Navigator.push(
-               context,
-               MaterialPageRoute(builder: (context) => SettingsPage()),
-             );
+                context,
+                MaterialPageRoute(builder: (context) => SettingsPage()),
+              );
             },
           ),
           ListTile(
