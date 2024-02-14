@@ -1,21 +1,9 @@
 import 'package:flutter/material.dart';
-import 'navbar.dart';
-
-void main() {
-  runApp(MyApp());
-}
 
 
 
-class MyApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      theme: ThemeData.dark(), // Set the theme to dark
-      home: FriendsPage(),
-    );
-  }
-}
+
+
 
 enum FriendFilter { All, IOwe, OweMe }
 
@@ -125,6 +113,7 @@ class _FriendsPageState extends State<FriendsPage> {
       ),
       body: Column(
         children: [
+       
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Container(

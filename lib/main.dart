@@ -1,3 +1,4 @@
+import 'package:app/pages/navbar.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:app/pages/loginpage.dart'; // Import the LoginPage
@@ -23,7 +24,8 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: MyHomePage(),
+      theme: ThemeData.dark(),
+      home: SignUpPage(),
     );
   }
 }
