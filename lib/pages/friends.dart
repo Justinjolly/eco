@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'navbar.dart';
 
 void main() {
   runApp(MyApp());
 }
+
+
 
 class MyApp extends StatelessWidget {
   @override
@@ -200,6 +203,8 @@ class _FriendsPageState extends State<FriendsPage> {
     );
   }
 }
+
+
 
 class Friend {
   final String name;
