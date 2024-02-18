@@ -1,3 +1,4 @@
+import 'package:app/pages/homepage.dart';
 import 'package:app/pages/navbar.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';

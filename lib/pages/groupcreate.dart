@@ -1,26 +1,6 @@
 import 'package:flutter/material.dart';
 
-void main() {
-  runApp(MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Expense Splitter',
-      theme: ThemeData.dark(), // Set the theme to dark
-      home: SplitForm(),
-    );
-  }
-}
-
-class SplitForm extends StatefulWidget {
-  @override
-  _SplitFormState createState() => _SplitFormState();
-}
-
-class _SplitFormState extends State<SplitForm> {
+class GroupCreate extends StatelessWidget {
   final TextEditingController groupNameController = TextEditingController();
   final TextEditingController groupTypeController = TextEditingController();
 
@@ -30,12 +10,7 @@ class _SplitFormState extends State<SplitForm> {
       appBar: AppBar(
         title: Text('Create Group'),
         centerTitle: true,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
+        automaticallyImplyLeading: false,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -70,7 +45,8 @@ class _SplitFormState extends State<SplitForm> {
                   print('Please fill in all required fields');
                 }
               },
-              child: Text('Create Group', style: TextStyle(color: Colors.white)),
+              child:
+                  Text('Create Group', style: TextStyle(color: Colors.white)),
             ),
           ],
         ),

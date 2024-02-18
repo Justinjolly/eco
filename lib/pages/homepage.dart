@@ -1,3 +1,4 @@
+import 'package:app/pages/groupcreate.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -15,7 +16,8 @@ class _SplitwiseScreenState extends State<HomePage> {
     GroupWidget(name: 'Group 1', totalDebt: 100),
     GroupWidget(name: 'Group 2', totalDebt: 50),
     GroupWidget(name: 'Group 3', totalDebt: 30),
-    GroupWidget(name: 'Group 4', totalDebt: 20), // Negative for groups that owe you
+    GroupWidget(
+        name: 'Group 4', totalDebt: 20), // Negative for groups that owe you
   ];
 
   List<GroupWidget> displayedGroups = [];
@@ -55,13 +57,13 @@ class _SplitwiseScreenState extends State<HomePage> {
         appBar: AppBar(
           automaticallyImplyLeading: false,
           title: Center(
-          child: Text(
-            'Groups',
-            style: TextStyle(
-              fontSize: 20.0,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-            ),
+            child: Text(
+              'Groups',
+              style: TextStyle(
+                fontSize: 20.0,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
             ),
           ),
           actions: [
@@ -121,7 +123,10 @@ class _SplitwiseScreenState extends State<HomePage> {
         children: [
           Text(
             _getHeading(),
-            style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold, color: Colors.white),
+            style: TextStyle(
+                fontSize: 20.0,
+                fontWeight: FontWeight.bold,
+                color: Colors.white),
           ),
           if (currentFilter == FilterType.All &&
               groupsIOwe.isNotEmpty &&
@@ -152,36 +157,35 @@ class _SplitwiseScreenState extends State<HomePage> {
         return 'Groups That Owe Me';
     }
   }
-Widget _buildGroupSection(String title, List<GroupWidget> groups) {
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      if (title != 'Groups That Owe Me' &&
-          (currentFilter == FilterType.GroupsIOwe ||
-              currentFilter != FilterType.All)) ...{
-        SizedBox(height: 8.0),
-        Text(
-          title,
-          style: TextStyle(
-            fontSize: 18.0,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
+
+  Widget _buildGroupSection(String title, List<GroupWidget> groups) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (title != 'Groups That Owe Me' &&
+            (currentFilter == FilterType.GroupsIOwe ||
+                currentFilter != FilterType.All)) ...{
+          SizedBox(height: 8.0),
+          Text(
+            title,
+            style: TextStyle(
+              fontSize: 18.0,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
           ),
-        ),
-      },
-      SizedBox(height: 8.0),
-      ListView.builder(
-        shrinkWrap: true,
-        itemCount: groups.length,
-        itemBuilder: (context, index) {
-          return groups[index];
         },
-      ),
-    ],
-  );
-}
-
-
+        SizedBox(height: 8.0),
+        ListView.builder(
+          shrinkWrap: true,
+          itemCount: groups.length,
+          itemBuilder: (context, index) {
+            return groups[index];
+          },
+        ),
+      ],
+    );
+  }
 
   void _applyFilter() {
     switch (currentFilter) {
@@ -238,7 +242,6 @@ class GroupWidget extends StatelessWidget {
   }
 }
 
-
 class UserInfoSection extends StatelessWidget {
   final User currentUser; // Add this variable
 
@@ -268,7 +271,8 @@ class UserInfoSection extends StatelessWidget {
                 return CircularProgressIndicator();
               }
               if (snapshot.hasError) {
-                return Text('Error: ${snapshot.error}', style: TextStyle(color: Colors.white));
+                return Text('Error: ${snapshot.error}',
+                    style: TextStyle(color: Colors.white));
               }
               if (snapshot.hasData && snapshot.data != null) {
                 final userData = snapshot.data!;
@@ -282,7 +286,8 @@ class UserInfoSection extends StatelessWidget {
                   ),
                 );
               }
-              return Text('Your Full Name', style: TextStyle(color: Colors.white));
+              return Text('Your Full Name',
+                  style: TextStyle(color: Colors.white));
             },
           ),
         ],
@@ -305,6 +310,12 @@ class OptionsSection extends StatelessWidget {
             children: [
               ElevatedButton(
                 onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => GroupCreate(),
+                    ),
+                  );
                   // Handle Split option
                 },
                 child: Text('Split'),
