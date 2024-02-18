@@ -13,7 +13,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         scaffoldBackgroundColor: Color.fromARGB(255, 36, 34, 34),
         appBarTheme: AppBarTheme(
-          backgroundColor: Colors.black,
+          backgroundColor: Color.fromARGB(255, 36, 34, 34),
         ),
       ),
       home: ExpenseEntryScreen(),
@@ -29,10 +29,8 @@ class ExpenseEntryScreen extends StatefulWidget {
 class _ExpenseEntryScreenState extends State<ExpenseEntryScreen> {
   bool _showGroupMembers = false;
   bool _showUnequallyMembers = false;
-  bool _showPercentageMembers =
-      false; // New variable to control visibility of percentage members
+  bool _showPercentageMembers = false;
 
-  // Controller for the amount field
   final TextEditingController _amountController = TextEditingController();
 
   @override
@@ -70,8 +68,7 @@ class _ExpenseEntryScreenState extends State<ExpenseEntryScreen> {
                           setState(() {
                             _showGroupMembers = !_showGroupMembers;
                             _showUnequallyMembers = false;
-                            _showPercentageMembers =
-                                false; // Reset visibility for other sections
+                            _showPercentageMembers = false;
                           });
                         },
                         textColor: Colors.white,
@@ -84,8 +81,7 @@ class _ExpenseEntryScreenState extends State<ExpenseEntryScreen> {
                           setState(() {
                             _showUnequallyMembers = !_showUnequallyMembers;
                             _showGroupMembers = false;
-                            _showPercentageMembers =
-                                false; // Reset visibility for other sections
+                            _showPercentageMembers = false;
                           });
                         },
                         textColor: Colors.white,
@@ -101,7 +97,7 @@ class _ExpenseEntryScreenState extends State<ExpenseEntryScreen> {
                             _showUnequallyMembers = false;
                           });
                         },
-                        textColor: Colors.white, // Setting text color to white
+                        textColor: Colors.white,
                       ),
                     ),
                   ],
@@ -111,7 +107,7 @@ class _ExpenseEntryScreenState extends State<ExpenseEntryScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Divider(), // Divider above the section heading
+                      Divider(),
                       SizedBox(height: 10),
                       Text(
                         'Equally Distributed:',
@@ -131,7 +127,7 @@ class _ExpenseEntryScreenState extends State<ExpenseEntryScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Divider(), // Divider above the section heading
+                      Divider(),
                       SizedBox(height: 10),
                       Text(
                         'Unequally Distributed:',
@@ -147,12 +143,11 @@ class _ExpenseEntryScreenState extends State<ExpenseEntryScreen> {
                   ),
                 ),
                 Visibility(
-                  visible:
-                      _showPercentageMembers, // Display if _showPercentageMembers is true
+                  visible: _showPercentageMembers,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Divider(), // Divider above the section heading
+                      Divider(),
                       SizedBox(height: 10),
                       Text(
                         'Group Members:',
@@ -163,7 +158,7 @@ class _ExpenseEntryScreenState extends State<ExpenseEntryScreen> {
                         ),
                       ),
                       SizedBox(height: 5),
-                      _buildPercentageMembersList(), // Display the list of group members with percentage inputs
+                      _buildPercentageMembersList(),
                     ],
                   ),
                 ),
@@ -171,21 +166,19 @@ class _ExpenseEntryScreenState extends State<ExpenseEntryScreen> {
             ),
           ),
           Expanded(
-            // Added Expanded widget to take remaining space
             child: Align(
               alignment: Alignment.bottomCenter,
               child: Padding(
                 padding: const EdgeInsets.only(bottom: 20.0),
                 child: ElevatedButton(
                   onPressed: () {
-                    // Implement the logic for the "Pay" action here
                     print('Pay button clicked');
                   },
                   child: Text(
                     'Split',
                     style: TextStyle(
-                        color: const Color.fromARGB(
-                            255, 0, 0, 0)), // Set text color to white
+                      color: const Color.fromARGB(255, 0, 0, 0),
+                    ),
                   ),
                 ),
               ),
@@ -198,16 +191,15 @@ class _ExpenseEntryScreenState extends State<ExpenseEntryScreen> {
 
   Widget _buildAmountTextField() {
     return TextField(
-      controller: _amountController, // Assign controller to the amount field
-      style: TextStyle(color: Colors.white), // Set text color to white
+      controller: _amountController,
+      style: TextStyle(color: Colors.white),
       inputFormatters: [
         FilteringTextInputFormatter.digitsOnly
-      ], // Allow only digits
+      ],
       decoration: InputDecoration(
         labelText: 'Amount',
         labelStyle: TextStyle(color: Colors.white),
       ),
-
       keyboardType: TextInputType.number,
     );
   }
@@ -228,95 +220,130 @@ class _ExpenseEntryScreenState extends State<ExpenseEntryScreen> {
     );
   }
 
-  Widget _buildPercentageMembersList() {
-    List<String> groupMembers = [
-      'Member 1',
-      'Member 2',
-      'Member 3'
-    ]; // Replace with your list of group members
-    List<TextEditingController> controllers =
-        List.generate(groupMembers.length, (index) => TextEditingController());
+ Widget _buildPercentageMembersList() {
+  List<String> groupMembers = ['Member 1', 'Member 2', 'Member 3'];
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: groupMembers.asMap().entries.map((entry) {
-        final int index = entry.key;
-        final String memberName = entry.value;
-
-        return Row(
-          children: [
-            Expanded(
-              child: Text(
-                memberName,
-                style: TextStyle(color: Colors.white),
-              ),
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: groupMembers.map((memberName) {
+      return Row(
+        children: [
+          Expanded(
+            child: Text(
+              memberName,
+              style: TextStyle(color: Colors.white),
             ),
-            SizedBox(width: 10),
-            Expanded(
-              flex: 2,
-              child: TextField(
-                controller: controllers[index],
-                style: TextStyle(color: Colors.white),
-                inputFormatters: [
-                  FilteringTextInputFormatter.digitsOnly
-                ], // Allow only digits
-                onChanged: (value) {
-                  // Calculate the sum of percentages
-                  int sum = 0;
-                  controllers.forEach((controller) {
-                    if (controller.text.isNotEmpty) {
-                      sum += int.parse(controller.text);
-                    }
-                  });
-
-                  // Check if sum exceeds 100, if so, adjust the last edited field
-                  if (sum > 100) {
-                    int excess = sum - 100;
-                    int newValue = int.parse(value) - excess;
-                    controllers[index].text = newValue.toString();
-                  }
-                },
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                    borderSide: BorderSide(color: Colors.black),
-                  ),
-                  filled: true,
-                  fillColor: const Color.fromARGB(255, 52, 52, 52),
-                  contentPadding:
-                      EdgeInsets.symmetric(vertical: 15.0, horizontal: 10.0),
-                  suffixIcon: Padding(
-                    padding: EdgeInsets.all(12.0),
-                    child: Text(
-                      '%',
-                      style: TextStyle(color: Colors.white),
-                    ),
+          ),
+          SizedBox(width: 10),
+          Expanded(
+            flex: 2,
+            child: TextField(
+              controller: TextEditingController(),
+              style: TextStyle(color: Colors.white),
+              inputFormatters: [
+                FilteringTextInputFormatter.digitsOnly
+              ],
+              decoration: InputDecoration(
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                  borderSide: BorderSide(color: Colors.black),
+                ),
+                filled: true,
+                fillColor: const Color.fromARGB(255, 52, 52, 52),
+                contentPadding:
+                    EdgeInsets.symmetric(vertical: 15.0, horizontal: 10.0),
+                suffixIcon: Padding(
+                  padding: EdgeInsets.all(12.0),
+                  child: Text(
+                    '%',
+                    style: TextStyle(color: Colors.white),
                   ),
                 ),
-                keyboardType: TextInputType.number,
               ),
+              keyboardType: TextInputType.number,
             ),
-          ],
-        );
-      }).toList(),
-    );
+          ),
+        ],
+      );
+    }).toList(),
+  );
+}
+
+
+Widget _buildUnequallyMembersList() {
+  // Set the initial value of the unequally distributed fields based on the amount entered
+  final amount = _amountController.text.isNotEmpty
+      ? int.parse(_amountController.text)
+      : 0;
+  final controllers = <TextEditingController>[
+    TextEditingController(text: (amount ~/ 3).toString()),
+    TextEditingController(text: (amount ~/ 3).toString()),
+    TextEditingController(text: (amount ~/ 3).toString()),
+  ];
+
+  // Function to calculate the sum of all inputs
+  int calculateSum() {
+    return controllers.fold<int>(
+        0, (previousValue, controller) => previousValue + int.parse(controller.text.isEmpty ? '0' : controller.text));
   }
 
-  Widget _buildUnequallyMembersList() {
-    // Set the initial value of the unequally distributed fields based on the amount entered
-    final amount = _amountController.text.isNotEmpty
-        ? int.parse(_amountController.text)
-        : 0;
+  // Adjusts the last member's input field to ensure the sum equals the amount
+  void adjustLastField() {
+    final sum = calculateSum();
+    final lastController = controllers.last;
+    final lastValue = int.parse(lastController.text.isEmpty ? '0' : lastController.text);
+    final excess = sum - amount;
+    final newValue = lastValue - excess;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildMemberWithAmount('Member 1', amount),
-        _buildMemberWithAmount('Member 2', amount),
-        _buildMemberWithAmount('Member 3', amount),
-      ],
-    );
+    lastController.text = newValue.toString();
   }
+
+  // Update other fields when a field is edited
+  void onChangedCallback(int index) {
+    adjustLastField();
+    // You can add any additional handling here if needed
+  }
+
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: List.generate(3, (index) {
+      final memberName = 'Member ${index + 1}';
+      final controller = controllers[index];
+
+      return Row(
+        children: [
+          Expanded(
+            child: Text(
+              memberName,
+              style: TextStyle(color: Colors.white),
+            ),
+          ),
+          SizedBox(width: 10),
+          Expanded(
+            flex: 2,
+            child: TextField(
+              controller: controller,
+              style: TextStyle(color: Colors.white),
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+              onChanged: (_) => onChangedCallback(index),
+              decoration: InputDecoration(
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                  borderSide: BorderSide(color: Colors.black),
+                ),
+                filled: true,
+                fillColor: const Color.fromARGB(255, 52, 52, 52),
+                contentPadding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 10.0),
+              ),
+              keyboardType: TextInputType.number,
+            ),
+          ),
+        ],
+      );
+    }),
+  );
+}
+
 
   Widget _buildMemberWithAmount(String memberName, int initialValue) {
     return Row(
@@ -332,33 +359,13 @@ class _ExpenseEntryScreenState extends State<ExpenseEntryScreen> {
           flex: 2,
           child: TextField(
             controller: TextEditingController(
-                text: (initialValue ~/ 3).toString()), // Set initial value
-            style: TextStyle(color: Colors.white), // Set text color to white
+                text: (initialValue ~/ 3).toString()),
+            style: TextStyle(color: Colors.white),
             inputFormatters: [
               FilteringTextInputFormatter.digitsOnly
-            ], // Allow only digits
+            ],
             onChanged: (value) {
-              // Calculate the sum of all inputs in the unequally distributed fields
-              int sum = 0;
-              sum += int.parse(value.isEmpty
-                  ? '0'
-                  : value); // Add the value of the changed field
-              sum += int.parse(((3 * initialValue -
-                      int.parse(value.isEmpty ? '0' : value)) ~/
-                  2) as String); // Add the sum of other fields
-
-              // Check if sum exceeds the amount, if so, adjust the last edited field
-              if (sum > initialValue) {
-                int excess = sum - initialValue;
-                int newValue = int.parse(value) - excess;
-                setState(() {
-                  // Set the new value for the edited field
-                  _amountController.text =
-                      (int.parse(_amountController.text) - excess).toString();
-                });
-                // Set the value of the edited field
-                value = newValue.toString();
-              }
+              // Calculation logic for each member input field
             },
             decoration: InputDecoration(
               border: OutlineInputBorder(
@@ -377,63 +384,115 @@ class _ExpenseEntryScreenState extends State<ExpenseEntryScreen> {
     );
   }
 
-  Widget _buildGroupMembersList() {
-    List<String> groupMembers = [
-      'Member 1',
-      'Member 2',
-      'Member 3'
-    ]; // Replace with your list of group members
-    final amount = _amountController.text.isNotEmpty
-        ? int.parse(_amountController.text)
-        : 0;
-    final equallyDistributedAmount =
-        amount ~/ groupMembers.length; // Calculate equally distributed amount
+  Widget _buildLastMemberWithAmount(String memberName, int initialValue) {
+    TextEditingController lastMemberController = TextEditingController(
+      text: (initialValue ~/ 3).toString(),
+    );
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: groupMembers.map((memberName) {
-        return Row(
-          children: [
-            Expanded(
-              child: Text(
-                memberName,
-                style: TextStyle(color: Colors.white),
+    lastMemberController.addListener(() {
+      int sum = 0;
+      sum += int.parse(lastMemberController.text.isEmpty ? '0' : lastMemberController.text);
+      sum += int.parse(_amountController.text) -
+          int.parse(lastMemberController.text.isEmpty ? '0' : lastMemberController.text) -
+          int.parse((_amountController.text.isEmpty ? '0' : _amountController.text) +
+              ((2 * initialValue -
+                      int.parse(lastMemberController.text.isEmpty ? '0' : lastMemberController.text)) ~/
+                  2).toString());
+
+      if (sum != initialValue) {
+        int excess = sum - initialValue;
+        int newValue = int.parse(lastMemberController.text) - excess;
+        lastMemberController.text = newValue.toString();
+      }
+    });
+
+    return Row(
+      children: [
+        Expanded(
+          child: Text(
+            memberName,
+            style: TextStyle(color: Colors.white),
+          ),
+        ),
+        SizedBox(width: 10),
+        Expanded(
+          flex: 2,
+          child: TextField(
+            controller: lastMemberController,
+            style: TextStyle(color: Colors.white),
+            inputFormatters: [
+              FilteringTextInputFormatter.digitsOnly
+            ],
+            decoration: InputDecoration(
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10.0),
+                borderSide: BorderSide(color: Colors.black),
               ),
+              filled: true,
+              fillColor: const Color.fromARGB(255, 52, 52, 52),
+              contentPadding:
+                  EdgeInsets.symmetric(vertical: 15.0, horizontal: 10.0),
             ),
-            SizedBox(width: 10),
-            Expanded(
-              flex: 2,
-              child: TextField(
-                controller: TextEditingController(
-                    text: equallyDistributedAmount
-                        .toString()), // Set initial value
-                style:
-                    TextStyle(color: Colors.white), // Set text color to white
-                inputFormatters: [
-                  FilteringTextInputFormatter.digitsOnly
-                ], // Allow only digits
-                onChanged: (value) {
-                  // You can add any additional handling here if needed
-                },
-                enabled: false, // Make the text field not editable
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                    borderSide: BorderSide(color: Colors.black),
-                  ),
-                  filled: true,
-                  fillColor: const Color.fromARGB(255, 52, 52, 52),
-                  contentPadding:
-                      EdgeInsets.symmetric(vertical: 15.0, horizontal: 10.0),
-                ),
-                keyboardType: TextInputType.number,
-              ),
-            ),
-          ],
-        );
-      }).toList(),
+            keyboardType: TextInputType.number,
+          ),
+        ),
+      ],
     );
   }
+
+Widget _buildGroupMembersList() {
+  List<String> groupMembers = ['Member 1', 'Member 2', 'Member 3'];
+
+  final amount = _amountController.text.isNotEmpty
+      ? int.parse(_amountController.text)
+      : 0;
+  final equallyDistributedAmount =
+      amount ~/ groupMembers.length; // Calculate equally distributed amount
+
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: groupMembers.map((memberName) {
+      return Row(
+        children: [
+          Expanded(
+            child: Text(
+              memberName,
+              style: TextStyle(color: Colors.white),
+            ),
+          ),
+          SizedBox(width: 10),
+          Expanded(
+            flex: 2,
+            child: TextField(
+              controller: TextEditingController(
+                  text: equallyDistributedAmount.toString()),
+              style: TextStyle(color: Colors.white),
+              inputFormatters: [
+                FilteringTextInputFormatter.digitsOnly
+              ],
+              onChanged: (value) {
+                // You can add any additional handling here if needed
+              },
+              enabled: false, // Make the text field not editable
+              decoration: InputDecoration(
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                  borderSide: BorderSide(color: Colors.black),
+                ),
+                filled: true,
+                fillColor: const Color.fromARGB(255, 52, 52, 52),
+                contentPadding:
+                    EdgeInsets.symmetric(vertical: 15.0, horizontal: 10.0),
+              ),
+              keyboardType: TextInputType.number,
+            ),
+          ),
+        ],
+      );
+    }).toList(),
+  );
+}
+
 }
 
 class SectionButton extends StatelessWidget {
