@@ -41,7 +41,7 @@ class _EmailSettingsPageState extends State<EmailSettingsPage> {
                 setState(() => isAddedAsFriend = value!);
               },
             ),
-            sectionTitle('EXPENSES'),
+            sectionTitle('Expenses'),
             checkboxListTile(
               'When an expense is added',
               whenExpenseAdded,
@@ -85,7 +85,7 @@ class _EmailSettingsPageState extends State<EmailSettingsPage> {
 
   Widget sectionTitle(String title) => Text(
         title,
-        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black.withOpacity(0.5)),
+        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
       );
 
   Widget checkboxListTile(String title, bool value, void Function(bool?) onChanged) => ListTile(
