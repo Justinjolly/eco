@@ -1,4 +1,6 @@
+import 'package:app/pages/split.dart';
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class GroupCreate extends StatelessWidget {
   final TextEditingController groupNameController = TextEditingController();
@@ -39,8 +41,22 @@ class GroupCreate extends StatelessWidget {
                 String groupType = groupTypeController.text;
 
                 if (groupName.isNotEmpty && groupType.isNotEmpty) {
-                  print('Group Name: $groupName');
-                  print('Group Type: $groupType');
+                  // Create a new document in the "groups" collection with the provided data
+                  FirebaseFirestore.instance.collection('groups').add({
+                    'groupName': groupName,
+                    'groupType': groupType,
+                  }).then((_) {
+                    print('Group created successfully!');
+                    // Optionally, navigate to a different page after creating the group
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ExpenseEntryScreen(),
+                      ),
+                    );
+                  }).catchError((error) {
+                    print('Error creating group: $error');
+                  });
                 } else {
                   _showAlertDialog(
                       context); // Show alert dialog if fields are empty

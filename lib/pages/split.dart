@@ -40,6 +40,7 @@ class _ExpenseEntryScreenState extends State<ExpenseEntryScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Expense Entry', style: TextStyle(color: Colors.white)),
+        automaticallyImplyLeading: false,
       ),
       body: Column(
         children: [
