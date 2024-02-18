@@ -220,54 +220,7 @@ class _ExpenseEntryScreenState extends State<ExpenseEntryScreen> {
     );
   }
 
- Widget _buildPercentageMembersList() {
-  List<String> groupMembers = ['Member 1', 'Member 2', 'Member 3'];
-
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: groupMembers.map((memberName) {
-      return Row(
-        children: [
-          Expanded(
-            child: Text(
-              memberName,
-              style: TextStyle(color: Colors.white),
-            ),
-          ),
-          SizedBox(width: 10),
-          Expanded(
-            flex: 2,
-            child: TextField(
-              controller: TextEditingController(),
-              style: TextStyle(color: Colors.white),
-              inputFormatters: [
-                FilteringTextInputFormatter.digitsOnly
-              ],
-              decoration: InputDecoration(
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10.0),
-                  borderSide: BorderSide(color: Colors.black),
-                ),
-                filled: true,
-                fillColor: const Color.fromARGB(255, 52, 52, 52),
-                contentPadding:
-                    EdgeInsets.symmetric(vertical: 15.0, horizontal: 10.0),
-                suffixIcon: Padding(
-                  padding: EdgeInsets.all(12.0),
-                  child: Text(
-                    '%',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                ),
-              ),
-              keyboardType: TextInputType.number,
-            ),
-          ),
-        ],
-      );
-    }).toList(),
-  );
-}
+ 
 
 
 Widget _buildUnequallyMembersList() {
@@ -439,6 +392,73 @@ Widget _buildUnequallyMembersList() {
       ],
     );
   }
+Widget _buildPercentageMembersList() {
+  List<String> groupMembers = ['Member 1', 'Member 2', 'Member 3'];
+
+  final controllers = List<TextEditingController>.generate(
+      groupMembers.length, (index) => TextEditingController());
+
+  void onChangedCallback() {
+    int totalPercentage = controllers.fold<int>(
+        0,
+        (previousValue, controller) =>
+            previousValue + int.parse(controller.text.isEmpty ? '0' : controller.text));
+    int excess = totalPercentage - 100;
+    if (excess != 0) {
+      int lastValue = int.parse(
+          controllers.last.text.isEmpty ? '0' : controllers.last.text);
+      lastValue -= excess;
+      controllers.last.text = lastValue.toString();
+    }
+  }
+
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: List.generate(groupMembers.length, (index) {
+      final memberName = groupMembers[index];
+      final controller = controllers[index];
+
+      return Row(
+        children: [
+          Expanded(
+            child: Text(
+              memberName,
+              style: TextStyle(color: Colors.white),
+            ),
+          ),
+          SizedBox(width: 10),
+          Expanded(
+            flex: 2,
+            child: TextField(
+              controller: controller,
+              style: TextStyle(color: Colors.white),
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+              onChanged: (_) => onChangedCallback(),
+              decoration: InputDecoration(
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                  borderSide: BorderSide(color: Colors.black),
+                ),
+                filled: true,
+                fillColor: const Color.fromARGB(255, 52, 52, 52),
+                contentPadding: EdgeInsets.symmetric(
+                    vertical: 15.0, horizontal: 10.0),
+                suffixIcon: Padding(
+                  padding: EdgeInsets.all(12.0),
+                  child: Text(
+                    '%',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+              ),
+              keyboardType: TextInputType.number,
+            ),
+          ),
+        ],
+      );
+    }),
+  );
+}
 
 Widget _buildGroupMembersList() {
   List<String> groupMembers = ['Member 1', 'Member 2', 'Member 3'];
