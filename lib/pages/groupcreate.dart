@@ -1,26 +1,8 @@
+import 'package:app/pages/split.dart';
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
-void main() {
-  runApp(MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Expense Splitter',
-      theme: ThemeData.dark(), // Set the theme to dark
-      home: SplitForm(),
-    );
-  }
-}
-
-class SplitForm extends StatefulWidget {
-  @override
-  _SplitFormState createState() => _SplitFormState();
-}
-
-class _SplitFormState extends State<SplitForm> {
+class GroupCreate extends StatelessWidget {
   final TextEditingController groupNameController = TextEditingController();
   final TextEditingController groupTypeController = TextEditingController();
 
@@ -30,12 +12,7 @@ class _SplitFormState extends State<SplitForm> {
       appBar: AppBar(
         title: Text('Create Group'),
         centerTitle: true,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
+        automaticallyImplyLeading: false, // Disable the back button
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -64,17 +41,53 @@ class _SplitFormState extends State<SplitForm> {
                 String groupType = groupTypeController.text;
 
                 if (groupName.isNotEmpty && groupType.isNotEmpty) {
-                  print('Group Name: $groupName');
-                  print('Group Type: $groupType');
+                  // Create a new document in the "groups" collection with the provided data
+                  FirebaseFirestore.instance.collection('groups').add({
+                    'groupName': groupName,
+                    'groupType': groupType,
+                  }).then((_) {
+                    print('Group created successfully!');
+                    // Optionally, navigate to a different page after creating the group
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ExpenseEntryScreen(),
+                      ),
+                    );
+                  }).catchError((error) {
+                    print('Error creating group: $error');
+                  });
                 } else {
-                  print('Please fill in all required fields');
+                  _showAlertDialog(
+                      context); // Show alert dialog if fields are empty
                 }
               },
-              child: Text('Create Group', style: TextStyle(color: Colors.white)),
+              child:
+                  Text('Create Group', style: TextStyle(color: Colors.white)),
             ),
           ],
         ),
       ),
+    );
+  }
+
+  void _showAlertDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Error'),
+          content: Text('Please fill in all required fields.'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: Text('OK'),
+            ),
+          ],
+        );
+      },
     );
   }
 }

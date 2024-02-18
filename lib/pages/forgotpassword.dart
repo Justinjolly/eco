@@ -56,13 +56,15 @@ class ForgotPasswordPage extends StatelessWidget {
             Container(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: Colors.black),
+                border:
+                    Border.all(color: const Color.fromARGB(255, 251, 249, 249)),
               ),
               child: TextField(
                 controller: _emailController,
                 decoration: InputDecoration(
                   labelText: 'Email',
-                  labelStyle: TextStyle(color: Colors.black),
+                  labelStyle: TextStyle(
+                      color: const Color.fromARGB(255, 238, 237, 237)),
                   border: InputBorder.none,
                   contentPadding: EdgeInsets.all(12),
                 ),
