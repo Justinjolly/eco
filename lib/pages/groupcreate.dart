@@ -10,7 +10,7 @@ class GroupCreate extends StatelessWidget {
       appBar: AppBar(
         title: Text('Create Group'),
         centerTitle: true,
-        automaticallyImplyLeading: false,
+        automaticallyImplyLeading: false, // Disable the back button
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -42,7 +42,8 @@ class GroupCreate extends StatelessWidget {
                   print('Group Name: $groupName');
                   print('Group Type: $groupType');
                 } else {
-                  print('Please fill in all required fields');
+                  _showAlertDialog(
+                      context); // Show alert dialog if fields are empty
                 }
               },
               child:
@@ -51,6 +52,26 @@ class GroupCreate extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+
+  void _showAlertDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Error'),
+          content: Text('Please fill in all required fields.'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: Text('OK'),
+            ),
+          ],
+        );
+      },
     );
   }
 }
