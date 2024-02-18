@@ -50,7 +50,7 @@ class _LoginPageState extends State<LoginPage> {
             end: Alignment.center,
             colors: [
               Color.fromARGB(255, 136, 183, 209),
-              Color.fromARGB(255, 255, 255, 255),
+              Color(0xFFFFFFFF),
             ],
           ),
         ),
@@ -75,6 +75,7 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   child: TextField(
                     controller: _emailController,
+                    style: TextStyle(color: Colors.black),
                     decoration: InputDecoration(
                       labelText: 'Email',
                       labelStyle: TextStyle(color: Colors.black),
@@ -92,9 +93,11 @@ class _LoginPageState extends State<LoginPage> {
                   child: TextField(
                     controller: _passwordController,
                     obscureText: true,
+                    style: TextStyle(color: Colors.black),
                     decoration: InputDecoration(
                       labelText: 'Password',
-                      labelStyle: TextStyle(color: Colors.black),
+                      labelStyle:
+                          TextStyle(color: const Color.fromRGBO(0, 0, 0, 1)),
                       border: InputBorder.none,
                       contentPadding: EdgeInsets.all(12),
                     ),
