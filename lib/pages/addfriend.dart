@@ -1,4 +1,6 @@
+import 'package:app/pages/groupsettings.dart';
 import 'package:flutter/material.dart';
+import 'package:app/pages/split.dart';
 
 void main() {
   runApp(MyApp());
@@ -125,10 +127,23 @@ class _AddFriendPageState extends State<AddFriendPage> {
                       ),
                     ],
                   ),
-                  // You can add a button to send friend request or perform other actions
-                  // Here, we're just displaying the user's name and an "Add Friend" icon
                 );
               },
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) =>ExpenseEntryScreen()
+                  ),
+                );
+                // Add logic to create a group
+                print('Creating group...');
+              },
+              child: Text('Create Group'),
             ),
           ),
         ],

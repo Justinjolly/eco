@@ -1,6 +1,6 @@
-import 'package:app/pages/split.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:app/pages/addfriend.dart';
 
 class GroupCreate extends StatelessWidget {
   final TextEditingController groupNameController = TextEditingController();
@@ -10,7 +10,7 @@ class GroupCreate extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Create Group'),
+        title: Text('Add Members'),
         centerTitle: true,
         automaticallyImplyLeading: false, // Disable the back button
       ),
@@ -51,7 +51,7 @@ class GroupCreate extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => ExpenseEntryScreen(),
+                        builder: (context) => AddFriendPage(),
                       ),
                     );
                   }).catchError((error) {

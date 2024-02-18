@@ -1,3 +1,4 @@
+import 'package:app/pages/groupsettings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart'; // Import for TextInputFormatter
 
@@ -172,7 +173,11 @@ class _ExpenseEntryScreenState extends State<ExpenseEntryScreen> {
                 padding: const EdgeInsets.only(bottom: 20.0),
                 child: ElevatedButton(
                   onPressed: () {
-                    print('Pay button clicked');
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder:(context)=>GroupSettingsPage()
+                      ),
+                      );
                   },
                   child: Text(
                     'Split',
