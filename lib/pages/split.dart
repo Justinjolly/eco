@@ -11,7 +11,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Expense Tracker',
       theme: ThemeData(
-        scaffoldBackgroundColor: Colors.black,
+        scaffoldBackgroundColor: Color.fromARGB(255, 36, 34, 34),
         appBarTheme: AppBarTheme(
           backgroundColor: Colors.black,
         ),
@@ -29,7 +29,8 @@ class ExpenseEntryScreen extends StatefulWidget {
 class _ExpenseEntryScreenState extends State<ExpenseEntryScreen> {
   bool _showGroupMembers = false;
   bool _showUnequallyMembers = false;
-  bool _showPercentageMembers = false; // New variable to control visibility of percentage members
+  bool _showPercentageMembers =
+      false; // New variable to control visibility of percentage members
 
   // Controller for the amount field
   final TextEditingController _amountController = TextEditingController();
@@ -43,7 +44,8 @@ class _ExpenseEntryScreenState extends State<ExpenseEntryScreen> {
       body: Column(
         children: [
           Padding(
-            padding: EdgeInsets.only(left: 150.0, bottom: 20.0, top: 20.0, right: 150.0),
+            padding: EdgeInsets.only(
+                left: 150.0, bottom: 20.0, top: 20.0, right: 150.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
@@ -67,7 +69,8 @@ class _ExpenseEntryScreenState extends State<ExpenseEntryScreen> {
                           setState(() {
                             _showGroupMembers = !_showGroupMembers;
                             _showUnequallyMembers = false;
-                            _showPercentageMembers = false; // Reset visibility for other sections
+                            _showPercentageMembers =
+                                false; // Reset visibility for other sections
                           });
                         },
                         textColor: Colors.white,
@@ -80,7 +83,8 @@ class _ExpenseEntryScreenState extends State<ExpenseEntryScreen> {
                           setState(() {
                             _showUnequallyMembers = !_showUnequallyMembers;
                             _showGroupMembers = false;
-                            _showPercentageMembers = false; // Reset visibility for other sections
+                            _showPercentageMembers =
+                                false; // Reset visibility for other sections
                           });
                         },
                         textColor: Colors.white,
@@ -99,7 +103,6 @@ class _ExpenseEntryScreenState extends State<ExpenseEntryScreen> {
                         textColor: Colors.white, // Setting text color to white
                       ),
                     ),
-                 
                   ],
                 ),
                 Visibility(
@@ -143,7 +146,8 @@ class _ExpenseEntryScreenState extends State<ExpenseEntryScreen> {
                   ),
                 ),
                 Visibility(
-                  visible: _showPercentageMembers, // Display if _showPercentageMembers is true
+                  visible:
+                      _showPercentageMembers, // Display if _showPercentageMembers is true
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -165,7 +169,8 @@ class _ExpenseEntryScreenState extends State<ExpenseEntryScreen> {
               ],
             ),
           ),
-          Expanded( // Added Expanded widget to take remaining space
+          Expanded(
+            // Added Expanded widget to take remaining space
             child: Align(
               alignment: Alignment.bottomCenter,
               child: Padding(
@@ -177,7 +182,9 @@ class _ExpenseEntryScreenState extends State<ExpenseEntryScreen> {
                   },
                   child: Text(
                     'Split',
-                    style: TextStyle(color: const Color.fromARGB(255, 0, 0, 0)), // Set text color to white
+                    style: TextStyle(
+                        color: const Color.fromARGB(
+                            255, 0, 0, 0)), // Set text color to white
                   ),
                 ),
               ),
@@ -192,10 +199,14 @@ class _ExpenseEntryScreenState extends State<ExpenseEntryScreen> {
     return TextField(
       controller: _amountController, // Assign controller to the amount field
       style: TextStyle(color: Colors.white), // Set text color to white
-      inputFormatters: [FilteringTextInputFormatter.digitsOnly], // Allow only digits
+      inputFormatters: [
+        FilteringTextInputFormatter.digitsOnly
+      ], // Allow only digits
       decoration: InputDecoration(
         labelText: 'Amount',
+        labelStyle: TextStyle(color: Colors.white),
       ),
+
       keyboardType: TextInputType.number,
     );
   }
@@ -217,8 +228,13 @@ class _ExpenseEntryScreenState extends State<ExpenseEntryScreen> {
   }
 
   Widget _buildPercentageMembersList() {
-    List<String> groupMembers = ['Member 1', 'Member 2', 'Member 3']; // Replace with your list of group members
-    List<TextEditingController> controllers = List.generate(groupMembers.length, (index) => TextEditingController());
+    List<String> groupMembers = [
+      'Member 1',
+      'Member 2',
+      'Member 3'
+    ]; // Replace with your list of group members
+    List<TextEditingController> controllers =
+        List.generate(groupMembers.length, (index) => TextEditingController());
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -240,7 +256,9 @@ class _ExpenseEntryScreenState extends State<ExpenseEntryScreen> {
               child: TextField(
                 controller: controllers[index],
                 style: TextStyle(color: Colors.white),
-                inputFormatters: [FilteringTextInputFormatter.digitsOnly], // Allow only digits
+                inputFormatters: [
+                  FilteringTextInputFormatter.digitsOnly
+                ], // Allow only digits
                 onChanged: (value) {
                   // Calculate the sum of percentages
                   int sum = 0;
@@ -264,7 +282,8 @@ class _ExpenseEntryScreenState extends State<ExpenseEntryScreen> {
                   ),
                   filled: true,
                   fillColor: const Color.fromARGB(255, 52, 52, 52),
-                  contentPadding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 10.0),
+                  contentPadding:
+                      EdgeInsets.symmetric(vertical: 15.0, horizontal: 10.0),
                   suffixIcon: Padding(
                     padding: EdgeInsets.all(12.0),
                     child: Text(
@@ -284,7 +303,9 @@ class _ExpenseEntryScreenState extends State<ExpenseEntryScreen> {
 
   Widget _buildUnequallyMembersList() {
     // Set the initial value of the unequally distributed fields based on the amount entered
-    final amount = _amountController.text.isNotEmpty ? int.parse(_amountController.text) : 0;
+    final amount = _amountController.text.isNotEmpty
+        ? int.parse(_amountController.text)
+        : 0;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -309,14 +330,21 @@ class _ExpenseEntryScreenState extends State<ExpenseEntryScreen> {
         Expanded(
           flex: 2,
           child: TextField(
-            controller: TextEditingController(text: (initialValue ~/ 3).toString()), // Set initial value
+            controller: TextEditingController(
+                text: (initialValue ~/ 3).toString()), // Set initial value
             style: TextStyle(color: Colors.white), // Set text color to white
-            inputFormatters: [FilteringTextInputFormatter.digitsOnly], // Allow only digits
+            inputFormatters: [
+              FilteringTextInputFormatter.digitsOnly
+            ], // Allow only digits
             onChanged: (value) {
               // Calculate the sum of all inputs in the unequally distributed fields
               int sum = 0;
-              sum += int.parse(value.isEmpty ? '0' : value); // Add the value of the changed field
-              sum += int.parse(((3 * initialValue - int.parse(value.isEmpty ? '0' : value)) ~/ 2) as String); // Add the sum of other fields
+              sum += int.parse(value.isEmpty
+                  ? '0'
+                  : value); // Add the value of the changed field
+              sum += int.parse(((3 * initialValue -
+                      int.parse(value.isEmpty ? '0' : value)) ~/
+                  2) as String); // Add the sum of other fields
 
               // Check if sum exceeds the amount, if so, adjust the last edited field
               if (sum > initialValue) {
@@ -324,7 +352,8 @@ class _ExpenseEntryScreenState extends State<ExpenseEntryScreen> {
                 int newValue = int.parse(value) - excess;
                 setState(() {
                   // Set the new value for the edited field
-                  _amountController.text = (int.parse(_amountController.text) - excess).toString();
+                  _amountController.text =
+                      (int.parse(_amountController.text) - excess).toString();
                 });
                 // Set the value of the edited field
                 value = newValue.toString();
@@ -337,7 +366,8 @@ class _ExpenseEntryScreenState extends State<ExpenseEntryScreen> {
               ),
               filled: true,
               fillColor: const Color.fromARGB(255, 52, 52, 52),
-              contentPadding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 10.0),
+              contentPadding:
+                  EdgeInsets.symmetric(vertical: 15.0, horizontal: 10.0),
             ),
             keyboardType: TextInputType.number,
           ),
@@ -347,9 +377,16 @@ class _ExpenseEntryScreenState extends State<ExpenseEntryScreen> {
   }
 
   Widget _buildGroupMembersList() {
-    List<String> groupMembers = ['Member 1', 'Member 2', 'Member 3']; // Replace with your list of group members
-    final amount = _amountController.text.isNotEmpty ? int.parse(_amountController.text) : 0;
-    final equallyDistributedAmount = amount ~/ groupMembers.length; // Calculate equally distributed amount
+    List<String> groupMembers = [
+      'Member 1',
+      'Member 2',
+      'Member 3'
+    ]; // Replace with your list of group members
+    final amount = _amountController.text.isNotEmpty
+        ? int.parse(_amountController.text)
+        : 0;
+    final equallyDistributedAmount =
+        amount ~/ groupMembers.length; // Calculate equally distributed amount
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -366,9 +403,14 @@ class _ExpenseEntryScreenState extends State<ExpenseEntryScreen> {
             Expanded(
               flex: 2,
               child: TextField(
-                controller: TextEditingController(text: equallyDistributedAmount.toString()), // Set initial value
-                style: TextStyle(color: Colors.white), // Set text color to white
-                inputFormatters: [FilteringTextInputFormatter.digitsOnly], // Allow only digits
+                controller: TextEditingController(
+                    text: equallyDistributedAmount
+                        .toString()), // Set initial value
+                style:
+                    TextStyle(color: Colors.white), // Set text color to white
+                inputFormatters: [
+                  FilteringTextInputFormatter.digitsOnly
+                ], // Allow only digits
                 onChanged: (value) {
                   // You can add any additional handling here if needed
                 },
@@ -380,7 +422,8 @@ class _ExpenseEntryScreenState extends State<ExpenseEntryScreen> {
                   ),
                   filled: true,
                   fillColor: const Color.fromARGB(255, 52, 52, 52),
-                  contentPadding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 10.0),
+                  contentPadding:
+                      EdgeInsets.symmetric(vertical: 15.0, horizontal: 10.0),
                 ),
                 keyboardType: TextInputType.number,
               ),
@@ -412,7 +455,8 @@ class SectionButton extends StatelessWidget {
         padding: const EdgeInsets.all(8.0),
         child: Text(
           title,
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: textColor),
+          style: TextStyle(
+              fontSize: 16, fontWeight: FontWeight.bold, color: textColor),
         ),
       ),
     );
