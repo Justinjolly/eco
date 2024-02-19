@@ -1,6 +1,6 @@
-import 'package:app/pages/groupsettings.dart';
+import 'package:app/pages/group.dart';
 import 'package:flutter/material.dart';
-import 'package:app/pages/split.dart';
+
 
 void main() {
   runApp(MyApp());
@@ -137,7 +137,7 @@ class _AddFriendPageState extends State<AddFriendPage> {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) =>ExpenseEntryScreen()
+                  MaterialPageRoute(builder: (context) =>ChatScreen()
                   ),
                 );
                 // Add logic to create a group
