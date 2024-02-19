@@ -1,6 +1,7 @@
 import 'package:app/pages/groupsettings.dart';
 import 'package:flutter/material.dart';
 import 'package:app/pages/split.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 void main() {
   runApp(MyApp());
@@ -11,7 +12,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       theme: ThemeData.dark(), // Set the theme to dark
-      home: AddFriendPage(),
+      home: AddFriendPage(groupId: '',),
     );
   }
 }
