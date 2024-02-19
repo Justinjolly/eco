@@ -1,4 +1,4 @@
-import 'package:app/pages/groupsettings.dart';
+import 'package:app/pages/group.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart'; // Import for TextInputFormatter
 
@@ -175,7 +175,7 @@ class _ExpenseEntryScreenState extends State<ExpenseEntryScreen> {
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder:(context)=>GroupSettingsPage()
+                      MaterialPageRoute(builder:(context)=>ChatScreen()
                       ),
                       );
                   },
