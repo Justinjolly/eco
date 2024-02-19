@@ -1,8 +1,11 @@
-import 'package:app/pages/groupsettings.dart';
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:app/pages/split.dart';
+import 'package:firebase_core/firebase_core.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(); // Initialize Firebase
   runApp(MyApp());
 }
 
@@ -10,7 +13,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      theme: ThemeData.dark(), // Set the theme to dark
+      theme: ThemeData.dark(),
       home: AddFriendPage(),
     );
   }
@@ -22,24 +25,27 @@ class AddFriendPage extends StatefulWidget {
 }
 
 class _AddFriendPageState extends State<AddFriendPage> {
-  List<String> allUsers = []; // You can fetch users from an API or other sources
-
+  List<String> allUsers = [];
   List<String> displayedUsers = [];
 
   @override
   void initState() {
     super.initState();
-    // For demonstration purposes, adding some example users
-    allUsers = [
-      "John Doe",
-      "Jane Smith",
-      "Alice Johnson",
-      "Bob Brown",
-      "Charlie Davis",
-      "David Wilson",
-      // Add more users as needed
-    ];
-    displayedUsers = List.from(allUsers);
+    _fetchUserData();
+  }
+
+  void _fetchUserData() {
+    FirebaseFirestore.instance.collection('users').get().then((querySnapshot) {
+      setState(() {
+        allUsers = querySnapshot.docs.map((doc) {
+          Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+          return data['fullName'] as String; // Cast to String
+        }).toList();
+        displayedUsers = List.from(allUsers);
+      });
+    }).catchError((error) {
+      print('Failed to fetch user data from Firestore: $error');
+    });
   }
 
   void filterUsers(String query) {
@@ -51,8 +57,6 @@ class _AddFriendPageState extends State<AddFriendPage> {
   }
 
   void addToFriends(String user) {
-    // Implement the logic to add the user to friends
-    // For demonstration purposes, you can print a message
     print('Added $user to friends');
   }
 
@@ -63,10 +67,10 @@ class _AddFriendPageState extends State<AddFriendPage> {
         title: Text(
           'Add Friend',
           style: TextStyle(
-            fontWeight: FontWeight.bold, // Make the title bold
+            fontWeight: FontWeight.bold,
           ),
         ),
-        centerTitle: true, // Center the title
+        centerTitle: true,
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
           onPressed: () {
@@ -80,7 +84,7 @@ class _AddFriendPageState extends State<AddFriendPage> {
             padding: const EdgeInsets.all(8.0),
             child: Container(
               decoration: BoxDecoration(
-                color: Color.fromARGB(255, 66, 66, 66), // Dark background color
+                color: Color.fromARGB(255, 66, 66, 66),
                 borderRadius: BorderRadius.circular(20.0),
                 border: Border.all(
                   color: Color.fromARGB(255, 86, 86, 86),
@@ -91,11 +95,11 @@ class _AddFriendPageState extends State<AddFriendPage> {
                 padding: const EdgeInsets.symmetric(horizontal: 8.0),
                 child: TextField(
                   onChanged: filterUsers,
-                  style: TextStyle(color: Colors.white), // Text color white
+                  style: TextStyle(color: Colors.white),
                   decoration: InputDecoration(
                     labelText: 'Find Friends',
-                    labelStyle: TextStyle(color: Colors.white), // Label color white
-                    prefixIcon: Icon(Icons.search, color: Colors.white), // Icon color white
+                    labelStyle: TextStyle(color: Colors.white),
+                    prefixIcon: Icon(Icons.search, color: Colors.white),
                     border: InputBorder.none,
                   ),
                 ),
@@ -115,7 +119,7 @@ class _AddFriendPageState extends State<AddFriendPage> {
                           user,
                           style: TextStyle(
                             color: Colors.white,
-                            fontSize: 18.0, // Adjust the font size as needed
+                            fontSize: 18.0,
                           ),
                         ),
                       ),
@@ -137,10 +141,8 @@ class _AddFriendPageState extends State<AddFriendPage> {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) =>ExpenseEntryScreen()
-                  ),
+                  MaterialPageRoute(builder: (context) => ExpenseEntryScreen()),
                 );
-                // Add logic to create a group
                 print('Creating group...');
               },
               child: Text('Create Group'),
