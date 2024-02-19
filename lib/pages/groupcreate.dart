@@ -1,85 +1,12 @@
-import 'package:app/pages/friends.dart';
-import 'package:app/pages/homepage.dart';
+import 'package:app/pages/addfriend.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:app/pages/addfriend.dart';
 
 class GroupCreate extends StatelessWidget {
   final TextEditingController groupNameController = TextEditingController();
   final TextEditingController groupTypeController = TextEditingController();
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Add Members'),
-        centerTitle: true,
-        automaticallyImplyLeading: false, // Disable the back button
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            TextField(
-              controller: groupNameController,
-              decoration: InputDecoration(
-                labelText: 'Group Name',
-                labelStyle: TextStyle(color: Colors.white),
-              ),
-            ),
-            SizedBox(height: 8),
-            TextField(
-              controller: groupTypeController,
-              decoration: InputDecoration(
-                labelText: 'Group Type',
-                labelStyle: TextStyle(color: Colors.white),
-              ),
-            ),
-            SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () async {
-                String groupName = groupNameController.text;
-                String groupType = groupTypeController.text;
-
-                if (groupName.isNotEmpty && groupType.isNotEmpty) {
-                  // Check if the group name already exists
-                  bool groupExists = await _checkGroupExists(groupName);
-                  if (groupExists) {
-                    _showRenameDialog(context, groupName);
-                  } else {
-                    // Create a new document in the "groups" collection with the provided data
-                    FirebaseFirestore.instance.collection('groups').add({
-                      'groupName': groupName,
-                      'groupType': groupType,
-                    }).then((_) {
-                      print('Group created successfully!');
-                      // Optionally, navigate to a different page after creating the group
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => AddFriendPage(),
-                        ),
-                      );
-                    }).catchError((error) {
-                      print('Error creating group: $error');
-                    });
-                  }
-                } else {
-                  _showAlertDialog(
-                      context); // Show alert dialog if fields are empty
-                }
-              },
-              child:
-                  Text('Create Group', style: TextStyle(color: Colors.white)),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Future<bool> _checkGroupExists(String groupName) async {
+  Future<bool> _checkGroupExists(String groupName, BuildContext context) async {
     QuerySnapshot querySnapshot = await FirebaseFirestore.instance
         .collection('groups')
         .where('groupName', isEqualTo: groupName)
@@ -125,6 +52,81 @@ class GroupCreate extends StatelessWidget {
           ],
         );
       },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Add Members'),
+        centerTitle: true,
+        automaticallyImplyLeading: false, // Disable the back button
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            TextField(
+              controller: groupNameController,
+              decoration: InputDecoration(
+                labelText: 'Group Name',
+                labelStyle: TextStyle(color: Colors.white),
+              ),
+            ),
+            SizedBox(height: 8),
+            TextField(
+              controller: groupTypeController,
+              decoration: InputDecoration(
+                labelText: 'Group Type',
+                labelStyle: TextStyle(color: Colors.white),
+              ),
+            ),
+            SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () async {
+                String groupName = groupNameController.text;
+                String groupType = groupTypeController.text;
+
+                if (groupName.isNotEmpty && groupType.isNotEmpty) {
+                  // Check if the group name already exists
+                  bool groupExists =
+                      await _checkGroupExists(groupName, context);
+                  if (groupExists) {
+                    _showRenameDialog(context, groupName);
+                  } else {
+                    // Create a new document in the "groups" collection with the provided data
+                    DocumentReference groupRef = await FirebaseFirestore
+                        .instance
+                        .collection('groups')
+                        .add({
+                      'groupName': groupName,
+                      'groupType': groupType,
+                    });
+                    String groupId =
+                        groupRef.id; // Get the ID of the newly created group
+                    print('Group created successfully! Group ID: $groupId');
+
+                    // Navigate to AddFriendPage and pass the group ID
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => AddFriendPage(groupId: groupId),
+                      ),
+                    );
+                  }
+                } else {
+                  _showAlertDialog(
+                      context); // Show alert dialog if fields are empty
+                }
+              },
+              child:
+                  Text('Create Group', style: TextStyle(color: Colors.white)),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

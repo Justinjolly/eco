@@ -1,25 +1,12 @@
+import 'package:app/pages/homepage.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:app/pages/split.dart';
-import 'package:firebase_core/firebase_core.dart';
-
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(); // Initialize Firebase
-  runApp(MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      theme: ThemeData.dark(),
-      home: AddFriendPage(),
-    );
-  }
-}
 
 class AddFriendPage extends StatefulWidget {
+  final String groupId; // Group ID parameter
+
+  AddFriendPage({required this.groupId}); // Constructor to receive group ID
+
   @override
   _AddFriendPageState createState() => _AddFriendPageState();
 }
@@ -56,8 +43,15 @@ class _AddFriendPageState extends State<AddFriendPage> {
     });
   }
 
-  void addToFriends(String user) {
+  void addToFriends(String user, String groupId) {
     print('Added $user to friends');
+    FirebaseFirestore.instance.collection('groups').doc(groupId).update({
+      'members': FieldValue.arrayUnion([user])
+    }).then((_) {
+      print('User added to the group successfully');
+    }).catchError((error) {
+      print('Error adding user to the group: $error');
+    });
   }
 
   @override
@@ -126,7 +120,7 @@ class _AddFriendPageState extends State<AddFriendPage> {
                       IconButton(
                         icon: Icon(Icons.person_add, color: Colors.white),
                         onPressed: () {
-                          addToFriends(user);
+                          addToFriends(user, widget.groupId); // Pass group ID
                         },
                       ),
                     ],
@@ -141,11 +135,11 @@ class _AddFriendPageState extends State<AddFriendPage> {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => ExpenseEntryScreen()),
+                  MaterialPageRoute(builder: (context) => HomePage()),
                 );
                 print('Creating group...');
               },
-              child: Text('Create Group'),
+              child: Text('Add Members'),
             ),
           ),
         ],
