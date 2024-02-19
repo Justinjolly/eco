@@ -8,12 +8,15 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
-  TextEditingController nameController = TextEditingController(text: 'John Doe');
-  TextEditingController emailController = TextEditingController(text: 'john.doe@example.com');
-  TextEditingController phoneController = TextEditingController(text: '1234567891');
-  TextEditingController passwordController = TextEditingController(text: 'password123');
-  
-  
+  TextEditingController nameController =
+      TextEditingController(text: 'John Doe');
+  TextEditingController emailController =
+      TextEditingController(text: 'john.doe@example.com');
+  TextEditingController phoneController =
+      TextEditingController(text: '1234567891');
+  TextEditingController passwordController =
+      TextEditingController(text: 'password123');
+
   // get phoneController => null;
 
   @override
@@ -42,7 +45,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 suffixIcon: Icon(Icons.edit),
               ),
             ),
-          TextField(
+            TextField(
               controller: phoneController,
               decoration: InputDecoration(
                 labelText: 'Phone Number',
@@ -65,16 +68,13 @@ class _SettingsPageState extends State<SettingsPage> {
               },
               child: Text('Save Changes'),
             ),
-
             ElevatedButton(
-  onPressed: () {
-    // Toggle theme
-    Provider.of<ThemeManager>(context, listen: false).toggleTheme();
-  },
-  child: Text('Dark Theme'),
-),
-
-
+              onPressed: () {
+                // Toggle theme
+                Provider.of<ThemeManager>(context, listen: false).toggleTheme();
+              },
+              child: Text('Dark Theme'),
+            ),
             Spacer(),
             ElevatedButton(
               style: ElevatedButton.styleFrom(primary: Colors.red),
