@@ -1,45 +1,26 @@
-import 'package:app/pages/groupcreate.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'navbar.dart';
+import 'groupcreate.dart';
 
 class HomePage extends StatefulWidget {
   @override
-  _SplitwiseScreenState createState() => _SplitwiseScreenState();
+  _HomePageState createState() => _HomePageState();
 }
 
-class _SplitwiseScreenState extends State<HomePage> {
-  late User _currentUser; // Add this variable to store the current user
-  double totalAmountOwed = 0.0;
-  final List<GroupWidget> allGroups = [
-    GroupWidget(name: 'Group 1', totalDebt: 100),
-    GroupWidget(name: 'Group 2', totalDebt: 50),
-    GroupWidget(name: 'Group 3', totalDebt: 30),
-    GroupWidget(
-        name: 'Group 4', totalDebt: 20), // Negative for groups that owe you
-  ];
-
+class _HomePageState extends State<HomePage> {
+  late User _currentUser;
   List<GroupWidget> displayedGroups = [];
-  List<GroupWidget> groupsIOwe = [
-    GroupWidget(name: 'Group 1', totalDebt: 100),
-    GroupWidget(name: 'Group 2', totalDebt: 50),
-  ];
-
-  List<GroupWidget> groupsOweMe = [
-    GroupWidget(name: 'Group 3', totalDebt: 30),
-    GroupWidget(name: 'Group 4', totalDebt: 20),
-  ];
-
   FilterType currentFilter = FilterType.All;
 
   @override
   void initState() {
     super.initState();
-    _getCurrentUser(); // Call the method to fetch the current user on initialization
+    _getCurrentUser();
+    _fetchGroupsData();
   }
 
-  // Method to fetch the current user
   void _getCurrentUser() {
     User? user = FirebaseAuth.instance.currentUser;
     if (user != null) {
@@ -47,6 +28,43 @@ class _SplitwiseScreenState extends State<HomePage> {
         _currentUser = user;
       });
     }
+  }
+
+  void _fetchGroupsData() {
+    _fetchGroupsFromFirestore().then((groupsFromFirestore) {
+      setState(() {
+        displayedGroups = groupsFromFirestore;
+
+        // Fetch groups created from the create group page and merge them with existing groups
+        ;
+      });
+    }).catchError((error) {
+      print("Failed to fetch groups: $error");
+    });
+  }
+
+  Future<List<GroupWidget>> _fetchGroupsFromFirestore() async {
+    List<GroupWidget> groupsFromFirestore = [];
+
+    try {
+      QuerySnapshot querySnapshot =
+          await FirebaseFirestore.instance.collection('groups').get();
+      if (querySnapshot.docs.isNotEmpty) {
+        for (QueryDocumentSnapshot doc in querySnapshot.docs) {
+          Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+          // Convert 'groupType' to double
+          double groupType = double.tryParse(data['groupType'].toString()) ?? 0;
+          groupsFromFirestore.add(GroupWidget(
+            name: data['groupName'] ?? '',
+            totalDebt: groupType,
+          ));
+        }
+      }
+    } catch (error) {
+      print("Failed to fetch groups from Firestore: $error");
+    }
+
+    return groupsFromFirestore;
   }
 
   @override
@@ -81,14 +99,6 @@ class _SplitwiseScreenState extends State<HomePage> {
                   value: FilterType.All,
                   child: Text('All Groups'),
                 ),
-                PopupMenuItem<FilterType>(
-                  value: FilterType.GroupsIOwe,
-                  child: Text('Groups I Owe'),
-                ),
-                PopupMenuItem<FilterType>(
-                  value: FilterType.GroupsOweMe,
-                  child: Text('Groups That Owe Me'),
-                ),
               ],
             ),
           ],
@@ -97,15 +107,9 @@ class _SplitwiseScreenState extends State<HomePage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              UserInfoSection(
-                  currentUser:
-                      _currentUser), // Pass currentUser to UserInfoSection
-              OptionsSection(),
-              if (currentFilter == FilterType.GroupsIOwe ||
-                  currentFilter == FilterType.GroupsOweMe) ...{
-                GroupsSection(),
-              } else ...{
-                // Display all groups by default
+              UserInfoSection(currentUser: _currentUser),
+              OptionsSection(onGroupCreated: _fetchGroupsData),
+              if (currentFilter == FilterType.All) ...{
                 GroupsSection(),
               }
             ],
@@ -122,92 +126,28 @@ class _SplitwiseScreenState extends State<HomePage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            _getHeading(),
+            'All Groups',
             style: TextStyle(
-                fontSize: 20.0,
-                fontWeight: FontWeight.bold,
-                color: Colors.white),
-          ),
-          if (currentFilter == FilterType.All &&
-              groupsIOwe.isNotEmpty &&
-              groupsOweMe.isNotEmpty) ...{
-            _buildGroupSection('Groups I Owe', groupsIOwe),
-            _buildGroupSection('Groups That Owe Me', groupsOweMe),
-          } else ...{
-            ListView.builder(
-              shrinkWrap: true,
-              itemCount: displayedGroups.length,
-              itemBuilder: (context, index) {
-                return displayedGroups[index];
-              },
+              fontSize: 20.0,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
             ),
-          },
+          ),
+          SizedBox(height: 8.0),
+          ListView.builder(
+            shrinkWrap: true,
+            itemCount: displayedGroups.length,
+            itemBuilder: (context, index) {
+              return displayedGroups[index];
+            },
+          ),
         ],
       ),
     );
   }
 
-  String _getHeading() {
-    switch (currentFilter) {
-      case FilterType.All:
-        return 'All Groups';
-      case FilterType.GroupsIOwe:
-        return 'Groups I Owe';
-      case FilterType.GroupsOweMe:
-        return 'Groups That Owe Me';
-    }
-  }
-
-  Widget _buildGroupSection(String title, List<GroupWidget> groups) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        if (title != 'Groups That Owe Me' &&
-            (currentFilter == FilterType.GroupsIOwe ||
-                currentFilter != FilterType.All)) ...{
-          SizedBox(height: 8.0),
-          Text(
-            title,
-            style: TextStyle(
-              fontSize: 18.0,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-            ),
-          ),
-        },
-        SizedBox(height: 8.0),
-        ListView.builder(
-          shrinkWrap: true,
-          itemCount: groups.length,
-          itemBuilder: (context, index) {
-            return groups[index];
-          },
-        ),
-      ],
-    );
-  }
-
   void _applyFilter() {
-    switch (currentFilter) {
-      case FilterType.All:
-        setState(() {
-          groupsIOwe = allGroups.where((group) => group.totalDebt > 0).toList();
-          groupsOweMe =
-              allGroups.where((group) => group.totalDebt < 0).toList();
-          displayedGroups = List.from(allGroups);
-        });
-        break;
-      case FilterType.GroupsIOwe:
-        setState(() {
-          displayedGroups = List.from(groupsIOwe);
-        });
-        break;
-      case FilterType.GroupsOweMe:
-        setState(() {
-          displayedGroups = List.from(groupsOweMe);
-        });
-        break;
-    }
+    // Implement filtering logic if necessary
   }
 }
 
@@ -243,9 +183,9 @@ class GroupWidget extends StatelessWidget {
 }
 
 class UserInfoSection extends StatelessWidget {
-  final User currentUser; // Add this variable
+  final User currentUser;
 
-  const UserInfoSection({required this.currentUser}); // Update the constructor
+  const UserInfoSection({required this.currentUser});
 
   @override
   Widget build(BuildContext context) {
@@ -297,7 +237,9 @@ class UserInfoSection extends StatelessWidget {
 }
 
 class OptionsSection extends StatelessWidget {
-  final double totalAmountOwed = 150.0;
+  final Function() onGroupCreated;
+
+  const OptionsSection({required this.onGroupCreated});
 
   @override
   Widget build(BuildContext context) {
@@ -315,38 +257,17 @@ class OptionsSection extends StatelessWidget {
                     MaterialPageRoute(
                       builder: (context) => GroupCreate(),
                     ),
-                  );
-                  // Handle Split option
+                  ).then((_) {
+                    onGroupCreated();
+                  });
                 },
-                child: Text('Split'),
+                child: Text('Create Group'),
               ),
               ElevatedButton(
                 onPressed: () {
-                  // Handle Request option
+                  // Handle Split option
                 },
-                child: Text('Request'),
-              ),
-            ],
-          ),
-          SizedBox(height: 8.0),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                'Total Amount Owed: \$',
-                style: TextStyle(
-                  fontSize: 16.0,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
-              Text(
-                totalAmountOwed.toString(),
-                style: TextStyle(
-                  fontSize: 16.0,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.red,
-                ),
+                child: Text('Split'),
               ),
             ],
           ),
@@ -358,6 +279,4 @@ class OptionsSection extends StatelessWidget {
 
 enum FilterType {
   All,
-  GroupsIOwe,
-  GroupsOweMe,
 }
