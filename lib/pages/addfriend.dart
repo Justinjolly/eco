@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:app/pages/homepage.dart'; // Import the HomePage widget
+import 'package:app/pages/homepage.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+// Import the HomePage widget
 
 class AddFriendPage extends StatefulWidget {
   final String groupId; // Group ID parameter
@@ -44,9 +46,12 @@ class _AddFriendPageState extends State<AddFriendPage> {
   }
 
   void addToFriends(String user, String groupId) {
-    print('Added $user to friends');
+    // Get the current user's ID
+    String currentUserId = FirebaseAuth.instance.currentUser!.uid;
+
+    // Add the current user's ID to the group's members list
     FirebaseFirestore.instance.collection('groups').doc(groupId).update({
-      'members': FieldValue.arrayUnion([user])
+      'members': FieldValue.arrayUnion([currentUserId])
     }).then((_) {
       print('User added to the group successfully');
     }).catchError((error) {
