@@ -173,10 +173,11 @@ class _ExpenseEntryScreenState extends State<ExpenseEntryScreen> {
                 padding: const EdgeInsets.only(bottom: 20.0),
                 child: ElevatedButton(
                   onPressed: () {
-                    // Navigator.push(
-                    //   context,
-                    //   MaterialPageRoute(builder: (context) => GroupPage()),
-                    // );
+                     Navigator.push(
+                       context,
+                       MaterialPageRoute(builder: (context) => GroupPage(groupName: " Group Name")),
+                       
+                     );
                   },
                   child: Text(
                     'Split',

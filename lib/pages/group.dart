@@ -36,7 +36,7 @@ class _HomePageState extends State<HomePage> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => GroupPage(groupName: "Your Group Name"),
+                builder: (context) => GroupPage(groupName: " Group Name"),
               ),
             );
           },
