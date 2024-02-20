@@ -1,21 +1,6 @@
-import 'package:app/pages/groupsettings.dart';
 import 'package:flutter/material.dart';
-import 'package:app/pages/split.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-
-void main() {
-  runApp(MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      theme: ThemeData.dark(), // Set the theme to dark
-      home: AddFriendPage(groupId: '',),
-    );
-  }
-}
+import 'package:app/pages/homepage.dart'; // Import the HomePage widget
 
 class AddFriendPage extends StatefulWidget {
   final String groupId; // Group ID parameter
@@ -150,8 +135,8 @@ class _AddFriendPageState extends State<AddFriendPage> {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) =>ExpenseEntryScreen()
-                  ),
+                  MaterialPageRoute(
+                      builder: (context) => HomePage()), // Navigate to HomePage
                 );
                 print('Creating group...');
               },
