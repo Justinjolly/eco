@@ -1,8 +1,8 @@
+import 'package:app/pages/group.dart';
+import 'package:app/pages/groupcreate.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'navbar.dart';
-import 'groupcreate.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -34,9 +34,6 @@ class _HomePageState extends State<HomePage> {
     _fetchGroupsFromFirestore().then((groupsFromFirestore) {
       setState(() {
         displayedGroups = groupsFromFirestore;
-
-        // Fetch groups created from the create group page and merge them with existing groups
-        ;
       });
     }).catchError((error) {
       print("Failed to fetch groups: $error");
@@ -57,6 +54,15 @@ class _HomePageState extends State<HomePage> {
           groupsFromFirestore.add(GroupWidget(
             name: data['groupName'] ?? '',
             totalDebt: groupType,
+            onTap: () {
+              // Navigate to the group page and pass the group name
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => GroupPage(groupName: data['groupName']),
+                ),
+              );
+            },
           ));
         }
       }
@@ -76,7 +82,7 @@ class _HomePageState extends State<HomePage> {
           automaticallyImplyLeading: false,
           title: Center(
             child: Text(
-              'Groups',
+              'Home',
               style: TextStyle(
                 fontSize: 20.0,
                 fontWeight: FontWeight.bold,
@@ -151,31 +157,63 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
-class GroupWidget extends StatelessWidget {
+class GroupWidget extends StatefulWidget {
   final String name;
   final double totalDebt;
+  final VoidCallback onTap;
 
-  const GroupWidget({required this.name, required this.totalDebt});
+  const GroupWidget({
+    required this.name,
+    required this.totalDebt,
+    required this.onTap,
+  });
+
+  @override
+  _GroupWidgetState createState() => _GroupWidgetState();
+}
+
+class _GroupWidgetState extends State<GroupWidget> {
+  bool isMouseOver = false;
 
   @override
   Widget build(BuildContext context) {
-    Color amountColor = totalDebt > 0 ? Colors.red : Colors.green;
+    Color amountColor = widget.totalDebt > 0 ? Colors.red : Colors.green;
+    Color backgroundColor =
+        isMouseOver ? Colors.blue.withOpacity(0.5) : Colors.transparent;
 
-    return ListTile(
-      title: Text(
-        name,
-        style: TextStyle(color: Colors.white),
-      ),
-      subtitle: Text(
-        'Total Debt: \$${totalDebt.toString()}',
-        style: TextStyle(
-          color: Colors.white,
-        ),
-      ),
-      trailing: Text(
-        totalDebt.toString(),
-        style: TextStyle(
-          color: amountColor,
+    return MouseRegion(
+      onEnter: (_) {
+        setState(() {
+          isMouseOver = true;
+        });
+      },
+      onExit: (_) {
+        setState(() {
+          isMouseOver = false;
+        });
+      },
+      child: Container(
+        color: backgroundColor,
+        child: ListTile(
+          title: GestureDetector(
+            onTap: widget.onTap,
+            child: Text(
+              widget.name,
+              style: TextStyle(color: Colors.white),
+            ),
+          ),
+          subtitle: Text(
+            'Total Debt: \$${widget.totalDebt.toString()}',
+            style: TextStyle(
+              color: Colors.white,
+            ),
+          ),
+          trailing: Text(
+            widget.totalDebt.toString(),
+            style: TextStyle(
+              color: amountColor,
+            ),
+          ),
         ),
       ),
     );
@@ -254,9 +292,7 @@ class OptionsSection extends StatelessWidget {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(
-                      builder: (context) => GroupCreate(),
-                    ),
+                    MaterialPageRoute(builder: (context) => GroupCreate()),
                   ).then((_) {
                     onGroupCreated();
                   });
