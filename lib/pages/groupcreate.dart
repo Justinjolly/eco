@@ -1,4 +1,4 @@
-import 'package:app/pages/split.dart';
+import 'package:app/pages/addfriend.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -6,11 +6,60 @@ class GroupCreate extends StatelessWidget {
   final TextEditingController groupNameController = TextEditingController();
   final TextEditingController groupTypeController = TextEditingController();
 
+  Future<bool> _checkGroupExists(String groupName, BuildContext context) async {
+    QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+        .collection('groups')
+        .where('groupName', isEqualTo: groupName)
+        .get();
+    return querySnapshot.docs.isNotEmpty;
+  }
+
+  void _showRenameDialog(BuildContext context, String groupName) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Group Name Exists'),
+          content: Text(
+              'A group with the name "$groupName" already exists. Please enter a different name.'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showAlertDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Error'),
+          content: Text('Please fill in all required fields.'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Create Group'),
+        title: Text('Add Members'),
         centerTitle: true,
         automaticallyImplyLeading: false, // Disable the back button
       ),
@@ -36,27 +85,37 @@ class GroupCreate extends StatelessWidget {
             ),
             SizedBox(height: 16),
             ElevatedButton(
-              onPressed: () {
+              onPressed: () async {
                 String groupName = groupNameController.text;
                 String groupType = groupTypeController.text;
 
                 if (groupName.isNotEmpty && groupType.isNotEmpty) {
-                  // Create a new document in the "groups" collection with the provided data
-                  FirebaseFirestore.instance.collection('groups').add({
-                    'groupName': groupName,
-                    'groupType': groupType,
-                  }).then((_) {
-                    print('Group created successfully!');
-                    // Optionally, navigate to a different page after creating the group
+                  // Check if the group name already exists
+                  bool groupExists =
+                      await _checkGroupExists(groupName, context);
+                  if (groupExists) {
+                    _showRenameDialog(context, groupName);
+                  } else {
+                    // Create a new document in the "groups" collection with the provided data
+                    DocumentReference groupRef = await FirebaseFirestore
+                        .instance
+                        .collection('groups')
+                        .add({
+                      'groupName': groupName,
+                      'groupType': groupType,
+                    });
+                    String groupId =
+                        groupRef.id; // Get the ID of the newly created group
+                    print('Group created successfully! Group ID: $groupId');
+
+                    // Navigate to AddFriendPage and pass the group ID
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => ExpenseEntryScreen(),
+                        builder: (context) => AddFriendPage(groupId: groupId),
                       ),
                     );
-                  }).catchError((error) {
-                    print('Error creating group: $error');
-                  });
+                  }
                 } else {
                   _showAlertDialog(
                       context); // Show alert dialog if fields are empty
@@ -68,26 +127,6 @@ class GroupCreate extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
-
-  void _showAlertDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Error'),
-          content: Text('Please fill in all required fields.'),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(); // Close the dialog
-              },
-              child: Text('OK'),
-            ),
-          ],
-        );
-      },
     );
   }
 }
