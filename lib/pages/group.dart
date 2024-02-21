@@ -61,11 +61,13 @@ class _GroupPageState extends State<GroupPage> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   List<String> messages = [];
+  int expenseAmount = 0;
 
   @override
   void initState() {
     super.initState();
     _fetchMessages();
+    _fetchExpenseAmount();
   }
 
   @override
@@ -73,43 +75,72 @@ class _GroupPageState extends State<GroupPage> {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        // Wrap the title in a GestureDetector
         title: GestureDetector(
           onTap: () {
-            // Navigate to the page you want
             Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => GroupSettingsPage()),
             );
           },
-          child: Text(widget.groupName), // Access groupName from widget
+          child: Text(widget.groupName),
         ),
       ),
-      // Set black background color
       backgroundColor: Colors.black,
       body: Padding(
         padding: const EdgeInsets.only(bottom: 16.0),
-        child: ListView.builder(
-          itemCount: messages.length,
-          itemBuilder: (context, index) {
-            return ListTile(
-              title: Text(
-                messages[index],
-                style:
-                    TextStyle(color: Colors.white), // Set text color to white
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Card(
+              margin: EdgeInsets.all(16),
+              color: Colors.grey[900],
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Expense Amount',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                    SizedBox(height: 8),
+                    Text(
+                      '\$$expenseAmount',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            );
-          },
+            ),
+            Expanded(
+              child: ListView.builder(
+                itemCount: messages.length,
+                itemBuilder: (context, index) {
+                  return ListTile(
+                    title: Text(
+                      messages[index],
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
         ),
       ),
       bottomNavigationBar: Row(
         children: [
           Expanded(
             child: Padding(
-              padding: EdgeInsets.only(
-                  left: 8.0,
-                  bottom: 8.0,
-                  right: 8.0), // Adjust the padding as needed
+              padding: EdgeInsets.only(left: 8.0, bottom: 8.0, right: 8.0),
               child: ChatInputField(
                 onSendPressed: (message) {
                   setState(() {
@@ -120,14 +151,13 @@ class _GroupPageState extends State<GroupPage> {
             ),
           ),
           Padding(
-            padding:
-                EdgeInsets.only(right: 8.0), // Adjust the padding as needed
+            padding: EdgeInsets.only(right: 8.0),
             child: ElevatedButton(
               onPressed: () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => ExpenseEntryScreen()),
-                ); // Handle split button press
+                );
               },
               child: Text('Split'),
             ),
@@ -155,6 +185,23 @@ class _GroupPageState extends State<GroupPage> {
     }
   }
 
+  void _fetchExpenseAmount() async {
+    try {
+      DocumentSnapshot<Map<String, dynamic>> snapshot = await _firestore
+          .collection('groups')
+          .doc(widget.groupName)
+          .collection('expense')
+          .doc('amount')
+          .get();
+
+      setState(() {
+        expenseAmount = snapshot.data()?['amount'] ?? 0;
+      });
+    } catch (e) {
+      print('Failed to fetch expense amount: $e');
+    }
+  }
+
   void _sendMessage(String message) async {
     try {
       await _firestore
@@ -163,7 +210,7 @@ class _GroupPageState extends State<GroupPage> {
           .collection('messages')
           .add({
         'message': message,
-        'timestamp': Timestamp.now(), // Optionally include timestamp
+        'timestamp': Timestamp.now(),
       });
     } catch (e) {
       print('Failed to send message: $e');
@@ -198,10 +245,10 @@ class _ChatInputFieldState extends State<ChatInputField> {
           Expanded(
             child: TextField(
               controller: _controller,
-              style: TextStyle(color: Colors.white), // Set text color to white
+              style: TextStyle(color: Colors.white),
               decoration: InputDecoration(
                 hintText: 'Type a message...',
-                hintStyle: TextStyle(color: Colors.grey), // Set hint text color
+                hintStyle: TextStyle(color: Colors.grey),
                 border: InputBorder.none,
               ),
               onSubmitted: (value) {
