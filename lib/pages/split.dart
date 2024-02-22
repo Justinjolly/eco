@@ -166,17 +166,25 @@ class _ExpenseEntryScreenState extends State<ExpenseEntryScreen> {
               ],
             ),
           ),
-          Expanded(
+           Expanded(
             child: Align(
               alignment: Alignment.bottomCenter,
               child: Padding(
                 padding: const EdgeInsets.only(bottom: 20.0),
                 child: ElevatedButton(
                   onPressed: () {
-                    // Navigator.push(
-                    //   context,
-                    //   MaterialPageRoute(builder: (context) => GroupPage()),
-                    // );
+                    int expenseAmount = _amountController.text.isNotEmpty
+                        ? int.parse(_amountController.text)
+                        : 0;
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => GroupPage(
+                          groupName: "Group Name",
+                          expenseAmount: expenseAmount,
+                        ),
+                      ),
+                    );
                   },
                   child: Text(
                     'Split',
@@ -187,8 +195,8 @@ class _ExpenseEntryScreenState extends State<ExpenseEntryScreen> {
                 ),
               ),
             ),
-          ),
-        ],
+       ),
+         ],
       ),
     );
   }
@@ -519,7 +527,25 @@ class _ExpenseEntryScreenState extends State<ExpenseEntryScreen> {
     );
   }
 }
+class GroupPage extends StatelessWidget {
+  final String groupName;
+  final int expenseAmount; // Define expenseAmount here
 
+  GroupPage({required this.groupName, required this.expenseAmount}); // Constructor
+
+  @override
+  Widget build(BuildContext context) {
+    // Widget implementation
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(groupName),
+      ),
+      body: Center(
+        child: Text('Expense Amount: $expenseAmount'), // Display expense amount
+      ),
+    );
+  }
+}
 class SectionButton extends StatelessWidget {
   final String title;
   final VoidCallback onPressed;
