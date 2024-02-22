@@ -10,12 +10,13 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: GroupSettingsPage(),
+      home: GroupSettingsPage(groupName: 'Your Group Name'),
     );
   }
 }
 
 class GroupSettingsPage extends StatelessWidget {
+  final String groupName;
   // Example group members data
   final List<Map<String, String>> groupMembers = [
     {'name': 'Adwaith', 'email': 'alice@example.com', 'amount': '\$20'},
@@ -23,6 +24,7 @@ class GroupSettingsPage extends StatelessWidget {
     {'name': 'Jibbin', 'email': 'charlie@example.com', 'amount': '\$20'},
     {'name': 'Justin', 'email': 'dana@example.com', 'amount': '\$20'},
   ];
+  GroupSettingsPage({required this.groupName});
 
   @override
   Widget build(BuildContext context) {
@@ -61,7 +63,7 @@ class GroupSettingsPage extends StatelessWidget {
                 SizedBox(width: 10),
                 Expanded(
                   child: Text(
-                    'Trip',
+                    '$groupName',
                     style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                     overflow: TextOverflow.ellipsis,
                   ),

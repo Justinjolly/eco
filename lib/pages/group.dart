@@ -76,13 +76,15 @@ class _GroupPageState extends State<GroupPage> {
         // Wrap the title in a GestureDetector
         title: GestureDetector(
           onTap: () {
-            // Navigate to the page you want
+            // Navigate to the next page and pass the group name
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => GroupSettingsPage()),
+              MaterialPageRoute(
+                builder: (context) => GroupSettingsPage(groupName: widget.groupName),
+              ),
             );
           },
-          child: Text(widget.groupName), // Access groupName from widget
+          child: Text(widget.groupName),
         ),
       ),
       // Set black background color
