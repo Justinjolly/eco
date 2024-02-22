@@ -80,7 +80,8 @@ class _GroupPageState extends State<GroupPage> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => GroupSettingsPage(groupName: widget.groupName),
+                builder: (context) =>
+                    GroupSettingsPage(groupName: widget.groupName),
               ),
             );
           },
