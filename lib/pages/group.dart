@@ -76,10 +76,15 @@ class _GroupPageState extends State<GroupPage> {
         // Wrap the title in a GestureDetector
         title: GestureDetector(
           onTap: () {
-            // Navigate to the page you want
+            // Navigate to the group settings page and pass the group name and members list
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => GroupSettingsPage()),
+              MaterialPageRoute(
+                builder: (context) => GroupSettingsPage(
+                  groupName: widget.groupName,
+                  groupMembers: messages, // Pass the list of messages as group members for now
+                ),
+              ),
             );
           },
           child: Text(widget.groupName), // Access groupName from widget
@@ -230,3 +235,4 @@ class _ChatInputFieldState extends State<ChatInputField> {
     _controller.clear();
   }
 }
+
