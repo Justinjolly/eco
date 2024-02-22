@@ -1,5 +1,6 @@
-import 'package:flutter/material.dart';
 import 'package:app/pages/friendsettings.dart';
+import 'package:app/pages/groupsettingsedit.dart';
+import 'package:flutter/material.dart';
 
 void main() {
   runApp(MyApp());
@@ -9,78 +10,176 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: GroupSettingsPage(
-        groupName: 'Group Name',
-        groupMembers: ['Member 1', 'Member 2', 'Member 3'],
-      ),
+      home: GroupSettingsPage(),
     );
   }
 }
 
 class GroupSettingsPage extends StatelessWidget {
-  final String groupName;
-  final List<String> groupMembers;
-
-  GroupSettingsPage({required this.groupName, required this.groupMembers});
+  // Example group members data
+  final List<Map<String, String>> groupMembers = [
+    {'name': 'Adwaith', 'email': 'alice@example.com', 'amount': '\$20'},
+    {'name': 'Dony', 'email': 'bob@example.com', 'amount': '\$20'},
+    {'name': 'Jibbin', 'email': 'charlie@example.com', 'amount': '\$20'},
+    {'name': 'Justin', 'email': 'dana@example.com', 'amount': '\$20'},
+  ];
 
   @override
   Widget build(BuildContext context) {
+    // Calculate total amount
+    double totalAmount = groupMembers.fold(0, (previousValue, element) {
+      return previousValue +
+          double.parse(element['amount']!.replaceAll('\$', ''));
+    });
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Group Settings'),
+        backgroundColor: Colors.blue,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Padding(
-              padding: EdgeInsets.all(16.0),
-              child: Text(
-                'Group Name: $groupName',
-                style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.all(16.0),
-              child: Text(
-                'Group Members:',
-                style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
-              ),
-            ),
-            Expanded(
-              child: ListView.builder(
-                itemCount: groupMembers.length,
-                itemBuilder: (context, index) {
-                  return ListTile(
-                    leading: CircleAvatar(
-                      backgroundColor: Colors.grey.shade200,
-                      child: Text(groupMembers[index].substring(0, 1),
-                          style: TextStyle(color: Colors.black)),
+            Row(
+              children: [
+                Container(
+                  width: 50,
+                  height: 50,
+                  decoration: BoxDecoration(
+                    color: Colors.blue,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Center(
+                    child: Text(
+                      '🏝️',
+                      style: TextStyle(fontSize: 24),
                     ),
-                    title: Text(groupMembers[index]),
-                    onTap: () {
-                      // Navigate to friend settings page when a member is tapped
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => FriendSettingsPage(
-                            memberDetails: {
-                              'name': groupMembers[index],
-                              'email':
-                                  'example@example.com', // Provide dummy email for now
-                              'amount':
-                                  '\$0.00', // Provide dummy amount for now
-                            },
-                          ),
-                        ),
-                      );
-                    },
-                  );
-                },
-              ),
+                  ),
+                ),
+                SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    'Trip',
+                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                Text(
+                  '\$${totalAmount.toStringAsFixed(2)}', // Display total amount
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                ),
+                IconButton(
+                  icon: Icon(Icons.edit),
+                  onPressed: () {
+                    // Your code to handle edit action
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => CustomizeGroupPage()),
+                    );
+                  },
+                ),
+              ],
             ),
             SizedBox(height: 20),
+            Text(
+              'Group Members',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            Row(
+              children: [
+                IconButton(
+                  icon: Icon(Icons.person_add),
+                  onPressed: () {
+                    // Your code to add people to the group
+                  },
+                ),
+                Text('Add Group Members'),
+              ],
+            ),
+            Row(
+              children: [
+                IconButton(
+                  icon: Icon(Icons.link, size: 30),
+                  color: const Color.fromARGB(255, 234, 234, 234),
+                  onPressed: () {
+                    // Your code to share invite link
+                  },
+                ),
+                Text('Invite via Link',
+                    style: TextStyle(
+                        color: const Color.fromARGB(255, 234, 231, 231))),
+              ],
+            ),
+            SizedBox(height: 20),
+            ...groupMembers.map((member) {
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 8.0),
+                child: Row(
+                  children: [
+                    CircleAvatar(
+                      backgroundColor: Colors.grey.shade200,
+                      child: Text(member['name']![0],
+                          style: TextStyle(
+                              color: Colors.black)), // First letter of name
+                    ),
+                    SizedBox(width: 10),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          GestureDetector(
+                            onTap: () {
+                              showModalBottomSheet(
+                                context: context,
+                                builder: (context) {
+                                  return Container(
+                                    padding: EdgeInsets.all(16),
+                                    height: 120,
+                                    child: Row(
+                                      children: [
+                                        Icon(Icons.person, size: 40),
+                                        SizedBox(width: 10),
+                                        GestureDetector(
+                                          onTap: () {
+                                            Navigator.pop(
+                                                context); // Close the bottom sheet
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) =>
+                                                    FriendSettingsPage(
+                                                        memberDetails: member),
+                                              ),
+                                            );
+                                          },
+                                          child: Text(
+                                            'View settings for ${member['name']}',
+                                            style: TextStyle(fontSize: 18),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                },
+                              );
+                            },
+                            child: Text(member['name']!,
+                                style: TextStyle(fontSize: 18)),
+                          ),
+                          Text(member['email']!,
+                              style: TextStyle(color: Colors.grey)),
+                        ],
+                      ),
+                    ),
+                    Text(member['amount']!, style: TextStyle(fontSize: 18)),
+                  ],
+                ),
+              );
+            }).toList(),
+            Spacer(),
             InkWell(
               onTap: () {
                 // Handle leave group action
