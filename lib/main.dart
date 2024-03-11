@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:app/pages/loginpage.dart'; // Import the LoginPage
 import 'package:app/pages/signupPage.dart'; // Import the SignupPage
-
+ 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
