@@ -1,4 +1,5 @@
 // loginpage.dart
+import 'package:app/pages/navbar.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:app/pages/SignUpPage.dart';
@@ -29,7 +30,7 @@ class _LoginPageState extends State<LoginPage> {
       // Navigate to the home page
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => HomePage()),
+        MaterialPageRoute(builder: (context) => BottomNavigationBarExample()),
       );
     } on FirebaseAuthException catch (e) {
       // Handle errors

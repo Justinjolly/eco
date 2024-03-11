@@ -10,12 +10,13 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: GroupSettingsPage(),
+      home: GroupSettingsPage(groupName: 'Your Group Name'),
     );
   }
 }
 
 class GroupSettingsPage extends StatelessWidget {
+  final String groupName;
   // Example group members data
   final List<Map<String, String>> groupMembers = [
     {'name': 'Adwaith', 'email': 'alice@example.com', 'amount': '\$20'},
@@ -23,14 +24,14 @@ class GroupSettingsPage extends StatelessWidget {
     {'name': 'Jibbin', 'email': 'charlie@example.com', 'amount': '\$20'},
     {'name': 'Justin', 'email': 'dana@example.com', 'amount': '\$20'},
   ];
-
-  
+  GroupSettingsPage({required this.groupName});
 
   @override
   Widget build(BuildContext context) {
     // Calculate total amount
     double totalAmount = groupMembers.fold(0, (previousValue, element) {
-      return previousValue + double.parse(element['amount']!.replaceAll('\$', ''));
+      return previousValue +
+          double.parse(element['amount']!.replaceAll('\$', ''));
     });
 
     return Scaffold(
@@ -62,12 +63,13 @@ class GroupSettingsPage extends StatelessWidget {
                 SizedBox(width: 10),
                 Expanded(
                   child: Text(
-                    'Trip',
+                    '$groupName',
                     style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                Text('\$${totalAmount.toStringAsFixed(2)}', // Display total amount
+                Text(
+                  '\$${totalAmount.toStringAsFixed(2)}', // Display total amount
                   style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                 ),
                 IconButton(
@@ -75,16 +77,13 @@ class GroupSettingsPage extends StatelessWidget {
                   onPressed: () {
                     // Your code to handle edit action
                     Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => CustomizeGroupPage()),
-        );
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => CustomizeGroupPage()),
+                    );
                   },
                 ),
               ],
-            ),
-            Text(
-              'Created on: 01 Jan 2022',
-              style: TextStyle(fontSize: 16, color: Colors.grey),
             ),
             SizedBox(height: 20),
             Text(
@@ -106,75 +105,82 @@ class GroupSettingsPage extends StatelessWidget {
               children: [
                 IconButton(
                   icon: Icon(Icons.link, size: 30),
-                  color: Colors.black,
+                  color: const Color.fromARGB(255, 234, 234, 234),
                   onPressed: () {
                     // Your code to share invite link
                   },
                 ),
-                Text('Invite via Link', style: TextStyle(color: Colors.black)),
+                Text('Invite via Link',
+                    style: TextStyle(
+                        color: const Color.fromARGB(255, 234, 231, 231))),
               ],
             ),
             SizedBox(height: 20),
             ...groupMembers.map((member) {
-  return Padding(
-    padding: const EdgeInsets.only(bottom: 8.0),
-    child: Row(
-      children: [
-        CircleAvatar(
-          backgroundColor: Colors.grey.shade200,
-          child: Text(member['name']![0], style: TextStyle(color: Colors.black)), // First letter of name
-        ),
-        SizedBox(width: 10),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              GestureDetector(
-                onTap: () {
-                  showModalBottomSheet(
-  context: context,
-  builder: (context) {
-    return Container(
-      padding: EdgeInsets.all(16),
-      height: 120,
-      child: Row(
-        children: [
-          Icon(Icons.person, size: 40),
-          SizedBox(width: 10),
-          GestureDetector(
-            onTap: () {
-              Navigator.pop(context); // Close the bottom sheet
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => FriendSettingsPage(memberDetails: member),
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 8.0),
+                child: Row(
+                  children: [
+                    CircleAvatar(
+                      backgroundColor: Colors.grey.shade200,
+                      child: Text(member['name']![0],
+                          style: TextStyle(
+                              color: Colors.black)), // First letter of name
+                    ),
+                    SizedBox(width: 10),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          GestureDetector(
+                            onTap: () {
+                              showModalBottomSheet(
+                                context: context,
+                                builder: (context) {
+                                  return Container(
+                                    padding: EdgeInsets.all(16),
+                                    height: 120,
+                                    child: Row(
+                                      children: [
+                                        Icon(Icons.person, size: 40),
+                                        SizedBox(width: 10),
+                                        GestureDetector(
+                                          onTap: () {
+                                            Navigator.pop(
+                                                context); // Close the bottom sheet
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) =>
+                                                    FriendSettingsPage(
+                                                        memberDetails: member),
+                                              ),
+                                            );
+                                          },
+                                          child: Text(
+                                            'View settings for ${member['name']}',
+                                            style: TextStyle(fontSize: 18),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                },
+                              );
+                            },
+                            child: Text(member['name']!,
+                                style: TextStyle(fontSize: 18)),
+                          ),
+                          Text(member['email']!,
+                              style: TextStyle(color: Colors.grey)),
+                        ],
+                      ),
+                    ),
+                    Text(member['amount']!, style: TextStyle(fontSize: 18)),
+                  ],
                 ),
               );
-            },
-            child: Text(
-              'View settings for ${member['name']}',
-              style: TextStyle(fontSize: 18),
-            ),
-          ),
-        ],
-      ),
-    );
-  },
-);
-
-                },
-                child: Text(member['name']!, style: TextStyle(fontSize: 18)),
-              ),
-              Text(member['email']!, style: TextStyle(color: Colors.grey)),
-            ],
-          ),
-        ),
-        Text(member['amount']!, style: TextStyle(fontSize: 18)),
-      ],
-    ),
-  );
-}).toList(),
-
+            }).toList(),
             Spacer(),
             InkWell(
               onTap: () {
@@ -184,7 +190,8 @@ class GroupSettingsPage extends StatelessWidget {
                 children: [
                   Icon(Icons.exit_to_app, color: Colors.black),
                   SizedBox(width: 8),
-                  Text('Leave Group', style: TextStyle(fontSize: 18, color: Colors.black)),
+                  Text('Leave Group',
+                      style: TextStyle(fontSize: 18, color: Colors.black)),
                 ],
               ),
             ),
@@ -197,7 +204,8 @@ class GroupSettingsPage extends StatelessWidget {
                 children: [
                   Icon(Icons.delete, color: Colors.red),
                   SizedBox(width: 8),
-                  Text('Delete Group', style: TextStyle(fontSize: 18, color: Colors.red)),
+                  Text('Delete Group',
+                      style: TextStyle(fontSize: 18, color: Colors.red)),
                 ],
               ),
             ),

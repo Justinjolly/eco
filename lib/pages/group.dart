@@ -7,10 +7,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  runApp(ChatApp());
+  runApp(MyApp());
 }
 
-class ChatApp extends StatelessWidget {
+class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -36,7 +36,7 @@ class _HomePageState extends State<HomePage> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => GroupPage(groupName: " Group Name"),
+                builder: (context) => GroupPage(groupName: "Your Group Name"),
               ),
             );
           },
@@ -76,13 +76,16 @@ class _GroupPageState extends State<GroupPage> {
         // Wrap the title in a GestureDetector
         title: GestureDetector(
           onTap: () {
-            // Navigate to the page you want
+            // Navigate to the next page and pass the group name
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => GroupSettingsPage()),
+              MaterialPageRoute(
+                builder: (context) =>
+                    GroupSettingsPage(groupName: widget.groupName),
+              ),
             );
           },
-          child: Text(widget.groupName), // Access groupName from widget
+          child: Text(widget.groupName),
         ),
       ),
       // Set black background color

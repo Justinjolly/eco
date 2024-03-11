@@ -1,6 +1,6 @@
-import 'package:app/pages/addfriend.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'addfriend.dart'; // Import AddFriendPage if not already imported
 
 class GroupCreate extends StatelessWidget {
   final TextEditingController groupNameController = TextEditingController();
@@ -123,6 +123,15 @@ class GroupCreate extends StatelessWidget {
               },
               child:
                   Text('Create Group', style: TextStyle(color: Colors.white)),
+            ),
+            SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () {
+                // Navigate back to the home page when the back button is pressed
+                Navigator.popUntil(context, ModalRoute.withName('/'));
+              },
+              child:
+                  Text('Back to Home', style: TextStyle(color: Colors.white)),
             ),
           ],
         ),

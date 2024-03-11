@@ -176,15 +176,7 @@ class _ExpenseEntryScreenState extends State<ExpenseEntryScreen> {
                     int expenseAmount = _amountController.text.isNotEmpty
                         ? int.parse(_amountController.text)
                         : 0;
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => GroupPage(
-                          groupName: "Group Name",
-                          expenseAmount: expenseAmount,
-                        ),
-                      ),
-                    );
+                    Navigator.pop(context,expenseAmount);
                   },
                   child: Text(
                     'Split',
