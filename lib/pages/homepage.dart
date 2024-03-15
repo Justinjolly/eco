@@ -126,28 +126,30 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget GroupsSection() {
-    return Container(
-      padding: EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'All Groups',
-            style: TextStyle(
-              fontSize: 20.0,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
+    return SingleChildScrollView(
+      child: Container(
+        padding: EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'All Groups',
+              style: TextStyle(
+                fontSize: 20.0,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
             ),
-          ),
-          SizedBox(height: 8.0),
-          ListView.builder(
-            shrinkWrap: true,
-            itemCount: displayedGroups.length,
-            itemBuilder: (context, index) {
-              return displayedGroups[index];
-            },
-          ),
-        ],
+            SizedBox(height: 8.0),
+            ListView.builder(
+              shrinkWrap: true,
+              itemCount: displayedGroups.length,
+              itemBuilder: (context, index) {
+                return displayedGroups[index];
+              },
+            ),
+          ],
+        ),
       ),
     );
   }
