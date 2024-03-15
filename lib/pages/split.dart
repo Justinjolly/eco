@@ -181,7 +181,7 @@ class _ExpenseEntryScreenState extends State<ExpenseEntryScreen> {
                   child: Text(
                     'Split',
                     style: TextStyle(
-                      color: const Color.fromARGB(255, 0, 0, 0),
+                      color: Color.fromARGB(255, 255, 255, 255),
                     ),
                   ),
                 ),
