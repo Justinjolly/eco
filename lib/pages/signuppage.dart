@@ -13,6 +13,7 @@ class _SignUpPageState extends State<SignUpPage> {
   TextEditingController _emailController = TextEditingController();
   TextEditingController _mobileController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
+  TextEditingController _userNameController = TextEditingController();
   bool _isLoading = false;
 
   // Define a Firestore instance
@@ -53,6 +54,7 @@ class _SignUpPageState extends State<SignUpPage> {
   // Method to add user data to Firestore
   Future<void> _addUserDataToFirestore(
     String userId,
+    String userName,
     String fullName,
     String email,
     String mobileNumber,
@@ -60,6 +62,7 @@ class _SignUpPageState extends State<SignUpPage> {
   ) async {
     try {
       await _firestore.collection('users').doc(userId).set({
+        'userName' : userName,
         'fullName': fullName,
         'email': email,
         'mobileNumber': mobileNumber,
@@ -77,13 +80,16 @@ class _SignUpPageState extends State<SignUpPage> {
       _startLoading();
 
       // Perform signup logic here
+      String userName = _userNameController.text;
       String fullName = _fullNameController.text;
       String mobileNumber = _mobileController.text;
       String email = _emailController.text;
       String password = _passwordController.text;
 
+
       // Validate input fields (you can add more sophisticated validation)
-      if (fullName.isEmpty ||
+      if (userName.isEmpty||
+          fullName.isEmpty ||
           mobileNumber.isEmpty ||
           email.isEmpty ||
           password.isEmpty) {
@@ -103,6 +109,7 @@ class _SignUpPageState extends State<SignUpPage> {
       // Add user data to Firestore
       await _addUserDataToFirestore(
         userCredential.user!.uid,
+        userName,
         fullName,
         email,
         mobileNumber,
@@ -148,6 +155,15 @@ class _SignUpPageState extends State<SignUpPage> {
                       color: Colors.blue[700],
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(height: 20),
+                  TextField(
+                    controller: _userNameController,
+                    decoration: InputDecoration(
+                      labelText: 'User Name',
+                      border: OutlineInputBorder(),
+                      prefixIcon: Icon(Icons.person, color: Colors.blue[700]),
                     ),
                   ),
                   SizedBox(height: 20),
