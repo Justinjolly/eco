@@ -98,7 +98,12 @@ class _SignUpPageState extends State<SignUpPage> {
         _stopLoading();
         return;
       }
-
+          bool usernameExists = await _checkUsernameExists(userName);
+          if (usernameExists) {
+            _showErrorPopup('Username already exists. Please choose another one.');
+            _stopLoading();
+          return;
+      }
       // Use Firebase Authentication for signup
       UserCredential userCredential =
           await FirebaseAuth.instance.createUserWithEmailAndPassword(
@@ -132,7 +137,18 @@ class _SignUpPageState extends State<SignUpPage> {
       _showErrorPopup('Error during signup: $e');
     }
   }
-
+  Future<bool> _checkUsernameExists(String username) async {
+  try {
+    final querySnapshot = await FirebaseFirestore.instance
+        .collection('users')
+        .where('userName', isEqualTo: username)
+        .get();
+    return querySnapshot.docs.isNotEmpty;
+  } catch (e) {
+    print('Error checking username existence: $e');
+    return true; // Treat any error as username exists to be cautious
+  }
+}
   @override
   Widget build(BuildContext context) {
     return Scaffold(
