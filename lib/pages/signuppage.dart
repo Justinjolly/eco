@@ -62,7 +62,7 @@ class _SignUpPageState extends State<SignUpPage> {
   ) async {
     try {
       await _firestore.collection('users').doc(userId).set({
-        'userName' : userName,
+        'userName': userName,
         'fullName': fullName,
         'email': email,
         'mobileNumber': mobileNumber,
@@ -86,9 +86,8 @@ class _SignUpPageState extends State<SignUpPage> {
       String email = _emailController.text;
       String password = _passwordController.text;
 
-
       // Validate input fields (you can add more sophisticated validation)
-      if (userName.isEmpty||
+      if (userName.isEmpty ||
           fullName.isEmpty ||
           mobileNumber.isEmpty ||
           email.isEmpty ||
@@ -98,11 +97,17 @@ class _SignUpPageState extends State<SignUpPage> {
         _stopLoading();
         return;
       }
-          bool usernameExists = await _checkUsernameExists(userName);
-          if (usernameExists) {
-            _showErrorPopup('Username already exists. Please choose another one.');
-            _stopLoading();
-          return;
+      bool usernameExists = await _checkUsernameExists(userName);
+      if (usernameExists) {
+        _showErrorPopup('Username already exists. Please choose another one.');
+        _stopLoading();
+        return;
+      }
+
+      if (mobileNumber.length != 10) {
+        _showErrorPopup('Mobile number should be exactly 10 digits long.');
+        _stopLoading();
+        return;
       }
       // Use Firebase Authentication for signup
       UserCredential userCredential =
@@ -137,22 +142,23 @@ class _SignUpPageState extends State<SignUpPage> {
       _showErrorPopup('Error during signup: $e');
     }
   }
+
   Future<bool> _checkUsernameExists(String username) async {
-  try {
-    final querySnapshot = await FirebaseFirestore.instance
-        .collection('users')
-        .where('userName', isEqualTo: username)
-        .get();
-    return querySnapshot.docs.isNotEmpty;
-  } catch (e) {
-    print('Error checking username existence: $e');
-    return true; // Treat any error as username exists to be cautious
+    try {
+      final querySnapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .where('userName', isEqualTo: username)
+          .get();
+      return querySnapshot.docs.isNotEmpty;
+    } catch (e) {
+      print('Error checking username existence: $e');
+      return true; // Treat any error as username exists to be cautious
+    }
   }
-}
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      
       appBar: AppBar(
         title: Text('Sign Up'),
         automaticallyImplyLeading: false,
@@ -224,7 +230,8 @@ class _SignUpPageState extends State<SignUpPage> {
                     onPressed: _isLoading ? null : _handleEmailSignUp,
                     style: ElevatedButton.styleFrom(
                       primary: Colors.blue[700],
-                      padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 40, vertical: 15),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(30.0),
                       ),

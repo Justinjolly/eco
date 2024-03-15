@@ -26,9 +26,14 @@ class _AddFriendPageState extends State<AddFriendPage> {
       setState(() {
         allUsers = querySnapshot.docs.map((doc) {
           Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-          return data['fullName'] as String; // Cast to String
+          // Check if 'userName' field is not null before adding it to the list
+          if (data['userName'] != null) {
+            return data['userName'] as String;
+          } else {
+            return ''; // Return empty string for null values
+          }
         }).toList();
-        displayedUsers = List.from(allUsers); 
+        displayedUsers = List.from(allUsers);
       });
     }).catchError((error) {
       print('Failed to fetch user data from Firestore: $error');
