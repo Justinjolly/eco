@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ActivityPage extends StatefulWidget {
   const ActivityPage({Key? key}) : super(key: key);
@@ -8,14 +9,28 @@ class ActivityPage extends StatefulWidget {
 }
 
 class _ActivityPageState extends State<ActivityPage> {
-  // Dummy transaction data for demonstration
-  final List<Transaction> transactions = [
-    Transaction(description: 'Shopping', amount: -50.0),
-    Transaction(description: 'Salary', amount: 1000.0),
-    Transaction(description: 'Dinner', amount: -30.0),
-    Transaction(description: 'Gas', amount: -40.0),
-    Transaction(description: 'Groceries', amount: -70.0),
-  ];
+  late Future<List<GroupActivity>> _groupActivities;
+
+  @override
+  void initState() {
+    super.initState();
+    _groupActivities = _getGroupActivities();
+  }
+
+  Future<List<GroupActivity>> _getGroupActivities() async {
+    QuerySnapshot<Map<String, dynamic>> snapshot = await FirebaseFirestore.instance.collection('groups').get();
+
+    List<GroupActivity> groupActivities = [];
+
+    snapshot.docs.forEach((doc) {
+      // Assuming 'groupName' is a field in each document
+      groupActivities.add(GroupActivity(
+        groupName: doc['groupName'],
+      ));
+    });
+
+    return groupActivities;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -23,31 +38,36 @@ class _ActivityPageState extends State<ActivityPage> {
       appBar: AppBar(
         title: Text('Activity'),
       ),
-      body: ListView.builder(
-        itemCount: transactions.length,
-        itemBuilder: (BuildContext context, int index) {
-          final transaction = transactions[index];
-          return ListTile(
-            title: Text(transaction.description),
-            trailing: Text(
-              '\$${transaction.amount.toStringAsFixed(2)}',
-              style: TextStyle(
-                color: transaction.amount >= 0 ? Colors.green : Colors.red,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          );
+      body: FutureBuilder<List<GroupActivity>>(
+        future: _groupActivities,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          } else {
+            return ListView.builder(
+              itemCount: snapshot.data!.length,
+              itemBuilder: (BuildContext context, int index) {
+                final groupActivity = snapshot.data![index];
+                return ListTile(
+                  title: Text('Group "${groupActivity.groupName}" created'),
+                );
+              },
+            );
+          }
         },
       ),
     );
   }
 }
 
-class Transaction {
-  final String description;
-  final double amount;
+class GroupActivity {
+  final String groupName;
 
-  Transaction({required this.description, required this.amount});
+  GroupActivity({
+    required this.groupName,
+  });
 }
 
 void main() {
