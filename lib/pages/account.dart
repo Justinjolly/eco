@@ -1,8 +1,10 @@
-import 'package:app/pages/emailsettings.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:app/pages/balances.dart';
 import 'package:app/pages/qr.dart';
 import 'package:app/pages/settings.dart';
+import 'package:app/pages/emailsettings.dart';
 import 'thememanager.dart'; // Import the theme manager
 import 'package:provider/provider.dart';
 
@@ -30,7 +32,37 @@ class _MyAppState extends State<MyApp> {
   }
 }
 
-class AccountPage extends StatelessWidget {
+class AccountPage extends StatefulWidget {
+  @override
+  _AccountPageState createState() => _AccountPageState();
+}
+
+class _AccountPageState extends State<AccountPage> {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  late User? _user;
+  String _fullName = '';
+  String _phoneNumber = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _getUserData();
+  }
+
+  Future<void> _getUserData() async {
+    _user = _auth.currentUser;
+    if (_user != null) {
+      DocumentSnapshot userData =
+          await _firestore.collection('users').doc(_user!.uid).get();
+      setState(() {
+        _fullName = userData['fullName'];
+        _phoneNumber = userData['mobileNumber'];
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -69,7 +101,7 @@ class AccountPage extends StatelessWidget {
                   backgroundColor: Colors.blueGrey,
                   radius: 40, // Adjust the size of the circle avatar as needed
                   child: Text(
-                    "JD",
+                    _user?.displayName != null ? _user!.displayName![0] : "",
                     style: TextStyle(
                       fontSize: 40.0,
                       color: Colors.white,
@@ -80,25 +112,24 @@ class AccountPage extends StatelessWidget {
                 Expanded(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment
-                        .start, // Keep text aligned to the right
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
                       Text(
-                        "John Doe",
+                        _fullName,
                         style: TextStyle(
                           fontSize: 20.0,
                           color: Colors.white,
                         ),
                       ),
                       Text(
-                        "john.doe@example.com",
+                        _user?.email ?? "",
                         style: TextStyle(
                           fontSize: 16.0,
                           color: Colors.white,
                         ),
                       ),
                       Text(
-                        "1234567891",
+                        _phoneNumber,
                         style: TextStyle(
                           fontSize: 16.0,
                           color: Colors.white,
@@ -171,11 +202,10 @@ class AccountPage extends StatelessWidget {
             ),
             onTap: () {
               // Navigate to email settings page
-            Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => EmailSettingsPage()),
-    );
-
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => EmailSettingsPage()),
+              );
             },
           ),
           ListTile(
