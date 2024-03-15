@@ -28,7 +28,7 @@ class _AddFriendPageState extends State<AddFriendPage> {
           Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
           return data['fullName'] as String; // Cast to String
         }).toList();
-        displayedUsers = List.from(allUsers);
+        displayedUsers = List.from(allUsers); 
       });
     }).catchError((error) {
       print('Failed to fetch user data from Firestore: $error');
