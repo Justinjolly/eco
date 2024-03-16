@@ -66,6 +66,7 @@ class _LoginPageState extends State<LoginPage> {
                   style: TextStyle(
                     fontSize: 34,
                     fontWeight: FontWeight.bold,
+                    color:Color.fromARGB(95, 6, 12, 13)
                   ),
                 ),
                 SizedBox(height: 30),
