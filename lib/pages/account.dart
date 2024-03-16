@@ -99,7 +99,7 @@ class _AccountPageState extends State<AccountPage> {
             child: Row(
               children: <Widget>[
                 CircleAvatar(
-                  backgroundColor: Colors.blueGrey,
+                  backgroundColor: const Color.fromARGB(255, 44, 140, 188),
                   radius: 40, // Adjust the size of the circle avatar as needed
                   child: Text(
                     _user?.displayName != null ? _user!.displayName![0] : "",

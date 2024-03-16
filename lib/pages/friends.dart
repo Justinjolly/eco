@@ -1,10 +1,4 @@
 import 'package:flutter/material.dart';
-
-
-
-
-
-
 enum FriendFilter { All, IOwe, OweMe }
 
 class FriendsPage extends StatefulWidget {
@@ -89,6 +83,7 @@ class _FriendsPageState extends State<FriendsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: Text(
           'Friends',
           style: TextStyle(
@@ -96,20 +91,7 @@ class _FriendsPageState extends State<FriendsPage> {
           ),
         ),
         centerTitle: true, // Center the title
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.person_add, size: 24.0),
-            onPressed: () {
-              // Add Friend functionality here
-            },
-          ),
-        ],
+        
       ),
       body: Column(
         children: [
