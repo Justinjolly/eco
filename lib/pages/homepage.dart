@@ -317,7 +317,7 @@ class OptionsSection extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               SizedBox(
-                width: 120, // Fixed width
+                width: 150, // Fixed width
                 child: ElevatedButton(
                   onPressed: () {
                     Navigator.push(
@@ -331,7 +331,7 @@ class OptionsSection extends StatelessWidget {
                 ),
               ),
               SizedBox(
-                width: 120, // Fixed width, same as the other button
+                width: 150, // Fixed width, same as the other button
                 child: ElevatedButton(
                   onPressed: () {
                     // Handle Split option
