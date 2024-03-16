@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class ActivityPage extends StatefulWidget {
   const ActivityPage({Key? key}) : super(key: key);
@@ -18,19 +19,25 @@ class _ActivityPageState extends State<ActivityPage> {
   }
 
   Future<List<GroupActivity>> _getGroupActivities() async {
-    QuerySnapshot<Map<String, dynamic>> snapshot = await FirebaseFirestore.instance.collection('groups').get();
+  String userId = FirebaseAuth.instance.currentUser?.uid ?? '';
 
-    List<GroupActivity> groupActivities = [];
+  QuerySnapshot<Map<String, dynamic>> snapshot = await FirebaseFirestore.instance
+      .collection('groups')
+      .where('creator', isEqualTo: userId)
+      .get();
 
-    snapshot.docs.forEach((doc) {
-      // Assuming 'groupName' is a field in each document
-      groupActivities.add(GroupActivity(
-        groupName: doc['groupName'],
-      ));
-    });
+  List<GroupActivity> groupActivities = [];
 
-    return groupActivities;
-  }
+  snapshot.docs.forEach((doc) {
+    // Assuming 'groupName' is a field in each document
+    groupActivities.add(GroupActivity(
+      groupName: doc['groupName'],
+    ));
+  });
+
+  return groupActivities;
+}
+
 
   @override
   Widget build(BuildContext context) {

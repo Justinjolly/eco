@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart'; // Add this import
 import 'addfriend.dart'; // Import AddFriendPage if not already imported
 
 class GroupCreate extends StatelessWidget {
@@ -141,8 +142,11 @@ class GroupCreate extends StatelessWidget {
                           onPressed: () async {
                             String groupName = groupNameController.text;
                             String groupType = groupTypeController.text;
+                            String userId = FirebaseAuth.instance.currentUser?.uid ?? '';
 
-                            if (groupName.isNotEmpty && groupType.isNotEmpty) {
+                            if (groupName.isNotEmpty &&
+                                groupType.isNotEmpty &&
+                                userId.isNotEmpty) {
                               bool groupExists =
                                   await _checkGroupExists(groupName, context);
                               if (groupExists) {
@@ -154,6 +158,7 @@ class GroupCreate extends StatelessWidget {
                                         .add({
                                   'groupName': groupName,
                                   'groupType': groupType,
+                                  'creator': userId, // Store the user ID as creator
                                 });
                                 String groupId = groupRef.id;
                                 print(
