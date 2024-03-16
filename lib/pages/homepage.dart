@@ -1,3 +1,4 @@
+import 'package:app/pages/card.dart';
 import 'package:app/pages/group.dart';
 import 'package:app/pages/groupcreate.dart';
 import 'package:flutter/material.dart';
@@ -334,7 +335,10 @@ class OptionsSection extends StatelessWidget {
                 width: 150, // Fixed width, same as the other button
                 child: ElevatedButton(
                   onPressed: () {
-                    // Handle Split option
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => SplitCard()),
+                    );
                   },
                   child: Text('Split'),
                 ),

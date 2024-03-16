@@ -145,36 +145,3 @@ class YourMainWidget extends StatelessWidget {
     );
   }
 }
-
-
-// import 'package:flutter/material.dart';
-// import 'package:firebase_core/firebase_core.dart';
-// import 'pages/loginpage.dart';
-
-// void main() async {
-//   WidgetsFlutterBinding.ensureInitialized();
-//   await Firebase.initializeApp(
-//     options: FirebaseOptions(
-//       apiKey: "AIzaSyAf2bVIAxMPsWksVSIM3SMUEi5FAVsB3iw",
-//       authDomain: "ecoexpense-1cde6.firebaseapp.com",
-//       projectId: "ecoexpense-1cde6",
-//       storageBucket: "ecoexpense-1cde6.appspot.com",
-//       messagingSenderId: "409083412762",
-//       appId:
-//           "1:409083412762:web:6f28d8a9153c03b687eca3", // Replace with your actual web app ID
-//     ),
-//   );
-//   runApp(MyApp());
-// }
-
-// class MyApp extends StatelessWidget {
-//   @override
-//   Widget build(BuildContext context) {
-//     return MaterialApp(
-//       home: LoginPage(),
-//     );
-//   }
-// }
-
-
-///hello im juss
