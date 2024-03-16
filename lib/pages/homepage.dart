@@ -145,7 +145,18 @@ class _HomePageState extends State<HomePage> {
               shrinkWrap: true,
               itemCount: displayedGroups.length,
               itemBuilder: (context, index) {
-                return displayedGroups[index];
+                return Container(
+                  margin:
+                      EdgeInsets.only(bottom: 8.0), // Adjust margin as needed
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color: Colors.grey, // Border color
+                      width: .2, // Border width
+                    ),
+                    borderRadius: BorderRadius.circular(10.0), // Border radius
+                  ),
+                  child: displayedGroups[index],
+                );
               },
             ),
           ],
@@ -180,8 +191,9 @@ class _GroupWidgetState extends State<GroupWidget> {
   @override
   Widget build(BuildContext context) {
     Color amountColor = widget.totalDebt > 0 ? Colors.red : Colors.green;
-    Color backgroundColor =
-        isMouseOver ? Colors.blue.withOpacity(0.5) : Colors.transparent;
+    Color backgroundColor = isMouseOver
+        ? const Color.fromARGB(255, 81, 82, 82).withOpacity(0.5)
+        : Colors.transparent;
 
     return MouseRegion(
       onEnter: (_) {
@@ -230,7 +242,21 @@ class UserInfoSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      width: double.infinity,
+      margin: EdgeInsets.all(20.0), // Adjust margins as needed
       padding: EdgeInsets.all(16.0),
+      decoration: BoxDecoration(
+        color: Color.fromARGB(255, 49, 51, 51), // Example background color
+        borderRadius: BorderRadius.circular(10.0), // Example border radius
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.5),
+            spreadRadius: 0.1,
+            blurRadius: 7,
+            offset: Offset(0, 1), // changes position of shadow
+          ),
+        ],
+      ),
       child: Column(
         children: [
           SizedBox(height: 8.0),
@@ -290,22 +316,28 @@ class OptionsSection extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => GroupCreate()),
-                  ).then((_) {
-                    onGroupCreated();
-                  });
-                },
-                child: Text('Create Group'),
+              SizedBox(
+                width: 120, // Fixed width
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => GroupCreate()),
+                    ).then((_) {
+                      onGroupCreated();
+                    });
+                  },
+                  child: Text('Create Group'),
+                ),
               ),
-              ElevatedButton(
-                onPressed: () {
-                  // Handle Split option
-                },
-                child: Text('Split'),
+              SizedBox(
+                width: 120, // Fixed width, same as the other button
+                child: ElevatedButton(
+                  onPressed: () {
+                    // Handle Split option
+                  },
+                  child: Text('Split'),
+                ),
               ),
             ],
           ),

@@ -59,81 +59,154 @@ class GroupCreate extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Add Members'),
+        title: Text(
+          'Create Group',
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
         centerTitle: true,
         automaticallyImplyLeading: false, // Disable the back button
+        backgroundColor:
+            Color.fromARGB(236, 72, 74, 74), // Example app bar color
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            TextField(
-              controller: groupNameController,
-              decoration: InputDecoration(
-                labelText: 'Group Name',
-                labelStyle: TextStyle(color: Colors.white),
-              ),
-            ),
-            SizedBox(height: 8),
-            TextField(
-              controller: groupTypeController,
-              decoration: InputDecoration(
-                labelText: 'Group Type',
-                labelStyle: TextStyle(color: Colors.white),
-              ),
-            ),
-            SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () async {
-                String groupName = groupNameController.text;
-                String groupType = groupTypeController.text;
-
-                if (groupName.isNotEmpty && groupType.isNotEmpty) {
-                  // Check if the group name already exists
-                  bool groupExists =
-                      await _checkGroupExists(groupName, context);
-                  if (groupExists) {
-                    _showRenameDialog(context, groupName);
-                  } else {
-                    // Create a new document in the "groups" collection with the provided data
-                    DocumentReference groupRef = await FirebaseFirestore
-                        .instance
-                        .collection('groups')
-                        .add({
-                      'groupName': groupName,
-                      'groupType': groupType,
-                    });
-                    String groupId =
-                        groupRef.id; // Get the ID of the newly created group
-                    print('Group created successfully! Group ID: $groupId');
-
-                    // Navigate to AddFriendPage and pass the group ID
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => AddFriendPage(groupId: groupId),
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+              vertical: 15.0, horizontal: 16.0), // Adjust padding
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center, // Center vertically
+            children: [
+              Container(
+                padding: EdgeInsets.all(16.0),
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: Color.fromARGB(255, 125, 123, 123), // Border color
+                    width: 2, // Border width
+                  ),
+                  borderRadius: BorderRadius.circular(8.0), // Border radius
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text(
+                      'Group Information',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
                       ),
-                    );
-                  }
-                } else {
-                  _showAlertDialog(
-                      context); // Show alert dialog if fields are empty
-                }
-              },
-              child:
-                  Text('Create Group', style: TextStyle(color: Colors.white)),
-            ),
-            SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () {
-                // Navigate back to the home page when the back button is pressed
-                Navigator.popUntil(context, ModalRoute.withName('/'));
-              },
-              child:
-                  Text('Back to Home', style: TextStyle(color: Colors.white)),
-            ),
-          ],
+                      textAlign: TextAlign.center,
+                    ),
+                    SizedBox(height: 20),
+                    TextField(
+                      controller: groupNameController,
+                      style: TextStyle(color: Colors.white),
+                      decoration: InputDecoration(
+                        labelText: 'Group Name',
+                        labelStyle: TextStyle(color: Colors.white),
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.white),
+                          borderRadius: BorderRadius.circular(8.0),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.white),
+                          borderRadius: BorderRadius.circular(8.0),
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 16),
+                    TextField(
+                      controller: groupTypeController,
+                      style: TextStyle(color: Colors.white),
+                      decoration: InputDecoration(
+                        labelText: 'Group Type',
+                        labelStyle: TextStyle(color: Colors.white),
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.white),
+                          borderRadius: BorderRadius.circular(8.0),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.white),
+                          borderRadius: BorderRadius.circular(8.0),
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 24),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        ElevatedButton(
+                          onPressed: () async {
+                            String groupName = groupNameController.text;
+                            String groupType = groupTypeController.text;
+
+                            if (groupName.isNotEmpty && groupType.isNotEmpty) {
+                              bool groupExists =
+                                  await _checkGroupExists(groupName, context);
+                              if (groupExists) {
+                                _showRenameDialog(context, groupName);
+                              } else {
+                                DocumentReference groupRef =
+                                    await FirebaseFirestore.instance
+                                        .collection('groups')
+                                        .add({
+                                  'groupName': groupName,
+                                  'groupType': groupType,
+                                });
+                                String groupId = groupRef.id;
+                                print(
+                                    'Group created successfully! Group ID: $groupId');
+
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        AddFriendPage(groupId: groupId),
+                                  ),
+                                );
+                              }
+                            } else {
+                              _showAlertDialog(context);
+                            }
+                          },
+                          style: ElevatedButton.styleFrom(
+                            primary: Colors.blue,
+                            elevation: 3,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8.0),
+                            ),
+                          ),
+                          child: Text(
+                            'Create Group',
+                            style: TextStyle(color: Colors.white, fontSize: 16),
+                          ),
+                        ),
+                        ElevatedButton(
+                          onPressed: () {
+                            Navigator.popUntil(
+                                context, ModalRoute.withName('/'));
+                          },
+                          style: ElevatedButton.styleFrom(
+                            primary: Colors.grey,
+                            elevation: 3,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8.0),
+                            ),
+                          ),
+                          child: Text(
+                            'Back to Home',
+                            style: TextStyle(color: Colors.white, fontSize: 16),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
