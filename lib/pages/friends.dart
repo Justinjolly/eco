@@ -91,7 +91,7 @@ class _FriendsPageState extends State<FriendsPage> {
           ),
         ),
         centerTitle: true, // Center the title
-        automaticallyImplyLeading: false,
+        
       ),
       body: Column(
         children: [
