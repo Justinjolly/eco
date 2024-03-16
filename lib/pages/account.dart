@@ -1,3 +1,4 @@
+import 'package:app/main.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -98,7 +99,7 @@ class _AccountPageState extends State<AccountPage> {
             child: Row(
               children: <Widget>[
                 CircleAvatar(
-                  backgroundColor: Colors.blueGrey,
+                  backgroundColor: const Color.fromARGB(255, 44, 140, 188),
                   radius: 40, // Adjust the size of the circle avatar as needed
                   child: Text(
                     _user?.displayName != null ? _user!.displayName![0] : "",
@@ -217,7 +218,12 @@ class _AccountPageState extends State<AccountPage> {
               'Logout',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
-            onTap: () {},
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => MyHomePage()),
+              );
+            },
           ),
         ],
       ),

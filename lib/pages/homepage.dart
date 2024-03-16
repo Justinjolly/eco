@@ -1,3 +1,4 @@
+import 'package:app/pages/card.dart';
 import 'package:app/pages/group.dart';
 import 'package:app/pages/groupcreate.dart';
 import 'package:flutter/material.dart';
@@ -375,7 +376,7 @@ class OptionsSection extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               SizedBox(
-                width: 120, // Fixed width
+                width: 150, // Fixed width
                 child: ElevatedButton(
                   onPressed: () {
                     Navigator.push(
@@ -389,10 +390,13 @@ class OptionsSection extends StatelessWidget {
                 ),
               ),
               SizedBox(
-                width: 120, // Fixed width, same as the other button
+                width: 150, // Fixed width, same as the other button
                 child: ElevatedButton(
                   onPressed: () {
-                    // Handle Split option
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => SplitCard()),
+                    );
                   },
                   child: Text('Split'),
                 ),
