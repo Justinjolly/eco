@@ -156,7 +156,7 @@ class GroupCreate extends StatelessWidget {
                                 // Get the current date
                                 DateTime now = DateTime.now();
                                 String formattedDate =
-                                    '${now.year}-${now.month}-${now.day}';
+                                    '${now.day}-${now.month}-${now.year}';
 
                                 DocumentReference groupRef =
                                     await FirebaseFirestore.instance
@@ -176,8 +176,8 @@ class GroupCreate extends StatelessWidget {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) =>
-                                        AddFriendPage(groupId: groupId),
+                                    builder: (context) => AddFriendPage(
+                                        groupId: groupId, userId: userId),
                                   ),
                                 );
                               }
