@@ -130,7 +130,7 @@ class _GroupPageState extends State<GroupPage> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => ExpenseEntryScreen()),
-                ); // Handle split button press
+                ); 
               },
               child: Text('Split'),
             ),
