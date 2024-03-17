@@ -1,9 +1,9 @@
-import 'package:flutter/material.dart';
-import 'package:app/pages/groupsettings.dart';
 import 'package:app/pages/split.dart';
-import 'package:app/pages/homepage.dart';
+import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:app/pages/groupsettings.dart';
+import 'package:app/pages/homepage.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -59,7 +59,19 @@ class _GroupPageState extends State<GroupPage> {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        title: Text(widget.groupName),
+        title: GestureDetector(
+          onTap: () {
+            // Navigate to group settings page
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) =>
+                    GroupSettingsPage(groupName: widget.groupName),
+              ),
+            );
+          },
+          child: Text(widget.groupName),
+        ),
       ),
       body: StreamBuilder<List<String>>(
         stream: _messagesStream,
