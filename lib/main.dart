@@ -52,8 +52,8 @@ class YourMainWidget extends StatelessWidget {
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [
-                  Color.fromARGB(255, 10, 83, 132),
-                  Color.fromARGB(237, 116, 130, 136)
+                  Color.fromARGB(252, 26, 27, 27),
+                  Color.fromARGB(252, 26, 27, 27)
                 ],
               ),
             ),
@@ -92,13 +92,12 @@ class YourMainWidget extends StatelessWidget {
                     );
                   },
                   style: ElevatedButton.styleFrom(
-                    primary: Colors.blue, // Change the color to your preference
+                    primary: const Color.fromARGB(255, 40, 42, 45), // Change the color to your preference
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(60),
+                      borderRadius: BorderRadius.circular(50),
                       side: BorderSide(
-                        color: Color.fromARGB(182, 0, 5,
-                            1), // Change the color to your preference
-                        width: 0.6, // Adjust the width as needed
+                        color: Color.fromARGB(255, 255, 255, 255), // Change the color to your preference
+                        width: 1, // Adjust the width as needed
                       ),
                     ),
                   ),
@@ -119,13 +118,12 @@ class YourMainWidget extends StatelessWidget {
                     );
                   },
                   style: ElevatedButton.styleFrom(
-                    primary: Colors.blue, // Change the color to your preference
+                    primary: const Color.fromARGB(255, 40, 42, 45), // Change the color to your preference
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(60),
+                      borderRadius: BorderRadius.circular(50),
                       side: BorderSide(
-                        color: Color.fromARGB(182, 0, 5,
-                            1), // Change the color to your preference
-                        width: 0.5, // Adjust the width as needed
+                        color: Color.fromARGB(255, 255, 255, 255), // Change the color to your preference
+                        width: 1, // Adjust the width as needed
                       ),
                     ),
                   ),
