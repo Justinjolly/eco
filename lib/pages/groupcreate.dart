@@ -142,7 +142,8 @@ class GroupCreate extends StatelessWidget {
                           onPressed: () async {
                             String groupName = groupNameController.text;
                             String groupType = groupTypeController.text;
-                            String userId = FirebaseAuth.instance.currentUser?.uid ?? '';
+                            String userId =
+                                FirebaseAuth.instance.currentUser?.uid ?? '';
 
                             if (groupName.isNotEmpty &&
                                 groupType.isNotEmpty &&
@@ -152,13 +153,21 @@ class GroupCreate extends StatelessWidget {
                               if (groupExists) {
                                 _showRenameDialog(context, groupName);
                               } else {
+                                // Get the current date
+                                DateTime now = DateTime.now();
+                                String formattedDate =
+                                    '${now.year}-${now.month}-${now.day}';
+
                                 DocumentReference groupRef =
                                     await FirebaseFirestore.instance
                                         .collection('groups')
                                         .add({
                                   'groupName': groupName,
                                   'groupType': groupType,
-                                  'creator': userId, // Store the user ID as creator
+                                  'creator':
+                                      userId, // Store the user ID as creator
+                                  'creationDate':
+                                      formattedDate, // Store the creation date
                                 });
                                 String groupId = groupRef.id;
                                 print(
