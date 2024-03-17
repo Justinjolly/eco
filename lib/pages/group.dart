@@ -21,6 +21,7 @@ class MyApp extends StatelessWidget {
   }
 }
 
+// GroupPage Widget
 class GroupPage extends StatefulWidget {
   final String groupName;
 
@@ -55,77 +56,71 @@ class _GroupPageState extends State<GroupPage> {
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async {
-        // Returning false will prevent the user from navigating back
-        return false;
-      },
-      child: Scaffold(
-        appBar: AppBar(
-          automaticallyImplyLeading: false,
-          title: GestureDetector(
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) =>
-                      GroupSettingsPage(groupName: widget.groupName),
-                ),
-              );
-            },
-            child: Text(widget.groupName),
-          ),
-        ),
-        body: StreamBuilder<List<String>>(
-          stream: _messagesStream,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return Center(child: CircularProgressIndicator());
-            } else if (snapshot.hasError) {
-              return Center(child: Text('Error: ${snapshot.error}'));
-            } else {
-              final messages = snapshot.data ?? [];
-              return ListView.builder(
-                itemCount: messages.length,
-                reverse: true,
-                itemBuilder: (context, index) {
-                  final reversedIndex = messages.length - 1 - index;
-                  return ListTile(
-                    title: Text(
-                      messages[index],
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  );
-                },
-              );
-            }
+    return Scaffold(
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        title: GestureDetector(
+          onTap: () {
+            // Navigate to group settings page
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) =>
+                    GroupSettingsPage(groupName: widget.groupName),
+              ),
+            );
           },
+          child: Text(widget.groupName),
         ),
-        bottomNavigationBar: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Row(
-            children: [
-              Expanded(
-                child: ChatInputField(
-                  groupName: widget.groupName,
-                  onSendPressed: (message) {
-                    _sendMessage(message);
-                  },
-                ),
-              ),
-              SizedBox(width: 8),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => ExpenseEntryScreen()),
-                  );
+      ),
+      body: StreamBuilder<List<String>>(
+        stream: _messagesStream,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          } else {
+            final messages = snapshot.data ?? [];
+            return ListView.builder(
+              itemCount: messages.length,
+              reverse: true,
+              itemBuilder: (context, index) {
+                final reversedIndex = messages.length - 1 - index;
+                return ListTile(
+                  title: Text(
+                    messages[index],
+                    style: TextStyle(color: Colors.white),
+                  ),
+                );
+              },
+            );
+          }
+        },
+      ),
+      bottomNavigationBar: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Row(
+          children: [
+            Expanded(
+              child: ChatInputField(
+                groupName: widget.groupName,
+                onSendPressed: (message) {
+                  _sendMessage(message);
                 },
-                child: Text('Split'),
               ),
-            ],
-          ),
+            ),
+            SizedBox(width: 8),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => ExpenseEntryScreen()),
+                );
+              },
+              child: Text('Split'),
+            ),
+          ],
         ),
       ),
     );
@@ -147,6 +142,7 @@ class _GroupPageState extends State<GroupPage> {
   }
 }
 
+// ChatInputField Widget
 class ChatInputField extends StatefulWidget {
   final String groupName;
   final Function(String) onSendPressed;
