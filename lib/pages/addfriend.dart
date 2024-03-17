@@ -64,18 +64,40 @@ class _AddFriendPageState extends State<AddFriendPage> {
   }
 
   void addToFriends(String groupId) {
-    print('Adding selected users to the group...');
-    // Here you can add selected users to the group using 'selectedUsers' set
-    selectedUsers.forEach((user) {
-      print('Added $user to friends');
-      FirebaseFirestore.instance.collection('groups').doc(groupId).update({
-        'members': FieldValue.arrayUnion([user])
-      }).then((_) {
-        print('User added to the group successfully');
+    // Fetch the user ID of the logged-in user
+    User? currentUser = FirebaseAuth.instance.currentUser;
+
+    if (currentUser != null) {
+      String userId = currentUser.uid;
+      FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
+          .get()
+          .then((userData) {
+        String userName = userData.data()?['userName'] ?? '';
+        if (userName.isNotEmpty) {
+          print('Added $userName to friends');
+          // Add the current signed-in user to the selected users
+          selectedUsers.add(userName);
+          // Add all selected users to the group
+          FirebaseFirestore.instance.collection('groups').doc(groupId).update({
+            'members': FieldValue.arrayUnion(selectedUsers.toList())
+          }).then((_) {
+            print('Users added to the group successfully');
+            // Clear the selected users list
+            selectedUsers.clear();
+          }).catchError((error) {
+            print('Error adding users to the group: $error');
+          });
+        } else {
+          print('Failed to fetch username for user ID: $userId');
+        }
       }).catchError((error) {
-        print('Error adding user to the group: $error');
+        print('Error fetching user data: $error');
       });
-    });
+    } else {
+      print('User is not logged in. Cannot add user to the group.');
+    }
   }
 
   @override
