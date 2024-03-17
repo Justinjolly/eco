@@ -42,80 +42,83 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<List<GroupWidget>> _fetchGroupsFromFirestore() async {
-  List<GroupWidget> groupsFromFirestore = [];
+    List<GroupWidget> groupsFromFirestore = [];
 
-  try {
-    QuerySnapshot<Map<String, dynamic>> querySnapshot =
-        await FirebaseFirestore.instance.collection('groups').get();
-    if (querySnapshot.docs.isNotEmpty) {
-      for (QueryDocumentSnapshot<Map<String, dynamic>> doc in querySnapshot.docs) {
-        Map<String, dynamic> data = doc.data();
-        // Check if the logged-in user created the group or is a member of it
-        if (data['creator'] == _currentUser.uid ||
-            await _isUserMemberOfGroup(doc.reference as DocumentReference<Map<String, dynamic>>)) {
-          // Convert 'groupType' to double
-          double groupType =
-              double.tryParse(data['groupType'].toString()) ?? 0;
-          groupsFromFirestore.add(GroupWidget(
-            name: data['groupName'] ?? '',
-            totalDebt: groupType,
-            onTap: () {
-              // Navigate to the group page and pass the group name
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) =>
-                      GroupPage(groupName: data['groupName']),
-                ),
-              );
-            },
-          ));
+    try {
+      QuerySnapshot<Map<String, dynamic>> querySnapshot =
+          await FirebaseFirestore.instance.collection('groups').get();
+      if (querySnapshot.docs.isNotEmpty) {
+        for (QueryDocumentSnapshot<Map<String, dynamic>> doc
+            in querySnapshot.docs) {
+          Map<String, dynamic> data = doc.data();
+          // Check if the logged-in user created the group or is a member of it
+          if (data['creator'] == _currentUser.uid ||
+              await _isUserMemberOfGroup(
+                  doc.reference as DocumentReference<Map<String, dynamic>>)) {
+            // Convert 'groupType' to double
+            double groupType =
+                double.tryParse(data['groupType'].toString()) ?? 0;
+            groupsFromFirestore.add(GroupWidget(
+              name: data['groupName'] ?? '',
+              totalDebt: groupType,
+              onTap: () {
+                // Navigate to the group page and pass the group name
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        GroupPage(groupName: data['groupName']),
+                  ),
+                );
+              },
+            ));
+          }
+        }
+      }
+    } catch (error) {
+      print("Failed to fetch groups from Firestore: $error");
+    }
+
+    return groupsFromFirestore;
+  }
+
+  Future<bool> _isUserMemberOfGroup(DocumentReference groupReference) async {
+    DocumentSnapshot groupSnapshot = await groupReference.get();
+
+    Map<String, dynamic>? groupData =
+        groupSnapshot.data() as Map<String, dynamic>?;
+
+    if (groupData != null) {
+      List<dynamic>? members = groupData['members'];
+
+      // Check if members is not null before accessing its contents
+      if (members != null) {
+        // Assuming _currentUser contains the user object
+        String? currentUserID = _currentUser.uid;
+
+        // Assuming you have a Firestore collection named 'users' containing user data
+        DocumentSnapshot userSnapshot = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(currentUserID)
+            .get();
+        Map<String, dynamic>? userData =
+            userSnapshot.data() as Map<String, dynamic>?;
+
+        if (userData != null) {
+          String? username = userData['userName'];
+
+          if (username != null) {
+            return members.contains(username);
+          }
         }
       }
     }
-  } catch (error) {
-    print("Failed to fetch groups from Firestore: $error");
+
+    // If any required data is missing, the user is not considered a member
+    return false;
   }
 
-  return groupsFromFirestore;
-}
-
-
-Future<bool> _isUserMemberOfGroup(DocumentReference groupReference) async {
-  DocumentSnapshot groupSnapshot = await groupReference.get();
-  
-  Map<String, dynamic>? groupData = groupSnapshot.data() as Map<String, dynamic>?;
-
-  if (groupData != null) {
-    List<dynamic>? members = groupData['members'];
-
-    // Check if members is not null before accessing its contents
-    if (members != null) {
-      // Assuming _currentUser contains the user object
-      String? currentUserID = _currentUser.uid;
-
-      // Assuming you have a Firestore collection named 'users' containing user data
-      DocumentSnapshot userSnapshot = await FirebaseFirestore.instance.collection('users').doc(currentUserID).get();
-      Map<String, dynamic>? userData = userSnapshot.data() as Map<String, dynamic>?;
-
-      if (userData != null) {
-        String? username = userData['userName'];
-
-        if (username != null) {
-          return members.contains(username);
-        }
-      }
-    }
-  }
-  
-  // If any required data is missing, the user is not considered a member
-  return false;
-}
-
-  
-  
   // If members is null or groupData is null, the user is not a member
-  
 
   @override
   Widget build(BuildContext context) {
@@ -201,15 +204,14 @@ class GroupsSection extends StatelessWidget {
               itemCount: displayedGroups.length,
               itemBuilder: (context, index) {
                 return Container(
-                  margin: EdgeInsets.only(
-                      bottom: 8.0), // Adjust margin as needed
+                  margin:
+                      EdgeInsets.only(bottom: 8.0), // Adjust margin as needed
                   decoration: BoxDecoration(
                     border: Border.all(
                       color: Colors.grey, // Border color
                       width: .2, // Border width
                     ),
-                    borderRadius: BorderRadius.circular(
-                        10.0), // Border radius
+                    borderRadius: BorderRadius.circular(10.0), // Border radius
                   ),
                   child: displayedGroups[index],
                 );
@@ -224,10 +226,9 @@ class GroupsSection extends StatelessWidget {
 
 // Other Widget Classes (UserInfoSection, OptionsSection, GroupWidget) remain unchanged
 
-  void _applyFilter() {
-    // Implement filtering logic if necessary
-  }
-
+void _applyFilter() {
+  // Implement filtering logic if necessary
+}
 
 class GroupWidget extends StatefulWidget {
   final String name;
