@@ -62,7 +62,6 @@ class _GroupPageState extends State<GroupPage> {
       },
       child: Scaffold(
         appBar: AppBar(
-          automaticallyImplyLeading: false,
           title: GestureDetector(
             onTap: () {
               Navigator.push(
