@@ -218,8 +218,10 @@ class _AccountPageState extends State<AccountPage> {
               'Logout',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
-            onTap: () {
-              Navigator.push(
+            onTap: () async {
+              await _auth.signOut(); // Sign out the user
+              Navigator.pushReplacement(
+                // Use pushReplacement to replace the current screen
                 context,
                 MaterialPageRoute(builder: (context) => MyHomePage()),
               );
