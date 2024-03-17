@@ -18,6 +18,7 @@ class AddFriendPage extends StatefulWidget {
 class _AddFriendPageState extends State<AddFriendPage> {
   List<String> allUsers = [];
   List<String> displayedUsers = [];
+  Set<String> selectedUsers = Set();
 
   @override
   void initState() {
@@ -52,8 +53,20 @@ class _AddFriendPageState extends State<AddFriendPage> {
     });
   }
 
-  void addToFriends(String user, String groupId) {
-    if (user.isNotEmpty) {
+  void toggleSelectedUser(String user) {
+    setState(() {
+      if (selectedUsers.contains(user)) {
+        selectedUsers.remove(user);
+      } else {
+        selectedUsers.add(user);
+      }
+    });
+  }
+
+  void addToFriends(String groupId) {
+    print('Adding selected users to the group...');
+    // Here you can add selected users to the group using 'selectedUsers' set
+    selectedUsers.forEach((user) {
       print('Added $user to friends');
       FirebaseFirestore.instance.collection('groups').doc(groupId).update({
         'members': FieldValue.arrayUnion([user])
@@ -62,37 +75,7 @@ class _AddFriendPageState extends State<AddFriendPage> {
       }).catchError((error) {
         print('Error adding user to the group: $error');
       });
-    }
-
-    // Fetch the user ID of the logged-in user
-    User? currentUser = FirebaseAuth.instance.currentUser;
-
-    if (currentUser != null) {
-      String userId = currentUser.uid;
-      FirebaseFirestore.instance
-          .collection('users')
-          .doc(userId)
-          .get()
-          .then((userData) {
-        String userName = userData.data()?['userName'] ?? '';
-        if (userName.isNotEmpty) {
-          print('Added $userName to friends');
-          FirebaseFirestore.instance.collection('groups').doc(groupId).update({
-            'members': FieldValue.arrayUnion([userName])
-          }).then((_) {
-            print('User added to the group successfully');
-          }).catchError((error) {
-            print('Error adding user to the group: $error');
-          });
-        } else {
-          print('Failed to fetch username for user ID: $userId');
-        }
-      }).catchError((error) {
-        print('Error fetching user data: $error');
-      });
-    } else {
-      print('User is not logged in. Cannot add user to the group.');
-    }
+    });
   }
 
   @override
@@ -147,6 +130,7 @@ class _AddFriendPageState extends State<AddFriendPage> {
               itemCount: displayedUsers.length,
               itemBuilder: (context, index) {
                 String user = displayedUsers[index];
+                bool isSelected = selectedUsers.contains(user);
                 return ListTile(
                   title: Row(
                     children: [
@@ -160,9 +144,11 @@ class _AddFriendPageState extends State<AddFriendPage> {
                         ),
                       ),
                       IconButton(
-                        icon: Icon(Icons.person_add, color: Colors.white),
+                        icon: isSelected
+                            ? Icon(Icons.check_circle, color: Colors.green)
+                            : Icon(Icons.circle, color: Colors.white),
                         onPressed: () {
-                          addToFriends(user, widget.groupId); // Pass group ID
+                          toggleSelectedUser(user);
                         },
                       ),
                     ],
@@ -175,10 +161,12 @@ class _AddFriendPageState extends State<AddFriendPage> {
             padding: const EdgeInsets.all(8.0),
             child: ElevatedButton(
               onPressed: () {
+                addToFriends(widget.groupId); // Add selected users to the group
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => HomePage()), // Navigate to HomePage
+                    builder: (context) => HomePage(),
+                  ),
                 );
                 print('Creating group...');
               },
