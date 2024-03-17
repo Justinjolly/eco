@@ -50,8 +50,8 @@ class _LoginPageState extends State<LoginPage> {
             begin: Alignment.topCenter,
             end: Alignment.center,
             colors: [
-              Color.fromARGB(255, 136, 183, 209),
-              Color(0xFFFFFFFF),
+              Color.fromARGB(251, 7, 233, 233),
+              Color.fromARGB(251, 38, 39, 39),
             ],
           ),
         ),
@@ -66,20 +66,20 @@ class _LoginPageState extends State<LoginPage> {
                   style: TextStyle(
                       fontSize: 34,
                       fontWeight: FontWeight.bold,
-                      color: Color.fromARGB(95, 6, 12, 13)),
+                      color: Color.fromARGB(255, 255, 255, 255)),
                 ),
                 SizedBox(height: 30),
                 Container(
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: Colors.black),
+                    border: Border.all(color: const Color.fromARGB(255, 255, 255, 255)),
                   ),
                   child: TextField(
                     controller: _emailController,
-                    style: TextStyle(color: Colors.black),
+                    style: TextStyle(color: const Color.fromARGB(255, 255, 255, 255)),
                     decoration: InputDecoration(
                       labelText: 'Email',
-                      labelStyle: TextStyle(color: Colors.black),
+                      labelStyle: TextStyle(color: Color.fromARGB(255, 255, 255, 255)),
                       border: InputBorder.none,
                       contentPadding: EdgeInsets.all(12),
                     ),
@@ -89,16 +89,16 @@ class _LoginPageState extends State<LoginPage> {
                 Container(
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: Colors.black),
+                    border: Border.all(color: const Color.fromARGB(255, 239, 239, 239)),
                   ),
                   child: TextField(
                     controller: _passwordController,
                     obscureText: true,
-                    style: TextStyle(color: Colors.black),
+                    style: TextStyle(color: const Color.fromARGB(255, 255, 255, 255)),
                     decoration: InputDecoration(
                       labelText: 'Password',
                       labelStyle:
-                          TextStyle(color: const Color.fromRGBO(0, 0, 0, 1)),
+                          TextStyle(color: Color.fromARGB(255, 255, 255, 255)),
                       border: InputBorder.none,
                       contentPadding: EdgeInsets.all(12),
                     ),
@@ -118,7 +118,7 @@ class _LoginPageState extends State<LoginPage> {
                     },
                     child: Text(
                       'Forgot Password?',
-                      style: TextStyle(color: Colors.black),
+                      style: TextStyle(color: const Color.fromARGB(255, 255, 255, 255)),
                     ),
                   ),
                 ),
@@ -126,7 +126,7 @@ class _LoginPageState extends State<LoginPage> {
                 ElevatedButton(
                   onPressed: _handleEmailSignIn,
                   style: ElevatedButton.styleFrom(
-                    primary: Colors.black,
+                    primary: Color.fromARGB(255, 25, 9, 128),
                     minimumSize: Size(500, 50),
                   ),
                   child: Text(
@@ -153,7 +153,7 @@ class _LoginPageState extends State<LoginPage> {
                   child: Text(
                     "Don't have an account? Sign up",
                     style: TextStyle(
-                      color: Colors.black,
+                      color: const Color.fromARGB(255, 255, 255, 255),
                     ),
                   ),
                 ),
