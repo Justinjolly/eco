@@ -19,30 +19,32 @@ class _ActivityPageState extends State<ActivityPage> {
   }
 
   Future<List<GroupActivity>> _getGroupActivities() async {
-  String userId = FirebaseAuth.instance.currentUser?.uid ?? '';
+    String userId = FirebaseAuth.instance.currentUser?.uid ?? '';
 
-  QuerySnapshot<Map<String, dynamic>> snapshot = await FirebaseFirestore.instance
-      .collection('groups')
-      .where('creator', isEqualTo: userId)
-      .get();
+    QuerySnapshot<Map<String, dynamic>> snapshot = await FirebaseFirestore
+        .instance
+        .collection('groups')
+        .where('creator', isEqualTo: userId)
+        .get();
 
-  List<GroupActivity> groupActivities = [];
+    List<GroupActivity> groupActivities = [];
 
-  snapshot.docs.forEach((doc) {
-    // Assuming 'groupName' is a field in each document
-    groupActivities.add(GroupActivity(
-      groupName: doc['groupName'],
-    ));
-  });
+    snapshot.docs.forEach((doc) {
+      // Assuming 'groupName' and 'creationDate' are fields in each document
+      groupActivities.add(GroupActivity(
+        groupName: doc['groupName'],
+        creationDate: doc['creationDate'],
+      ));
+    });
 
-  return groupActivities;
-}
-
+    return groupActivities;
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: Text('Activity'),
       ),
       body: FutureBuilder<List<GroupActivity>>(
@@ -58,7 +60,9 @@ class _ActivityPageState extends State<ActivityPage> {
               itemBuilder: (BuildContext context, int index) {
                 final groupActivity = snapshot.data![index];
                 return ListTile(
-                  title: Text('Group "${groupActivity.groupName}" created'),
+                  title: Text(
+                    'Group "${groupActivity.groupName}" created on ${groupActivity.creationDate}',
+                  ),
                 );
               },
             );
@@ -71,9 +75,11 @@ class _ActivityPageState extends State<ActivityPage> {
 
 class GroupActivity {
   final String groupName;
+  final String creationDate;
 
   GroupActivity({
     required this.groupName,
+    required this.creationDate,
   });
 }
 
