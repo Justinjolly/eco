@@ -194,7 +194,7 @@ class _AccountPageState extends State<AccountPage> {
           ),
           ListTile(
             leading: Icon(
-              Icons.email,
+              Icons.notification_add,
               size: 30,
             ),
             title: Text(

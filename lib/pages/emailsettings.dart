@@ -18,7 +18,7 @@ class _EmailSettingsPageState extends State<EmailSettingsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Email Settings'),
+        title: Text('Notification Settings'),
         backgroundColor: Colors.blue,
       ),
       body: Container(
