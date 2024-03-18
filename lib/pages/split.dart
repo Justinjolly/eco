@@ -1,6 +1,6 @@
 import 'package:app/pages/group.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart'; 
+import 'package:flutter/services.dart';
 
 void main() {
   runApp(MyApp());
@@ -166,7 +166,7 @@ class _ExpenseEntryScreenState extends State<ExpenseEntryScreen> {
               ],
             ),
           ),
-           Expanded(
+          Expanded(
             child: Align(
               alignment: Alignment.bottomCenter,
               child: Padding(
@@ -176,7 +176,7 @@ class _ExpenseEntryScreenState extends State<ExpenseEntryScreen> {
                     int expenseAmount = _amountController.text.isNotEmpty
                         ? int.parse(_amountController.text)
                         : 0;
-                    Navigator.pop(context,expenseAmount);
+                    Navigator.pop(context, expenseAmount);
                   },
                   child: Text(
                     'Split',
@@ -187,8 +187,8 @@ class _ExpenseEntryScreenState extends State<ExpenseEntryScreen> {
                 ),
               ),
             ),
-       ),
-         ],
+          ),
+        ],
       ),
     );
   }
@@ -215,7 +215,7 @@ class _ExpenseEntryScreenState extends State<ExpenseEntryScreen> {
           borderSide: BorderSide(color: Colors.black),
         ),
         filled: true,
-        fillColor: Color.fromARGB(255, 212, 218, 240),
+        fillColor: Color.fromARGB(255, 19, 19, 21),
         contentPadding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 10.0),
       ),
       maxLines: 1,
@@ -519,11 +519,13 @@ class _ExpenseEntryScreenState extends State<ExpenseEntryScreen> {
     );
   }
 }
+
 class GroupPage extends StatelessWidget {
   final String groupName;
   final int expenseAmount; // Define expenseAmount here
 
-  GroupPage({required this.groupName, required this.expenseAmount}); // Constructor
+  GroupPage(
+      {required this.groupName, required this.expenseAmount}); // Constructor
 
   @override
   Widget build(BuildContext context) {
@@ -538,6 +540,7 @@ class GroupPage extends StatelessWidget {
     );
   }
 }
+
 class SectionButton extends StatelessWidget {
   final String title;
   final VoidCallback onPressed;

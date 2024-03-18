@@ -58,7 +58,6 @@ class _GroupPageState extends State<GroupPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        automaticallyImplyLeading: false,
         title: GestureDetector(
           onTap: () {
             // Navigate to group settings page

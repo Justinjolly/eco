@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 enum FriendFilter { All, IOwe, OweMe }
 
 class FriendsPage extends StatefulWidget {
@@ -8,12 +9,12 @@ class FriendsPage extends StatefulWidget {
 
 class _FriendsPageState extends State<FriendsPage> {
   List<Friend> allFriends = [
-    Friend(name: "John", amount: -50.0),
-    Friend(name: "Jane", amount: 30.0),
-    Friend(name: "Alice", amount: -20.0),
-    Friend(name: "Bob", amount: 10.0),
-    Friend(name: "Charlie", amount: 0.0),
-    Friend(name: "David", amount: 15.0),
+    Friend(name: "Justin", amount: -150.0),
+    Friend(name: "Jibbin", amount: 30.0),
+    Friend(name: "Adwaith", amount: -120.0),
+    Friend(name: "Bibin", amount: 100.0),
+    Friend(name: "Chris", amount: 0.0),
+    Friend(name: "Dony", amount: 150.0),
     // Add more friends as needed
   ];
 
@@ -44,10 +45,12 @@ class _FriendsPageState extends State<FriendsPage> {
           displayedFriends = List.from(allFriends);
           break;
         case FriendFilter.IOwe:
-          displayedFriends = allFriends.where((friend) => friend.amount < 0).toList();
+          displayedFriends =
+              allFriends.where((friend) => friend.amount < 0).toList();
           break;
         case FriendFilter.OweMe:
-          displayedFriends = allFriends.where((friend) => friend.amount > 0).toList();
+          displayedFriends =
+              allFriends.where((friend) => friend.amount > 0).toList();
           break;
       }
     });
@@ -91,11 +94,9 @@ class _FriendsPageState extends State<FriendsPage> {
           ),
         ),
         centerTitle: true, // Center the title
-        
       ),
       body: Column(
         children: [
-       
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Container(
@@ -114,8 +115,10 @@ class _FriendsPageState extends State<FriendsPage> {
                   style: TextStyle(color: Colors.white), // Text color white
                   decoration: InputDecoration(
                     labelText: 'Find Friends',
-                    labelStyle: TextStyle(color: Colors.white), // Label color white
-                    prefixIcon: Icon(Icons.search, color: Colors.white), // Icon color white
+                    labelStyle:
+                        TextStyle(color: Colors.white), // Label color white
+                    prefixIcon: Icon(Icons.search,
+                        color: Colors.white), // Icon color white
                     border: InputBorder.none,
                   ),
                 ),
@@ -139,10 +142,10 @@ class _FriendsPageState extends State<FriendsPage> {
               itemCount: displayedFriends.length,
               itemBuilder: (context, index) {
                 Friend friend = displayedFriends[index];
-                IconData iconData =
-                    friend.amount > 0 ? Icons.arrow_drop_up : Icons.arrow_drop_down;
-                Color iconColor =
-                    friend.amount > 0 ? Colors.green : Colors.red;
+                IconData iconData = friend.amount > 0
+                    ? Icons.arrow_drop_up
+                    : Icons.arrow_drop_down;
+                Color iconColor = friend.amount > 0 ? Colors.green : Colors.red;
 
                 return ListTile(
                   title: Text(
@@ -174,8 +177,6 @@ class _FriendsPageState extends State<FriendsPage> {
     );
   }
 }
-
-
 
 class Friend {
   final String name;
