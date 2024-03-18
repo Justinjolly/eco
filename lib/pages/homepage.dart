@@ -277,7 +277,7 @@ class _GroupWidgetState extends State<GroupWidget> {
             ),
           ),
           subtitle: Text(
-            'Total Debt: \$${widget.totalDebt.toString()}',
+            'Total Debt: ${widget.totalDebt.toString()}',
             style: TextStyle(
               color: Colors.white,
             ),
@@ -323,7 +323,7 @@ class UserInfoSection extends StatelessWidget {
           CircleAvatar(
             radius: 40.0,
             backgroundImage: AssetImage(
-              'lib/assets/g.png', // Replace 'assets/predefined_image.jpg' with the path to your predefined image
+              'lib/assets/g.png',
             ),
           ),
           SizedBox(height: 8.0),

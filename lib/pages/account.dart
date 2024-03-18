@@ -198,7 +198,7 @@ class _AccountPageState extends State<AccountPage> {
               size: 30,
             ),
             title: Text(
-              'Email Settings',
+              'Notification Settings',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             onTap: () {
