@@ -66,8 +66,10 @@ class _HomePageState extends State<HomePage> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) =>
-                        GroupPage(groupName: data['groupName']),
+                    builder: (context) => GroupPage(
+                      groupName: data['groupName'],
+                      currentUser: _currentUser, // Pass the currentUser here
+                    ),
                   ),
                 );
               },

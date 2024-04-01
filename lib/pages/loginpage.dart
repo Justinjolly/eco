@@ -126,7 +126,7 @@ class _LoginPageState extends State<LoginPage> {
                 ElevatedButton(
                   onPressed: _handleEmailSignIn,
                   style: ElevatedButton.styleFrom(
-                    primary: Color.fromARGB(255, 25, 9, 128),
+                    backgroundColor: Color.fromARGB(255, 25, 9, 128),
                     minimumSize: Size(500, 50),
                   ),
                   child: Text(

@@ -92,11 +92,13 @@ class YourMainWidget extends StatelessWidget {
                     );
                   },
                   style: ElevatedButton.styleFrom(
-                    primary: const Color.fromARGB(255, 40, 42, 45), // Change the color to your preference
+                    backgroundColor: const Color.fromARGB(
+                        255, 40, 42, 45), // Change the color to your preference
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(50),
                       side: BorderSide(
-                        color: Color.fromARGB(255, 255, 255, 255), // Change the color to your preference
+                        color: Color.fromARGB(255, 255, 255,
+                            255), // Change the color to your preference
                         width: 1, // Adjust the width as needed
                       ),
                     ),
@@ -118,11 +120,13 @@ class YourMainWidget extends StatelessWidget {
                     );
                   },
                   style: ElevatedButton.styleFrom(
-                    primary: const Color.fromARGB(255, 40, 42, 45), // Change the color to your preference
+                    backgroundColor: const Color.fromARGB(
+                        255, 40, 42, 45), // Change the color to your preference
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(50),
                       side: BorderSide(
-                        color: Color.fromARGB(255, 255, 255, 255), // Change the color to your preference
+                        color: Color.fromARGB(255, 255, 255,
+                            255), // Change the color to your preference
                         width: 1, // Adjust the width as needed
                       ),
                     ),

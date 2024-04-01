@@ -1,9 +1,11 @@
-import 'package:app/pages/split.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart'; // Import FirebaseAuth for user authentication
 import 'package:app/pages/groupsettings.dart';
 import 'package:app/pages/homepage.dart';
+import 'package:app/pages/split.dart';
+import 'package:intl/intl.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -16,16 +18,19 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Chat App',
-      home: HomePage(), // Change to HomePage
+      home: HomePage(),
     );
   }
 }
 
-// GroupPage Widget
 class GroupPage extends StatefulWidget {
   final String groupName;
+  final User currentUser; // Add this line
 
-  GroupPage({required this.groupName});
+  GroupPage({
+    required this.groupName,
+    required this.currentUser,
+  });
 
   @override
   _GroupPageState createState() => _GroupPageState();
@@ -33,7 +38,7 @@ class GroupPage extends StatefulWidget {
 
 class _GroupPageState extends State<GroupPage> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  late Stream<List<String>> _messagesStream;
+  late Stream<List<Map<String, dynamic>>> _messagesStream;
   final TextEditingController _controller = TextEditingController();
 
   @override
@@ -42,7 +47,7 @@ class _GroupPageState extends State<GroupPage> {
     _messagesStream = _getMessagesStream();
   }
 
-  Stream<List<String>> _getMessagesStream() {
+  Stream<List<Map<String, dynamic>>> _getMessagesStream() {
     return _firestore
         .collection('groups')
         .doc(widget.groupName)
@@ -50,7 +55,7 @@ class _GroupPageState extends State<GroupPage> {
         .orderBy('timestamp', descending: true)
         .snapshots()
         .map((snapshot) => snapshot.docs
-            .map((doc) => doc.data()['message'] as String)
+            .map((doc) => doc.data() as Map<String, dynamic>)
             .toList());
   }
 
@@ -60,7 +65,6 @@ class _GroupPageState extends State<GroupPage> {
       appBar: AppBar(
         title: GestureDetector(
           onTap: () {
-            // Navigate to group settings page
             Navigator.push(
               context,
               MaterialPageRoute(
@@ -72,7 +76,7 @@ class _GroupPageState extends State<GroupPage> {
           child: Text(widget.groupName),
         ),
       ),
-      body: StreamBuilder<List<String>>(
+      body: StreamBuilder<List<Map<String, dynamic>>>(
         stream: _messagesStream,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -85,11 +89,15 @@ class _GroupPageState extends State<GroupPage> {
               itemCount: messages.length,
               reverse: true,
               itemBuilder: (context, index) {
-                final reversedIndex = messages.length - 1 - index;
+                final message = messages[index];
                 return ListTile(
                   title: Text(
-                    messages[index],
+                    '${message["username"]}: ${message["message"]}',
                     style: TextStyle(color: Colors.white),
+                  ),
+                  subtitle: Text(
+                    '${_formatTimestamp(message["timestamp"])}',
+                    style: TextStyle(color: Colors.grey),
                   ),
                 );
               },
@@ -104,8 +112,14 @@ class _GroupPageState extends State<GroupPage> {
             Expanded(
               child: ChatInputField(
                 groupName: widget.groupName,
-                onSendPressed: (message) {
-                  _sendMessage(message);
+                onSendPressed: (message) async {
+                  if (widget.currentUser != null) {
+                    final displayName = widget.currentUser.displayName;
+                    final username =
+                        displayName != null ? displayName : "Unknown User";
+                    final timestamp = Timestamp.now();
+                    await _sendMessage(message, username, timestamp);
+                  }
                 },
               ),
             ),
@@ -125,7 +139,8 @@ class _GroupPageState extends State<GroupPage> {
     );
   }
 
-  void _sendMessage(String message) async {
+  Future<void> _sendMessage(
+      String message, String username, Timestamp timestamp) async {
     try {
       await _firestore
           .collection('groups')
@@ -133,15 +148,25 @@ class _GroupPageState extends State<GroupPage> {
           .collection('messages')
           .add({
         'message': message,
-        'timestamp': Timestamp.now(),
+        'username': username,
+        'timestamp': timestamp,
       });
     } catch (e) {
       print('Failed to send message: $e');
     }
   }
+
+  String _formatTimestamp(Timestamp? timestamp) {
+    if (timestamp == null) return '';
+
+    final dateTime = timestamp.toDate();
+    final dateFormat = DateFormat('dd/MM/yyyy').format(dateTime);
+    final timeFormat = '${dateTime.hour}:${dateTime.minute}';
+
+    return '$dateFormat $timeFormat';
+  }
 }
 
-// ChatInputField Widget
 class ChatInputField extends StatefulWidget {
   final String groupName;
   final Function(String) onSendPressed;

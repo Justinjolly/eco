@@ -77,7 +77,7 @@ class _SettingsPageState extends State<SettingsPage> {
             ),
             Spacer(),
             ElevatedButton(
-              style: ElevatedButton.styleFrom(primary: Colors.red),
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
               onPressed: () {
                 // Implement delete account functionality
                 print('Delete Account');

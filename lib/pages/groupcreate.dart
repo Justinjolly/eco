@@ -186,7 +186,7 @@ class GroupCreate extends StatelessWidget {
                             }
                           },
                           style: ElevatedButton.styleFrom(
-                            primary: Colors.blue,
+                            backgroundColor: Colors.blue,
                             elevation: 3,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(8.0),
@@ -203,7 +203,7 @@ class GroupCreate extends StatelessWidget {
                                 context, ModalRoute.withName('/'));
                           },
                           style: ElevatedButton.styleFrom(
-                            primary: Colors.grey,
+                            backgroundColor: Colors.grey,
                             elevation: 3,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(8.0),

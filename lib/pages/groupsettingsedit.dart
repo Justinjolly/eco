@@ -83,8 +83,7 @@ class _CustomizeGroupPageState extends State<CustomizeGroupPage> {
               },
               child: Text('Done'),
               style: ElevatedButton.styleFrom(
-                primary: Colors.blue, // Button color
-                onPrimary: Colors.white, // Text color
+                foregroundColor: Colors.white, backgroundColor: Colors.blue, // Text color
               ),
             ),
           ],
