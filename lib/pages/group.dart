@@ -104,71 +104,46 @@ class _GroupPageState extends State<GroupPage> {
           child: Text(widget.groupName),
         ),
       ),
-      body: StreamBuilder<List<Map<String, dynamic>>>(
-        stream: _messagesStream,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          } else {
-            final messages = snapshot.data ?? [];
-            return ListView.builder(
-              itemCount: messages.length,
-              reverse: true,
-              itemBuilder: (context, index) {
-                final message = messages[index];
-                return ListTile(
-                  title: Text(
-                    '${message["username"]}: ${message["message"]}',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                  subtitle: Text(
-                    '${_formatTimestamp(message["timestamp"])}',
-                    style: TextStyle(color: Colors.grey),
-                  ),
-                );
+      body: Column(
+        children: [
+          Expanded(
+            child: StreamBuilder<List<Map<String, dynamic>>>(
+              stream: _messagesStream,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Center(child: CircularProgressIndicator());
+                } else if (snapshot.hasError) {
+                  return Center(child: Text('Error: ${snapshot.error}'));
+                } else {
+                  final messages = snapshot.data ?? [];
+                  return ListView.builder(
+                    itemCount: messages.length,
+                    reverse: true,
+                    itemBuilder: (context, index) {
+                      final message = messages[index];
+                      return ListTile(
+                        title: Text(
+                          '${message["username"]}: ${message["message"]}',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                        subtitle: Text(
+                          '${_formatTimestamp(message["timestamp"])}',
+                          style: TextStyle(color: Colors.grey),
+                        ),
+                      );
+                    },
+                  );
+                }
               },
-            );
-          }
-        },
-      ),
-      bottomNavigationBar: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Row(
-          children: [
-            Expanded(
-              child: ChatInputField(
-                groupName: widget.groupName,
-                onSendPressed: (message) async {
-                  if (widget.currentUser != null) {
-                    final displayName = widget.currentUser.displayName;
-                    final username =
-                        displayName != null ? displayName : "Unknown User";
-                    final timestamp = Timestamp.now();
-                    await _sendMessage(message, username, timestamp);
-                  }
-                },
-              ),
             ),
-            SizedBox(width: 8),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => ExpenseEntryScreen()),
-                );
-              },
-              child: Text('Split'),
-            ),
-          ],
-        ),
+          ),
+          ChatSection(onSendPressed: _sendMessage),
+        ],
       ),
     );
   }
 
-  Future<void> _sendMessage(
-      String message, String username, Timestamp timestamp) async {
+  Future<void> _sendMessage(String message) async {
     try {
       await _firestore
           .collection('groups')
@@ -176,8 +151,8 @@ class _GroupPageState extends State<GroupPage> {
           .collection('messages')
           .add({
         'message': message,
-        'username': username,
-        'timestamp': timestamp,
+        'username': _username, // Use the current username
+        'timestamp': Timestamp.now(),
       });
     } catch (e) {
       print('Failed to send message: $e');
@@ -195,28 +170,22 @@ class _GroupPageState extends State<GroupPage> {
   }
 }
 
-class ChatInputField extends StatefulWidget {
-  final String groupName;
+class ChatSection extends StatefulWidget {
   final Function(String) onSendPressed;
 
-  const ChatInputField({
-    Key? key,
-    required this.groupName,
-    required this.onSendPressed,
-  }) : super(key: key);
+  const ChatSection({Key? key, required this.onSendPressed}) : super(key: key);
 
   @override
-  _ChatInputFieldState createState() => _ChatInputFieldState();
+  _ChatSectionState createState() => _ChatSectionState();
 }
 
-class _ChatInputFieldState extends State<ChatInputField> {
+class _ChatSectionState extends State<ChatSection> {
   final TextEditingController _controller = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.all(8),
-      color: Colors.grey[900],
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
       child: Row(
         children: [
           Expanded(
@@ -234,19 +203,62 @@ class _ChatInputFieldState extends State<ChatInputField> {
                   borderSide: BorderSide(color: Colors.white),
                 ),
               ),
-              onSubmitted: _sendMessage,
+              onSubmitted: (_) {
+                _sendMessageIfNotEmpty();
+              },
             ),
           ),
           IconButton(
-            icon: Icon(Icons.send),
-            onPressed: () => _sendMessage(_controller.text.trim()),
+            icon: Icon(Icons.send), // Sent arrow icon
+            onPressed: () {
+              _sendMessageIfNotEmpty();
+            },
+          ),
+          SizedBox(
+              width: 8), // Add spacing between send button and split button
+          IconButton(
+            icon: Stack(
+              children: [
+                Container(
+                  decoration: BoxDecoration(
+                    shape: BoxShape.rectangle,
+                    border: Border.all(color: Colors.white), // Add border here
+                    borderRadius: BorderRadius.circular(
+                        4), // Adjust border radius as needed
+                  ),
+                  padding: EdgeInsets.all(8), // Adjust padding as needed
+                  child: Icon(Icons.attach_money), // "Split" icon
+                ),
+                Positioned(
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
+                  child: Container(
+                    alignment: Alignment.center,
+                    color: Colors.black,
+                    child: Text(
+                      'Split',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 10,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            onPressed: () {
+              // Add functionality for the "Split" button here
+              print('Split button pressed');
+            },
           ),
         ],
       ),
     );
   }
 
-  void _sendMessage(String message) {
+  void _sendMessageIfNotEmpty() {
+    final message = _controller.text.trim();
     if (message.isNotEmpty) {
       widget.onSendPressed(message);
       _controller.clear();
