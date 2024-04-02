@@ -37,6 +37,7 @@ class GroupPage extends StatefulWidget {
 }
 
 class _GroupPageState extends State<GroupPage> {
+  late String _username;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   late Stream<List<Map<String, dynamic>>> _messagesStream;
   final TextEditingController _controller = TextEditingController();
@@ -45,6 +46,34 @@ class _GroupPageState extends State<GroupPage> {
   void initState() {
     super.initState();
     _messagesStream = _getMessagesStream();
+    _fetchUsername();
+  }
+
+  Future<void> _fetchUsername() async {
+    try {
+      DocumentSnapshot userSnapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(widget.currentUser.uid)
+          .get();
+
+      Map<String, dynamic>? userData =
+          userSnapshot.data() as Map<String, dynamic>?;
+
+      if (userData != null) {
+        setState(() {
+          _username = userData['userName'] ?? 'Unknown User';
+        });
+      } else {
+        setState(() {
+          _username = 'Unknown User';
+        });
+      }
+    } catch (error) {
+      print('Error fetching username: $error');
+      setState(() {
+        _username = 'Unknown User';
+      });
+    }
   }
 
   Stream<List<Map<String, dynamic>>> _getMessagesStream() {
@@ -92,7 +121,7 @@ class _GroupPageState extends State<GroupPage> {
                 final message = messages[index];
                 return ListTile(
                   title: Text(
-                    '${message["username"]}: ${message["message"]}',
+                    '$_username: ${message["message"]}',
                     style: TextStyle(color: Colors.white),
                   ),
                   subtitle: Text(
