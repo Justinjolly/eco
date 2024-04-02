@@ -121,7 +121,7 @@ class _GroupPageState extends State<GroupPage> {
                 final message = messages[index];
                 return ListTile(
                   title: Text(
-                    '$_username: ${message["message"]}',
+                    '${message["username"]}: ${message["message"]}',
                     style: TextStyle(color: Colors.white),
                   ),
                   subtitle: Text(
