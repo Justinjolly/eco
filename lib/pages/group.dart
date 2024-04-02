@@ -51,29 +51,28 @@ class _GroupPageState extends State<GroupPage> {
 
   Future<void> _fetchUsername() async {
     try {
-      DocumentSnapshot userSnapshot = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(widget.currentUser.uid)
-          .get();
+      DocumentSnapshot<Map<String, dynamic>> userSnapshot =
+          await FirebaseFirestore.instance
+              .collection('users')
+              .doc(widget.currentUser.uid)
+              .get();
 
-      Map<String, dynamic>? userData =
-          userSnapshot.data() as Map<String, dynamic>?;
-
-      if (userData != null) {
-        setState(() {
-          _username = userData['userName'] ?? 'Unknown User';
-        });
-      } else {
-        setState(() {
-          _username = 'Unknown User';
-        });
+      if (userSnapshot.exists) {
+        Map<String, dynamic>? userData = userSnapshot.data();
+        if (userData != null && userData.containsKey('userName')) {
+          setState(() {
+            _username = userData['userName'];
+          });
+          return;
+        }
       }
     } catch (error) {
       print('Error fetching username: $error');
-      setState(() {
-        _username = 'Unknown User';
-      });
     }
+    // If fetching the username fails, set it to a default value
+    setState(() {
+      _username = 'Unknown User';
+    });
   }
 
   Stream<List<Map<String, dynamic>>> _getMessagesStream() {
