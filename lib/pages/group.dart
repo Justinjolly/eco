@@ -248,8 +248,10 @@ class _ChatSectionState extends State<ChatSection> {
               ],
             ),
             onPressed: () {
-              // Add functionality for the "Split" button here
-              print('Split button pressed');
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => ExpenseEntryScreen()),
+              );
             },
           ),
         ],
