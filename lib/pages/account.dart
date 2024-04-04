@@ -96,7 +96,7 @@ class _AccountPageState extends State<AccountPage> {
         onWillPop: () async {
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => HomePage()),
+            MaterialPageRoute(builder: (context) => AccountPage()),
           );
           return false;
         },
