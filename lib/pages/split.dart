@@ -222,66 +222,120 @@ class _ExpenseEntryScreenState extends State<ExpenseEntryScreen> {
   }
 
   Widget _buildUnequallyMembersList() {
-  return FutureBuilder<DocumentSnapshot>(
-    future: FirebaseFirestore.instance.collection('groups').doc('YOUR_GROUP_ID').get(),
-    builder: (context, snapshot) {
-      if (snapshot.connectionState == ConnectionState.waiting) {
-        return CircularProgressIndicator(); // Loading indicator while fetching data
-      } else if (snapshot.hasError) {
-        return Text('Error: ${snapshot.error}');
-      } else {
-        List<dynamic> groupMembers = snapshot.data!.get('members');
+    // Set the initial value of the unequally distributed fields based on the amount entered
+    final amount = _amountController.text.isNotEmpty
+        ? int.parse(_amountController.text)
+        : 0;
+    final controllers = <TextEditingController>[
+      TextEditingController(text: (amount ~/ 3).toString()),
+      TextEditingController(text: (amount ~/ 3).toString()),
+      TextEditingController(text: (amount ~/ 3).toString()),
+    ];
 
-        final amount = _amountController.text.isNotEmpty
-            ? int.parse(_amountController.text)
-            : 0;
-        final controllers = List<TextEditingController>.generate(
-            groupMembers.length, (index) => TextEditingController());
+    // Function to calculate the sum of all inputs
+    int calculateSum() {
+      return controllers.fold<int>(
+          0,
+          (previousValue, controller) =>
+              previousValue +
+              int.parse(controller.text.isEmpty ? '0' : controller.text));
+    }
 
-        // Your existing code for onChangedCallback function goes here
+    // Adjusts the last member's input field to ensure the sum equals the amount
+    void adjustLastField() {
+      final sum = calculateSum();
+      final lastController = controllers.last;
+      final lastValue =
+          int.parse(lastController.text.isEmpty ? '0' : lastController.text);
+      final excess = sum - amount;
+      final newValue = lastValue - excess;
 
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: List.generate(groupMembers.length, (index) {
-            final memberName = groupMembers[index];
-            final controller = controllers[index];
+      lastController.text = newValue.toString();
+    }
 
-            return Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    memberName,
-                    style: TextStyle(color: Colors.white),
+    // Update other fields when a field is edited
+    void onChangedCallback(int index) {
+      adjustLastField();
+      // You can add any additional handling here if needed
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: List.generate(3, (index) {
+        final memberName = 'Member ${index + 1}';
+        final controller = controllers[index];
+
+        return Row(
+          children: [
+            Expanded(
+              child: Text(
+                memberName,
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+            SizedBox(width: 10),
+            Expanded(
+              flex: 2,
+              child: TextField(
+                controller: controller,
+                style: TextStyle(color: Colors.white),
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                onChanged: (_) => onChangedCallback(index),
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                    borderSide: BorderSide(color: Colors.black),
                   ),
+                  filled: true,
+                  fillColor: const Color.fromARGB(255, 52, 52, 52),
+                  contentPadding:
+                      EdgeInsets.symmetric(vertical: 15.0, horizontal: 10.0),
                 ),
-                SizedBox(width: 10),
-                Expanded(
-                  flex: 2,
-                  child: TextField(
-                    controller: controller,
-                    style: TextStyle(color: Colors.white),
-                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                    onChanged: (_) => onChangedCallback(index),
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10.0),
-                        borderSide: BorderSide(color: Colors.black),
-                      ),
-                      filled: true,
-                      fillColor: const Color.fromARGB(255, 52, 52, 52),
-                      contentPadding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 10.0),
-                    ),
-                    keyboardType: TextInputType.number,
-                  ),
-                ),
-              ],
-            );
-          }),
+                keyboardType: TextInputType.number,
+              ),
+            ),
+          ],
         );
-      }
-    },
-  );
-}
+      }),
+    );
+  }
+
+  Widget _buildMemberWithAmount(String memberName, int initialValue) {
+    return Row(
+      children: [
+        Expanded(
+          child: Text(
+            memberName,
+            style: TextStyle(color: Colors.white),
+          ),
+        ),
+        SizedBox(width: 10),
+        Expanded(
+          flex: 2,
+          child: TextField(
+            controller:
+                TextEditingController(text: (initialValue ~/ 3).toString()),
+            style: TextStyle(color: Colors.white),
+            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+            onChanged: (value) {
+              // Calculation logic for each member input field
+            },
+            decoration: InputDecoration(
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10.0),
+                borderSide: BorderSide(color: Colors.black),
+              ),
+              filled: true,
+              fillColor: const Color.fromARGB(255, 52, 52, 52),
+              contentPadding:
+                  EdgeInsets.symmetric(vertical: 15.0, horizontal: 10.0),
+            ),
+            keyboardType: TextInputType.number,
+          ),
+        ),
+      ],
+    );
+  }
 
   Widget _buildLastMemberWithAmount(String memberName, int initialValue) {
     TextEditingController lastMemberController = TextEditingController(
