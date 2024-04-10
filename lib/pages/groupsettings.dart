@@ -1,6 +1,6 @@
+import 'package:flutter/material.dart';
 import 'package:app/pages/friendsettings.dart';
 import 'package:app/pages/groupsettingsedit.dart';
-import 'package:flutter/material.dart';
 
 void main() {
   runApp(MyApp());
@@ -17,18 +17,17 @@ class MyApp extends StatelessWidget {
 
 class GroupSettingsPage extends StatelessWidget {
   final String groupName;
-  // Example group members data
   final List<Map<String, String>> groupMembers = [
     {'name': 'Adwaith', 'email': 'alice@example.com', 'amount': '\$20'},
     {'name': 'Dony', 'email': 'bob@example.com', 'amount': '\$20'},
     {'name': 'Jibbin', 'email': 'charlie@example.com', 'amount': '\$20'},
     {'name': 'Justin', 'email': 'dana@example.com', 'amount': '\$20'},
   ];
+
   GroupSettingsPage({required this.groupName});
 
   @override
   Widget build(BuildContext context) {
-    // Calculate total amount
     double totalAmount = groupMembers.fold(0, (previousValue, element) {
       return previousValue +
           double.parse(element['amount']!.replaceAll('\$', ''));
@@ -69,13 +68,12 @@ class GroupSettingsPage extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  '\$${totalAmount.toStringAsFixed(2)}', // Display total amount
+                  '\$${totalAmount.toStringAsFixed(2)}',
                   style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                 ),
                 IconButton(
                   icon: Icon(Icons.edit),
                   onPressed: () {
-                    // Your code to handle edit action
                     Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -124,53 +122,14 @@ class GroupSettingsPage extends StatelessWidget {
                     CircleAvatar(
                       backgroundColor: Colors.grey.shade200,
                       child: Text(member['name']![0],
-                          style: TextStyle(
-                              color: Colors.black)), // First letter of name
+                          style: TextStyle(color: Colors.black)),
                     ),
                     SizedBox(width: 10),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          GestureDetector(
-                            onTap: () {
-                              showModalBottomSheet(
-                                context: context,
-                                builder: (context) {
-                                  return Container(
-                                    padding: EdgeInsets.all(16),
-                                    height: 120,
-                                    child: Row(
-                                      children: [
-                                        Icon(Icons.person, size: 40),
-                                        SizedBox(width: 10),
-                                        GestureDetector(
-                                          onTap: () {
-                                            Navigator.pop(
-                                                context); // Close the bottom sheet
-                                            Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                builder: (context) =>
-                                                    FriendSettingsPage(
-                                                        memberDetails: member),
-                                              ),
-                                            );
-                                          },
-                                          child: Text(
-                                            'View settings for ${member['name']}',
-                                            style: TextStyle(fontSize: 18),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  );
-                                },
-                              );
-                            },
-                            child: Text(member['name']!,
-                                style: TextStyle(fontSize: 18)),
-                          ),
+                          Text(member['name']!, style: TextStyle(fontSize: 18)),
                           Text(member['email']!,
                               style: TextStyle(color: Colors.grey)),
                         ],
@@ -188,10 +147,13 @@ class GroupSettingsPage extends StatelessWidget {
               },
               child: Row(
                 children: [
-                  Icon(Icons.exit_to_app, color: Colors.black),
+                  Icon(Icons.exit_to_app,
+                      color: const Color.fromARGB(255, 218, 215, 215)),
                   SizedBox(width: 8),
                   Text('Leave Group',
-                      style: TextStyle(fontSize: 18, color: Colors.black)),
+                      style: TextStyle(
+                          fontSize: 18,
+                          color: const Color.fromARGB(255, 224, 214, 214))),
                 ],
               ),
             ),

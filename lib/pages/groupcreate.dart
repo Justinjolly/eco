@@ -200,7 +200,9 @@ class GroupCreate extends StatelessWidget {
                         ElevatedButton(
                           onPressed: () {
                             Navigator.popUntil(
-                                context, ModalRoute.withName('/'));
+                              context,
+                              (route) => route.isFirst,
+                            );
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.grey,
