@@ -1,10 +1,10 @@
+import 'package:app/pages/HomePage.dart';
+import 'package:app/pages/groupsettings.dart';
+import 'package:app/pages/split.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart'; // Import FirebaseAuth for user authentication
-import 'package:app/pages/groupsettings.dart';
-import 'package:app/pages/homepage.dart';
-import 'package:app/pages/split.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
 
 void main() async {
@@ -25,7 +25,7 @@ class MyApp extends StatelessWidget {
 
 class GroupPage extends StatefulWidget {
   final String groupName;
-  final User currentUser; // Add this line
+  final User currentUser;
 
   GroupPage({
     required this.groupName,
@@ -49,44 +49,6 @@ class _GroupPageState extends State<GroupPage> {
     _fetchUsername();
   }
 
-  Future<void> _fetchUsername() async {
-    try {
-      DocumentSnapshot<Map<String, dynamic>> userSnapshot =
-          await FirebaseFirestore.instance
-              .collection('users')
-              .doc(widget.currentUser.uid)
-              .get();
-
-      if (userSnapshot.exists) {
-        Map<String, dynamic>? userData = userSnapshot.data();
-        if (userData != null && userData.containsKey('userName')) {
-          setState(() {
-            _username = userData['userName'];
-          });
-          return;
-        }
-      }
-    } catch (error) {
-      print('Error fetching username: $error');
-    }
-    // If fetching the username fails, set it to a default value
-    setState(() {
-      _username = 'Unknown User';
-    });
-  }
-
-  Stream<List<Map<String, dynamic>>> _getMessagesStream() {
-    return _firestore
-        .collection('groups')
-        .doc(widget.groupName)
-        .collection('messages')
-        .orderBy('timestamp', descending: true)
-        .snapshots()
-        .map((snapshot) => snapshot.docs
-            .map((doc) => doc.data() as Map<String, dynamic>)
-            .toList());
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -103,6 +65,33 @@ class _GroupPageState extends State<GroupPage> {
           },
           child: Text(widget.groupName),
         ),
+        actions: [
+          PopupMenuButton<String>(
+            onSelected: (String result) {
+              if (result == 'settings') {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        GroupSettingsPage(groupName: widget.groupName),
+                  ),
+                );
+              } else if (result == 'clear') {
+                _confirmClearChatHistory();
+              }
+            },
+            itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+              const PopupMenuItem<String>(
+                value: 'settings',
+                child: Text('Group Settings'),
+              ),
+              const PopupMenuItem<String>(
+                value: 'clear',
+                child: Text('Clear Chat History'),
+              ),
+            ],
+          ),
+        ],
       ),
       body: Column(
         children: [
@@ -143,6 +132,44 @@ class _GroupPageState extends State<GroupPage> {
     );
   }
 
+  Future<void> _fetchUsername() async {
+    try {
+      DocumentSnapshot<Map<String, dynamic>> userSnapshot =
+          await FirebaseFirestore.instance
+              .collection('users')
+              .doc(widget.currentUser.uid)
+              .get();
+
+      if (userSnapshot.exists) {
+        Map<String, dynamic>? userData = userSnapshot.data();
+        if (userData != null && userData.containsKey('userName')) {
+          setState(() {
+            _username = userData['userName'];
+          });
+          return;
+        }
+      }
+    } catch (error) {
+      print('Error fetching username: $error');
+    }
+    // If fetching the username fails, set it to a default value
+    setState(() {
+      _username = 'Unknown User';
+    });
+  }
+
+  Stream<List<Map<String, dynamic>>> _getMessagesStream() {
+    return _firestore
+        .collection('groups')
+        .doc(widget.groupName)
+        .collection('messages')
+        .orderBy('timestamp', descending: true)
+        .snapshots()
+        .map((snapshot) => snapshot.docs
+            .map((doc) => doc.data() as Map<String, dynamic>)
+            .toList());
+  }
+
   Future<void> _sendMessage(String message) async {
     try {
       await _firestore
@@ -151,11 +178,55 @@ class _GroupPageState extends State<GroupPage> {
           .collection('messages')
           .add({
         'message': message,
-        'username': _username, // Use the current username
+        'username': _username,
         'timestamp': Timestamp.now(),
       });
     } catch (e) {
       print('Failed to send message: $e');
+    }
+  }
+
+  void _confirmClearChatHistory() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Confirm Clear Chat History"),
+          content: Text("Are you sure you want to clear all chat history?"),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text("Cancel"),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                _clearChatHistory();
+              },
+              child: Text("Confirm"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _clearChatHistory() async {
+    try {
+      await _firestore
+          .collection('groups')
+          .doc(widget.groupName)
+          .collection('messages')
+          .get()
+          .then((snapshot) {
+        for (DocumentSnapshot ds in snapshot.docs) {
+          ds.reference.delete();
+        }
+      });
+    } catch (e) {
+      print('Failed to clear chat history: $e');
     }
   }
 
@@ -209,25 +280,23 @@ class _ChatSectionState extends State<ChatSection> {
             ),
           ),
           IconButton(
-            icon: Icon(Icons.send), // Sent arrow icon
+            icon: Icon(Icons.send),
             onPressed: () {
               _sendMessageIfNotEmpty();
             },
           ),
-          SizedBox(
-              width: 8), // Add spacing between send button and split button
+          SizedBox(width: 8),
           IconButton(
             icon: Stack(
               children: [
                 Container(
                   decoration: BoxDecoration(
                     shape: BoxShape.rectangle,
-                    border: Border.all(color: Colors.white), // Add border here
-                    borderRadius: BorderRadius.circular(
-                        4), // Adjust border radius as needed
+                    border: Border.all(color: Colors.white),
+                    borderRadius: BorderRadius.circular(4),
                   ),
-                  padding: EdgeInsets.all(8), // Adjust padding as needed
-                  child: Icon(Icons.attach_money), // "Split" icon
+                  padding: EdgeInsets.all(8),
+                  child: Icon(Icons.attach_money),
                 ),
                 Positioned(
                   bottom: 0,
