@@ -1,4 +1,5 @@
 import 'package:app/main.dart';
+import 'package:app/pages/HomePage.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -68,6 +69,7 @@ class _AccountPageState extends State<AccountPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         backgroundColor: Colors.white,
         title: Row(
           children: [
@@ -90,144 +92,138 @@ class _AccountPageState extends State<AccountPage> {
           ],
         ),
       ),
-      body: ListView(
-        children: <Widget>[
-          DrawerHeader(
-            decoration: BoxDecoration(
-              color: Colors.blue, // Customize the color as needed
-            ),
-            child: Row(
-              children: <Widget>[
-                CircleAvatar(
-                  backgroundColor: const Color.fromARGB(255, 44, 140, 188),
-                  radius: 40, // Adjust the size of the circle avatar as needed
-                  child: Text(
-                    _user?.displayName != null ? _user!.displayName![0] : "",
-                    style: TextStyle(
-                      fontSize: 40.0,
-                      color: Colors.white,
+      body: WillPopScope(
+        onWillPop: () async {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => AccountPage()),
+          );
+          return false;
+        },
+        child: ListView(
+          children: <Widget>[
+            DrawerHeader(
+              decoration: BoxDecoration(
+                color: Colors.blue, // Customize the color as needed
+              ),
+              child: Row(
+                children: <Widget>[
+                  CircleAvatar(
+                    backgroundColor: const Color.fromARGB(255, 44, 140, 188),
+                    radius:
+                        40, // Adjust the size of the circle avatar as needed
+                    child: Text(
+                      _user?.displayName != null ? _user!.displayName![0] : "",
+                      style: TextStyle(
+                        fontSize: 40.0,
+                        color: Colors.white,
+                      ),
                     ),
                   ),
-                ),
-                SizedBox(width: 8),
-                Expanded(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      Text(
-                        _fullName,
-                        style: TextStyle(
-                          fontSize: 20.0,
-                          color: Colors.white,
+                  SizedBox(width: 8),
+                  Expanded(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Text(
+                          _fullName,
+                          style: TextStyle(
+                            fontSize: 20.0,
+                            color: Colors.white,
+                          ),
                         ),
-                      ),
-                      Text(
-                        _user?.email ?? "",
-                        style: TextStyle(
-                          fontSize: 16.0,
-                          color: Colors.white,
+                        Text(
+                          _user?.email ?? "",
+                          style: TextStyle(
+                            fontSize: 16.0,
+                            color: Colors.white,
+                          ),
                         ),
-                      ),
-                      Text(
-                        _phoneNumber,
-                        style: TextStyle(
-                          fontSize: 16.0,
-                          color: Colors.white,
+                        Text(
+                          _phoneNumber,
+                          style: TextStyle(
+                            fontSize: 16.0,
+                            color: Colors.white,
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          ListTile(
-            leading: Icon(
-              Icons.qr_code,
-              size: 30,
+            ListTile(
+              leading: Icon(
+                Icons.qr_code,
+                size: 30,
+              ),
+              title: Text(
+                'Scan Code',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              onTap: () {
+                // Navigate to balances page
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => QRScanPage()),
+                );
+              },
             ),
-            title: Text(
-              'Scan Code',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ListTile(
+              leading: Icon(
+                Icons.settings,
+                size: 30,
+              ),
+              title: Text(
+                'Settings',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              onTap: () {
+                // Navigate to settings page
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => SettingsPage()),
+                );
+              },
             ),
-            onTap: () {
-              // Navigate to balances page
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => QRScanPage()),
-              );
-            },
-          ),
-          ListTile(
-            leading: Icon(
-              Icons.account_balance_wallet,
-              size: 30,
+            ListTile(
+              leading: Icon(
+                Icons.notification_add,
+                size: 30,
+              ),
+              title: Text(
+                'Notification Settings',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              onTap: () {
+                // Navigate to email settings page
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => EmailSettingsPage()),
+                );
+              },
             ),
-            title: Text(
-              'Balance',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ListTile(
+              leading: Icon(
+                Icons.logout,
+                size: 30,
+              ),
+              title: Text(
+                'Logout',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              onTap: () async {
+                await _auth.signOut(); // Sign out the user
+                Navigator.pushReplacement(
+                  // Use pushReplacement to replace the current screen
+                  context,
+                  MaterialPageRoute(builder: (context) => MyHomePage()),
+                );
+              },
             ),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => BalancePage()),
-              );
-            },
-          ),
-          ListTile(
-            leading: Icon(
-              Icons.settings,
-              size: 30,
-            ),
-            title: Text(
-              'Settings',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            onTap: () {
-              // Navigate to settings page
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => SettingsPage()),
-              );
-            },
-          ),
-          ListTile(
-            leading: Icon(
-              Icons.notification_add,
-              size: 30,
-            ),
-            title: Text(
-              'Notification Settings',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            onTap: () {
-              // Navigate to email settings page
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => EmailSettingsPage()),
-              );
-            },
-          ),
-          ListTile(
-            leading: Icon(
-              Icons.logout,
-              size: 30,
-            ),
-            title: Text(
-              'Logout',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            onTap: () async {
-              await _auth.signOut(); // Sign out the user
-              Navigator.pushReplacement(
-                // Use pushReplacement to replace the current screen
-                context,
-                MaterialPageRoute(builder: (context) => MyHomePage()),
-              );
-            },
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
