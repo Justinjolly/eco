@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'thememanager.dart';
 
 class SettingsPage extends StatefulWidget {
@@ -8,16 +10,39 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
-  TextEditingController nameController =
-      TextEditingController(text: 'John Doe');
-  TextEditingController emailController =
-      TextEditingController(text: 'john.doe@example.com');
-  TextEditingController phoneController =
-      TextEditingController(text: '1234567891');
-  TextEditingController passwordController =
-      TextEditingController(text: 'password123');
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  // get phoneController => null;
+  late TextEditingController nameController;
+  late TextEditingController emailController;
+  late TextEditingController phoneController;
+  // Assuming password isn't fetched for security reasons
+  TextEditingController passwordController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+  }
+
+  Future<void> _loadUserData() async {
+    User? user = _auth.currentUser;
+    DocumentSnapshot userData;
+    if (user != null) {
+      userData = await _firestore.collection('users').doc(user.uid).get();
+      setState(() {
+        nameController = TextEditingController(text: userData['fullName'] ?? 'N/A');
+        emailController = TextEditingController(text: user.email ?? 'N/A');
+        phoneController = TextEditingController(text: userData['mobileNumber'] ?? 'N/A');
+        // Password field remains untouched or you can set a dummy value
+      });
+    } else {
+      // Default values if user data is not found
+      nameController = TextEditingController(text: 'N/A');
+      emailController = TextEditingController(text: 'N/A');
+      phoneController = TextEditingController(text: 'N/A');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
