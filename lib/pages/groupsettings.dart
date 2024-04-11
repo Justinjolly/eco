@@ -215,4 +215,3 @@ class GroupSettingsPage extends StatelessWidget {
     );
   }
 }
-.
