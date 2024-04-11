@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:app/pages/friendsettings.dart';
 import 'package:app/pages/groupsettingsedit.dart';
 import 'package:flutter/material.dart';
@@ -16,7 +15,7 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class GroupSettingsPage extends StatefulWidget {
+class GroupSettingsPage extends StatelessWidget {
   final String groupName;
   // Example group members data
   final List<Map<String, String>> groupMembers = [
@@ -26,19 +25,6 @@ class GroupSettingsPage extends StatefulWidget {
     {'name': 'Justin', 'email': 'dana@example.com', 'amount': '\$20'},
   ];
   GroupSettingsPage({required this.groupName});
-
-  @override
-  _GroupSettingsPageState createState() => _GroupSettingsPageState();
-}
-
-class _GroupSettingsPageState extends State<GroupSettingsPage> {
-  late Future<List<Map<String, String>>> _groupMembersFuture;
-
-  @override
-  void initState() {
-    super.initState();
-    _groupMembersFuture = fetchGroupMembers(widget.groupName);
-  }
 
   @override
   Widget build(BuildContext context) {
