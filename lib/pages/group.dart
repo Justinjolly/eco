@@ -41,6 +41,7 @@ class _GroupPageState extends State<GroupPage> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   late Stream<List<Map<String, dynamic>>> _messagesStream;
   final TextEditingController _controller = TextEditingController();
+  bool _showNotification = false;
 
   @override
   void initState() {
@@ -66,6 +67,13 @@ class _GroupPageState extends State<GroupPage> {
           child: Text(widget.groupName),
         ),
         actions: [
+          if (_showNotification) // Show notification icon if _showNotification is true
+            IconButton(
+              icon: Icon(Icons.notifications),
+              onPressed: () {
+                // Handle notification icon press
+              },
+            ),
           PopupMenuButton<String>(
             onSelected: (String result) {
               if (result == 'settings') {
