@@ -19,25 +19,38 @@ class _ActivityPageState extends State<ActivityPage> {
   }
 
   Future<List<GroupActivity>> _getGroupActivities() async {
-    String userId = FirebaseAuth.instance.currentUser?.uid ?? '';
+  String userId = FirebaseAuth.instance.currentUser?.uid ?? '';
 
-    QuerySnapshot<Map<String, dynamic>> snapshot = await FirebaseFirestore
-        .instance
-        .collection('groups')
-        .where('creator', isEqualTo: userId)
-        .get();
+  QuerySnapshot<Map<String, dynamic>> snapshot = await FirebaseFirestore
+      .instance
+      .collection('groups')
+      .where('creator', isEqualTo: userId)
+      .get();
 
-    List<GroupActivity> groupActivities = [];
+  List<GroupActivity> groupActivities = [];
 
-    snapshot.docs.forEach((doc) {
+  snapshot.docs.forEach((doc) {
+    // Check if 'creationDate' exists in the document
+    if (doc.data().containsKey('creationDate')) {
       // Assuming 'groupName' and 'creationDate' are fields in each document
       groupActivities.add(GroupActivity(
         groupName: doc['groupName'],
-        creationDate: doc['creationDate'],
+        creationDate: _formatDate(doc['creationDate']),
       ));
-    });
+    } else {
+      // Handle case where 'creationDate' field does not exist
+      print('Error: creationDate field does not exist in the document');
+    }
+  });
 
-    return groupActivities;
+  return groupActivities;
+}
+
+
+  String _formatDate(String date) {
+    // Assuming date is in the format dd-mm-yyyy
+    List<String> parts = date.split('-');
+    return '${parts[0]}-${parts[1]}-${parts[2]}';
   }
 
   @override
