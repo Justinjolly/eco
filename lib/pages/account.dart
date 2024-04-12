@@ -206,6 +206,23 @@ class _AccountPageState extends State<AccountPage> {
             ),
             ListTile(
               leading: Icon(
+                Icons.graphic_eq,
+                size: 30,
+              ),
+              title: Text(
+                'Data Preview',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              onTap: () {
+                // Navigate to email settings page
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => EmailSettingsPage()),
+                );
+              },
+            ),
+            ListTile(
+              leading: Icon(
                 Icons.logout,
                 size: 30,
               ),
