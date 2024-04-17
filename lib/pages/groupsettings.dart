@@ -2,6 +2,7 @@ import 'package:app/pages/friendsettings.dart';
 import 'package:app/pages/groupsettingsedit.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'addfriend.dart'; // Import the addfriend.dart file
 
 
 class GroupSettingsPage extends StatefulWidget {
@@ -88,30 +89,48 @@ class _GroupSettingsPageState extends State<GroupSettingsPage> {
                     style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                   ),
                   Expanded(
-                    child: ListView.builder(
-                      itemCount: snapshot.data!.docs.length,
-                      itemBuilder: (context, index) {
-                       DocumentSnapshot documentSnapshot = snapshot.data!.docs[index];
+  child: ListView.builder(
+    itemCount: snapshot.data!.docs.length,
+    itemBuilder: (context, index) {
+      DocumentSnapshot documentSnapshot = snapshot.data!.docs[index];
       List<dynamic> members = documentSnapshot['members']; // Access all members from the snapshot
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: members.map((member) {
           return Container(
-            child: Text(member),
+            child: Text(
+              member,
+              style: TextStyle(fontSize: 20), // Increase font size
+            ),
           );
         }).toList(),
       );
-                      
-                    }),
-                  ),
+    },
+  ),
+),
+
                   Row(
                     children: [
                       IconButton(
-                        icon: Icon(Icons.person_add),
-                        onPressed: () {
-                          // Your code to add people to the group
-                        },
-                      ),
+  icon: Icon(Icons.person_add),
+  onPressed: () async {
+    // Fetch the group ID from Firestore
+    String groupId = snapshot.data!.docs.first.id; // Assuming the first document contains the group ID
+
+    // Fetch the user ID of the group creator from the Firestore document
+    String userId = snapshot.data!.docs.first['creator']; // Assuming 'creator' is the field storing the user ID
+
+    // Navigate to AddFriendPage with both groupId and userId
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => AddFriendPage(groupId: groupId, userId: userId),
+      ),
+    );
+  },
+),
+
+
                       Text('Add Group Members'),
                     ],
                   ),
@@ -121,6 +140,7 @@ class _GroupSettingsPageState extends State<GroupSettingsPage> {
                         icon: Icon(Icons.link, size: 30),
                         color: const Color.fromARGB(255, 234, 234, 234),
                         onPressed: () {
+                          
                           // Your code to share invite link
                         },
                       ),
