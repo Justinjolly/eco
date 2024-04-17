@@ -141,7 +141,6 @@ class _GroupSettingsPageState extends State<GroupSettingsPage> {
                       },
                     ),
                   ),
-                  SizedBox(height: 20),
 
                   Row(
                     children: [
@@ -271,7 +270,7 @@ class _GroupSettingsPageState extends State<GroupSettingsPage> {
                       ],
                     ),
                   ),
-                  SizedBox(height: 20),
+                  SizedBox(height: 10),
                   InkWell(
                     onTap: () {
                       // Handle delete group action
