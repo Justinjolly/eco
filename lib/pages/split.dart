@@ -53,8 +53,20 @@ class _ExpenseEntryScreenState extends State<ExpenseEntryScreen> {
       body: StreamBuilder(
         stream: collectionRef.where('groupName', isEqualTo: widget.groupName).snapshots(),
         builder:(context, snapshot){
-          for (var member in snapshot.data!.docs[0]['members'])
-        groupMembersList.add(member); // Add each member to the list
+          if (snapshot.connectionState == ConnectionState.waiting) {
+    return CircularProgressIndicator(); // Add loading indicator while fetching data
+  }
+  if (snapshot.hasError) {
+    return Text('Error: ${snapshot.error}');
+  }
+  if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+    return Text('No data available'); // Handle case when there's no data or empty collection
+  }
+
+  groupMembersList.clear(); // Clear the list before populating it again
+  for (var member in snapshot.data!.docs[0]['members']) {
+    groupMembersList.add(member); // Add each member to the list
+  }
                              
           
           return
