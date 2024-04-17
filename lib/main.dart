@@ -1,5 +1,6 @@
 import 'package:app/pages/homepage.dart';
 import 'package:app/pages/navbar.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:app/pages/loginpage.dart'; // Import the LoginPage
@@ -21,12 +22,41 @@ void main() async {
   runApp(MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+    bool isLoggin = false;
+
+  checkState() async {
+    FirebaseAuth auth = FirebaseAuth.instance;
+    auth.authStateChanges().listen((User? user) {
+      if (user != null && mounted) {
+        setState(() {
+          isLoggin = true;
+        });
+      } else {
+        setState(() {
+          isLoggin = false;
+        });
+      }
+    });
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    checkState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       theme: ThemeData.dark(),
-      home: MyHomePage(),
+      home: isLoggin? HomePage():LoginPage(),
     );
   }
 }

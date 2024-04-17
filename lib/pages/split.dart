@@ -1,33 +1,41 @@
 import 'package:app/pages/group.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-void main() {
-  runApp(MyApp());
-}
+// void main() {
+//   runApp(MyApp());
+// }
 
-class MyApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Expense Tracker',
-      theme: ThemeData(
-        scaffoldBackgroundColor: Color.fromARGB(255, 36, 34, 34),
-        appBarTheme: AppBarTheme(
-          backgroundColor: Color.fromARGB(255, 36, 34, 34),
-        ),
-      ),
-      home: ExpenseEntryScreen(),
-    );
-  }
-}
+// class MyApp extends StatelessWidget {
+//   @override
+//   Widget build(BuildContext context) {
+//     return MaterialApp(
+//       title: 'Expense Tracker',
+//       theme: ThemeData(
+//         scaffoldBackgroundColor: Color.fromARGB(255, 36, 34, 34),
+//         appBarTheme: AppBarTheme(
+//           backgroundColor: Color.fromARGB(255, 36, 34, 34),
+//         ),
+//       ),
+//       home: ExpenseEntryScreen(),
+//     );
+//   }
+// }
 
 class ExpenseEntryScreen extends StatefulWidget {
+  final String groupName;
+   ExpenseEntryScreen({
+    required this.groupName,
+   
+  });
   @override
   _ExpenseEntryScreenState createState() => _ExpenseEntryScreenState();
 }
 
 class _ExpenseEntryScreenState extends State<ExpenseEntryScreen> {
+    List<String> groupMembersList = [];
+
   bool _showGroupMembers = false;
   bool _showUnequallyMembers = false;
   bool _showPercentageMembers = false;
@@ -36,158 +44,170 @@ class _ExpenseEntryScreenState extends State<ExpenseEntryScreen> {
 
   @override
   Widget build(BuildContext context) {
+     final CollectionReference collectionRef =
+      FirebaseFirestore.instance.collection('groups');
     return Scaffold(
       appBar: AppBar(
         title: Text('Expense Entry', style: TextStyle(color: Colors.white)),
       ),
-      body: Column(
-        children: [
-          Padding(
-            padding: EdgeInsets.only(
-                left: 150.0, bottom: 20.0, top: 20.0, right: 150.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                _buildAmountTextField(),
-                SizedBox(height: 17.0),
-                _buildNoteTextField(),
-              ],
+      body: StreamBuilder(
+        stream: collectionRef.where('groupName', isEqualTo: widget.groupName).snapshots(),
+        builder:(context, snapshot){
+          for (var member in snapshot.data!.docs[0]['members'])
+        groupMembersList.add(member); // Add each member to the list
+                             
+          
+          return
+            Column(
+          children: [
+            Padding(
+              padding: EdgeInsets.only(
+                  left: 150.0, bottom: 20.0, top: 20.0, right: 150.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  _buildAmountTextField(),
+                  SizedBox(height: 17.0),
+                  _buildNoteTextField(),
+                ],
+              ),
             ),
-          ),
-          Padding(
-            padding: EdgeInsets.symmetric(vertical: 20, horizontal: 20),
-            child: Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    Expanded(
-                      child: SectionButton(
-                        title: 'Split Equally',
-                        onPressed: () {
-                          setState(() {
-                            _showGroupMembers = !_showGroupMembers;
-                            _showUnequallyMembers = false;
-                            _showPercentageMembers = false;
-                          });
-                        },
-                        textColor: Colors.white,
-                      ),
-                    ),
-                    Expanded(
-                      child: SectionButton(
-                        title: 'Unequally',
-                        onPressed: () {
-                          setState(() {
-                            _showUnequallyMembers = !_showUnequallyMembers;
-                            _showGroupMembers = false;
-                            _showPercentageMembers = false;
-                          });
-                        },
-                        textColor: Colors.white,
-                      ),
-                    ),
-                    Expanded(
-                      child: SectionButton(
-                        title: 'Percentage',
-                        onPressed: () {
-                          setState(() {
-                            _showPercentageMembers = !_showPercentageMembers;
-                            _showGroupMembers = false;
-                            _showUnequallyMembers = false;
-                          });
-                        },
-                        textColor: Colors.white,
-                      ),
-                    ),
-                  ],
-                ),
-                Visibility(
-                  visible: _showGroupMembers,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+            Padding(
+              padding: EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+              child: Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      Divider(),
-                      SizedBox(height: 10),
-                      Text(
-                        'Equally Distributed:',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
+                      Expanded(
+                        child: SectionButton(
+                          title: 'Split Equally',
+                          onPressed: () {
+                            setState(() {
+                              _showGroupMembers = !_showGroupMembers;
+                              _showUnequallyMembers = false;
+                              _showPercentageMembers = false;
+                            });
+                          },
+                          textColor: Colors.white,
                         ),
                       ),
-                      SizedBox(height: 5),
-                      _buildGroupMembersList(),
-                    ],
-                  ),
-                ),
-                Visibility(
-                  visible: _showUnequallyMembers,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Divider(),
-                      SizedBox(height: 10),
-                      Text(
-                        'Unequally Distributed:',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
+                      Expanded(
+                        child: SectionButton(
+                          title: 'Unequally',
+                          onPressed: () {
+                            setState(() {
+                              _showUnequallyMembers = !_showUnequallyMembers;
+                              _showGroupMembers = false;
+                              _showPercentageMembers = false;
+                            });
+                          },
+                          textColor: Colors.white,
                         ),
                       ),
-                      SizedBox(height: 5),
-                      _buildUnequallyMembersList(),
-                    ],
-                  ),
-                ),
-                Visibility(
-                  visible: _showPercentageMembers,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Divider(),
-                      SizedBox(height: 10),
-                      Text(
-                        'Group Members:',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
+                      Expanded(
+                        child: SectionButton(
+                          title: 'Percentage',
+                          onPressed: () {
+                            setState(() {
+                              _showPercentageMembers = !_showPercentageMembers;
+                              _showGroupMembers = false;
+                              _showUnequallyMembers = false;
+                            });
+                          },
+                          textColor: Colors.white,
                         ),
                       ),
-                      SizedBox(height: 5),
-                      _buildPercentageMembersList(),
                     ],
                   ),
-                ),
-              ],
+                  Visibility(
+                    visible: _showGroupMembers,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Divider(),
+                        SizedBox(height: 10),
+                        Text(
+                          'Equally Distributed:',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                        SizedBox(height: 5),
+                        _buildGroupMembersList(),
+                      ],
+                    ),
+                  ),
+                  Visibility(
+                    visible: _showUnequallyMembers,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Divider(),
+                        SizedBox(height: 10),
+                        Text(
+                          'Unequally Distributed:',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                        SizedBox(height: 5),
+                        _buildUnequallyMembersList(),
+                      ],
+                    ),
+                  ),
+                  Visibility(
+                    visible: _showPercentageMembers,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Divider(),
+                        SizedBox(height: 10),
+                        Text(
+                          'Group Members:',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                        SizedBox(height: 5),
+                        _buildPercentageMembersList(),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-          Expanded(
-            child: Align(
-              alignment: Alignment.bottomCenter,
-              child: Padding(
-                padding: const EdgeInsets.only(bottom: 20.0),
-                child: ElevatedButton(
-                  onPressed: () {
-                    int expenseAmount = _amountController.text.isNotEmpty
-                        ? int.parse(_amountController.text)
-                        : 0;
-                    Navigator.pop(context, expenseAmount);
-                  },
-                  child: Text(
-                    'Split',
-                    style: TextStyle(
-                      color: Color.fromARGB(255, 255, 255, 255),
+            Expanded(
+              child: Align(
+                alignment: Alignment.bottomCenter,
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: 20.0),
+                  child: ElevatedButton(
+                    onPressed: () {
+                      int expenseAmount = _amountController.text.isNotEmpty
+                          ? int.parse(_amountController.text)
+                          : 0;
+                      Navigator.pop(context, expenseAmount);
+                    },
+                    child: Text(
+                      'Split',
+                      style: TextStyle(
+                        color: Color.fromARGB(255, 255, 255, 255),
+                      ),
                     ),
                   ),
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        );
+        }
       ),
     );
   }
@@ -399,10 +419,10 @@ class _ExpenseEntryScreenState extends State<ExpenseEntryScreen> {
   }
 
   Widget _buildPercentageMembersList() {
-    List<String> groupMembers = ['Member 1', 'Member 2', 'Member 3'];
+    
 
     final controllers = List<TextEditingController>.generate(
-        groupMembers.length, (index) => TextEditingController());
+        groupMembersList.length, (index) => TextEditingController());
 
     void onChangedCallback() {
       int totalPercentage = controllers.fold<int>(
@@ -421,8 +441,8 @@ class _ExpenseEntryScreenState extends State<ExpenseEntryScreen> {
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: List.generate(groupMembers.length, (index) {
-        final memberName = groupMembers[index];
+      children: List.generate(groupMembersList.length, (index) {
+        final memberName = groupMembersList[index];
         final controller = controllers[index];
 
         return Row(
@@ -468,17 +488,16 @@ class _ExpenseEntryScreenState extends State<ExpenseEntryScreen> {
   }
 
   Widget _buildGroupMembersList() {
-    List<String> groupMembers = ['Member 1', 'Member 2', 'Member 3'];
-
+   
     final amount = _amountController.text.isNotEmpty
         ? int.parse(_amountController.text)
         : 0;
     final equallyDistributedAmount =
-        amount ~/ groupMembers.length; // Calculate equally distributed amount
+        amount ~/ groupMembersList.length; // Calculate equally distributed amount
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: groupMembers.map((memberName) {
+      children: groupMembersList.map((memberName) {
         return Row(
           children: [
             Expanded(
