@@ -1,5 +1,4 @@
 import 'package:app/pages/homepage.dart';
-import 'package:app/pages/navbar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -28,7 +27,7 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-    bool isLoggin = false;
+  bool isLoggin = false;
 
   checkState() async {
     FirebaseAuth auth = FirebaseAuth.instance;
@@ -56,7 +55,7 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       theme: ThemeData.dark(),
-      home: isLoggin? HomePage():LoginPage(),
+      home: isLoggin ? HomePage() : MyHomePage(),
     );
   }
 }
