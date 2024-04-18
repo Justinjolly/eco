@@ -4,9 +4,6 @@ import 'package:app/pages/friends.dart';
 import 'package:app/pages/homepage.dart';
 import 'package:flutter/material.dart';
 
-
-
-
 class BottomNavigationBarExample extends StatefulWidget {
   const BottomNavigationBarExample({super.key});
   @override
