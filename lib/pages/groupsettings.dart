@@ -168,20 +168,6 @@ class _GroupSettingsPageState extends State<GroupSettingsPage> {
                       Text('Add Group Members'),
                     ],
                   ),
-                  Row(
-                    children: [
-                      IconButton(
-                        icon: Icon(Icons.link, size: 30),
-                        color: const Color.fromARGB(255, 234, 234, 234),
-                        onPressed: () {
-                          // Your code to share invite link
-                        },
-                      ),
-                      Text('Invite via Link',
-                          style: TextStyle(
-                              color: const Color.fromARGB(255, 234, 231, 231))),
-                    ],
-                  ),
 
                   ...widget.groupMembers.map((member) {
                     return Padding(

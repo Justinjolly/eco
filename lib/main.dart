@@ -56,7 +56,7 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       theme: ThemeData.dark(),
-      home: isLoggin? BottomNavigationBarExample():LoginPage(),
+      home: isLoggin ? BottomNavigationBarExample() : MyHomePage(),
     );
   }
 }
