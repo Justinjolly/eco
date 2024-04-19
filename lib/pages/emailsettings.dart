@@ -21,7 +21,7 @@ class _EmailSettingsPageState extends State<EmailSettingsPage> {
         title: Text('Notification Settings'),
         backgroundColor: Colors.blue,
       ),
-      body: Container(
+      body: SingleChildScrollView(
         padding: EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -77,25 +77,48 @@ class _EmailSettingsPageState extends State<EmailSettingsPage> {
                 setState(() => whenSomeonePaysMe = value!);
               },
             ),
+            SizedBox(height: 20),
+            Center(
+              child: ElevatedButton(
+                onPressed: () {
+                  // Implement what happens when the button is pressed
+                  saveChanges();
+                },
+                style: ElevatedButton.styleFrom(
+                  primary: Colors.blue,  // Button color
+                  onPrimary: Colors.white,  // Text color
+                  padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                ),
+                child: Text('Save Changes', style: TextStyle(fontSize: 16)),
+              ),
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget sectionTitle(String title) => Text(
-        title,
-        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-      );
+  void saveChanges() {
+    // Here you would typically call your method to save the preferences or update the state
+    print('Settings Saved!');
+  }
+
+  Widget sectionTitle(String title) => Padding(
+    padding: EdgeInsets.symmetric(vertical: 8.0),
+    child: Text(
+      title,
+      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+    ),
+  );
 
   Widget checkboxListTile(String title, bool value, void Function(bool?) onChanged) => ListTile(
-        title: Text(
-          title,
-          style: TextStyle(fontSize: 18),
-        ),
-        trailing: Checkbox(
-          value: value,
-          onChanged: onChanged,
-        ),
-      );
+    title: Text(
+      title,
+      style: TextStyle(fontSize: 18),
+    ),
+    trailing: Checkbox(
+      value: value,
+      onChanged: onChanged,
+    ),
+  );
 }
