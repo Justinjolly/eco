@@ -234,24 +234,29 @@ class _ExpenseEntryScreenState extends State<ExpenseEntryScreen> {
       // If display name is not available, use email as the username
       userName = currentUser.email ?? 'Unknown';
     }
-
     int expenseAmount = _amountController.text.isNotEmpty
         ? int.parse(_amountController.text)
         : 0;
-
-    // Calculate split amount for each member
-    int splitAmount = expenseAmount ~/ groupMembersList.length;
-
     try {
       final CollectionReference amountRef =
           FirebaseFirestore.instance.collection('amount');
 
       // Create a list to hold member names and their split amounts as objects
       List<Map<String, dynamic>> splitAmountsList = [];
+        if (_showGroupMembers) {
+      // Split Equally
+      int splitAmount = expenseAmount ~/ groupMembersList.length;
       for (var member in groupMembersList) {
         splitAmountsList.add({'member': member, 'amount': splitAmount});
       }
-
+      }
+      else if(_showUnequallyMembers){
+      int splitAmount = 
+          expenseAmount ~/ groupMembersList.length;
+      for (var member in groupMembersList) {
+        splitAmountsList.add({'member': member, 'amount': splitAmount});
+      }  
+      }
       // Store member names, split amounts, total amount, and user details in a single document
       await amountRef.add({
         'userId': userId,
