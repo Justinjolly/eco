@@ -41,6 +41,7 @@ class _GroupPageState extends State<GroupPage> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   late Stream<List<Map<String, dynamic>>> _messagesStream;
   final TextEditingController _controller = TextEditingController();
+  bool _showNotification = true;
 
   @override
   void initState() {
@@ -59,13 +60,20 @@ class _GroupPageState extends State<GroupPage> {
               context,
               MaterialPageRoute(
                 builder: (context) =>
-                    GroupSettingsPage(groupName: widget.groupName),
+                    GroupSettingsPage(groupName: widget.groupName,groupMembers: [],),
               ),
             );
           },
           child: Text(widget.groupName),
         ),
         actions: [
+          if (_showNotification) // Show notification icon always
+            IconButton(
+              icon: Icon(Icons.notifications),
+              onPressed: () {
+                // Handle notification icon press
+              },
+            ),
           PopupMenuButton<String>(
             onSelected: (String result) {
               if (result == 'settings') {
@@ -73,7 +81,7 @@ class _GroupPageState extends State<GroupPage> {
                   context,
                   MaterialPageRoute(
                     builder: (context) =>
-                        GroupSettingsPage(groupName: widget.groupName),
+                        GroupSettingsPage(groupName: widget.groupName,groupMembers: [],),
                   ),
                 );
               } else if (result == 'clear') {
@@ -126,7 +134,7 @@ class _GroupPageState extends State<GroupPage> {
               },
             ),
           ),
-          ChatSection(onSendPressed: _sendMessage),
+          ChatSection(onSendPressed: _sendMessage,groupName: widget.groupName,),
         ],
       ),
     );
@@ -243,14 +251,16 @@ class _GroupPageState extends State<GroupPage> {
 
 class ChatSection extends StatefulWidget {
   final Function(String) onSendPressed;
+  final String groupName;
 
-  const ChatSection({Key? key, required this.onSendPressed}) : super(key: key);
+  const ChatSection({Key? key, required this.onSendPressed, required this.groupName}) : super(key: key);
 
   @override
   _ChatSectionState createState() => _ChatSectionState();
 }
 
 class _ChatSectionState extends State<ChatSection> {
+  
   final TextEditingController _controller = TextEditingController();
 
   @override
@@ -319,7 +329,7 @@ class _ChatSectionState extends State<ChatSection> {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => ExpenseEntryScreen()),
+                MaterialPageRoute(builder: (context) => ExpenseEntryScreen(groupName: widget.groupName,)),
               );
             },
           ),

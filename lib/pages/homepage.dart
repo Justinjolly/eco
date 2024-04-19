@@ -2,6 +2,7 @@ import 'package:app/pages/card.dart';
 import 'package:app/pages/group.dart';
 import 'package:app/pages/groupcreate.dart';
 import 'package:flutter/material.dart';
+import 'package:app/pages/navbar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
