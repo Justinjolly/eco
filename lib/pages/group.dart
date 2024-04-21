@@ -160,14 +160,16 @@ class _GroupPageState extends State<GroupPage> {
                 if (splitDetails.isEmpty) {
                   return SizedBox.shrink(); // Hide split card if no split details
                 } else {
-                  final totalAmount = splitDetails[0]['totalAmount'];
-                  final numberOfPeople = splitDetails[0]['numberOfPeople'];
-                  final peoplePaid = splitDetails[0]['peoplePaid'];
-                  return SplitAmountCard(
-                    totalAmount: totalAmount,
-                    numberOfPeople: numberOfPeople,
-                    peoplePaid: peoplePaid,
-                    cardWidth: 250.0,
+                  return Column(
+                    children: splitDetails.map((splitDetail) {
+                      final totalAmount = splitDetail['totalAmount'];
+                      return SplitAmountCard(
+                        totalAmount: totalAmount,
+                        numberOfPeople: 5,
+                        peoplePaid: 3,
+                        cardWidth: 250.0,
+                      );
+                    }).toList(),
                   );
                 }
               }
@@ -213,11 +215,17 @@ class _GroupPageState extends State<GroupPage> {
 
   Stream<List<Map<String, dynamic>>> _getSplitStream() {
     return _firestore
-        .collection('groups')
-        .doc(widget.groupName)
-        .collection('amount')
-        .snapshots()
-        .map((snapshot) => snapshot.docs.map((doc) => doc.data() as Map<String, dynamic>).toList());
+      .collection('groups')
+    .doc(widget.groupName)
+    .collection('amount')
+    .snapshots()
+    .map((snapshot) => snapshot.docs.map((doc) {
+      final data = doc.data() as Map<String, dynamic>;
+      return {
+        'totalAmount': data['totalAmount'] ?? 0.0,
+        'splitAmounts': data['splitAmounts'] ?? [],
+      };
+    }).toList());
   }
 
   Future<void> _sendMessage(String message) async {
