@@ -1,17 +1,10 @@
-import 'package:app/pages/HomePage.dart';
-import 'package:app/pages/groupsettings.dart';
-import 'package:app/pages/split.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
-
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
-  runApp(MyApp());
-}
+import 'split.dart';
+import 'groupsettings.dart';
 
 class MyApp extends StatelessWidget {
   @override
@@ -28,7 +21,9 @@ class MyApp extends StatelessWidget {
               alignment: Alignment.bottomRight,
               child: Padding(
                 padding: EdgeInsets.all(16.0),
-                child: GroupPage(groupName: 'example_group', currentUser: FirebaseAuth.instance.currentUser!),
+                child: GroupPage(
+                    groupName: 'example_group',
+                    currentUser: FirebaseAuth.instance.currentUser!),
               ),
             ),
           ],
@@ -55,7 +50,8 @@ class _GroupPageState extends State<GroupPage> {
   late String _username;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   late Stream<List<Map<String, dynamic>>> _messagesStream;
-  late Stream<List<Map<String, dynamic>>> _splitStream; // Added stream for split details
+  late Stream<Map<String, dynamic>>
+      _splitStream; // Updated stream for split details
   final TextEditingController _controller = TextEditingController();
   bool _showNotification = true;
 
@@ -63,7 +59,8 @@ class _GroupPageState extends State<GroupPage> {
   void initState() {
     super.initState();
     _messagesStream = _getMessagesStream();
-    _splitStream = _getSplitStream(); // Initialize split stream
+    _splitStream =
+        _getCombinedSplitStream(); // Initialize combined split stream
     _fetchUsername();
   }
 
@@ -76,7 +73,8 @@ class _GroupPageState extends State<GroupPage> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => GroupSettingsPage(groupName: widget.groupName, groupMembers: []),
+                builder: (context) => GroupSettingsPage(
+                    groupName: widget.groupName, groupMembers: []),
               ),
             );
           },
@@ -94,7 +92,8 @@ class _GroupPageState extends State<GroupPage> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => GroupSettingsPage(groupName: widget.groupName, groupMembers: []),
+                    builder: (context) => GroupSettingsPage(
+                        groupName: widget.groupName, groupMembers: []),
                   ),
                 );
               } else if (result == 'clear') {
@@ -147,29 +146,25 @@ class _GroupPageState extends State<GroupPage> {
               },
             ),
           ),
-          StreamBuilder<List<Map<String, dynamic>>>(
+          StreamBuilder<Map<String, dynamic>>(
             stream: _splitStream,
             builder: (context, snapshot) {
-              print(snapshot.data);
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return CircularProgressIndicator();
               } else if (snapshot.hasError) {
                 return Text('Error: ${snapshot.error}');
               } else {
-                final splitDetails = snapshot.data ?? [];
-                if (splitDetails.isEmpty) {
-                  return SizedBox.shrink(); // Hide split card if no split details
+                final splitDetails = snapshot.data ?? {};
+                final totalAmount = splitDetails['totalAmount'] ?? 0.0;
+                final splitAmounts = splitDetails['splitAmounts'] ?? [];
+                print('Total amount: $totalAmount');
+                print('Split amounts: $splitAmounts');
+                if (splitAmounts.isEmpty) {
+                  return SizedBox
+                      .shrink(); // Hide split card if no split details
                 } else {
-                  return Column(
-                    children: splitDetails.map((splitDetail) {
-                      final totalAmount = splitDetail['totalAmount'];
-                      return SplitAmountCard(
-                        totalAmount: totalAmount,
-                        numberOfPeople: 5,
-                        peoplePaid: 3,
-                        cardWidth: 250.0,
-                      );
-                    }).toList(),
+                  return SplitAmountCard(
+                    totalAmount: totalAmount,
                   );
                 }
               }
@@ -184,7 +179,10 @@ class _GroupPageState extends State<GroupPage> {
   Future<void> _fetchUsername() async {
     try {
       DocumentSnapshot<Map<String, dynamic>> userSnapshot =
-          await FirebaseFirestore.instance.collection('users').doc(widget.currentUser.uid).get();
+          await FirebaseFirestore.instance
+              .collection('users')
+              .doc(widget.currentUser.uid)
+              .get();
 
       if (userSnapshot.exists) {
         Map<String, dynamic>? userData = userSnapshot.data();
@@ -210,27 +208,58 @@ class _GroupPageState extends State<GroupPage> {
         .collection('messages')
         .orderBy('timestamp', descending: true)
         .snapshots()
-        .map((snapshot) => snapshot.docs.map((doc) => doc.data() as Map<String, dynamic>).toList());
+        .map((snapshot) => snapshot.docs
+            .map((doc) => doc.data() as Map<String, dynamic>)
+            .toList());
   }
 
-  Stream<List<Map<String, dynamic>>> _getSplitStream() {
-    return _firestore
-      .collection('groups')
-    .doc(widget.groupName)
-    .collection('amount')
-    .snapshots()
-    .map((snapshot) => snapshot.docs.map((doc) {
-      final data = doc.data() as Map<String, dynamic>;
-      return {
-        'totalAmount': data['totalAmount'] ?? 0.0,
-        'splitAmounts': data['splitAmounts'] ?? [],
-      };
-    }).toList());
+  Stream<Map<String, dynamic>> _getCombinedSplitStream() {
+    return _getSplitStream().map((splitDetailsList) {
+      if (splitDetailsList.isNotEmpty) {
+        final splitDetails = splitDetailsList.first;
+        final totalAmount = splitDetails['totalAmount'] ?? 0.0;
+        final splitAmounts = splitDetails['splitAmounts'] ?? [];
+        print('Total amount: $totalAmount');
+        print('Split amounts: $splitAmounts');
+        return {
+          'totalAmount': totalAmount,
+          'splitAmounts': splitAmounts,
+        };
+      } else {
+        return {
+          'totalAmount': 0.0,
+          'splitAmounts': [],
+        };
+      }
+    });
+  }
+
+  Stream<Iterable<Map<String, dynamic>>> _getSplitStream() {
+    return _firestore.collection('amount').snapshots().map((snapshot) {
+      return snapshot.docs
+          .where((doc) =>
+              doc['groupName'] ==
+              widget.groupName) // Filter documents based on 'groupName' field
+          .map((doc) {
+        final data = doc.data() as Map<String, dynamic>;
+        // Ensure that 'totalAmount' and 'splitAmounts' are properly cast to expected types
+        final totalAmount = (data['totalAmount'] ?? 0.0) as double;
+        final splitAmounts = (data['splitAmounts'] ?? []) as List<dynamic>;
+        return {
+          'totalAmount': totalAmount,
+          'splitAmounts': splitAmounts,
+        };
+      }).toList();
+    });
   }
 
   Future<void> _sendMessage(String message) async {
     try {
-      await _firestore.collection('groups').doc(widget.groupName).collection('messages').add({
+      await _firestore
+          .collection('groups')
+          .doc(widget.groupName)
+          .collection('messages')
+          .add({
         'message': message,
         'username': _username,
         'timestamp': Timestamp.now(),
@@ -269,7 +298,12 @@ class _GroupPageState extends State<GroupPage> {
 
   void _clearChatHistory() async {
     try {
-      await _firestore.collection('groups').doc(widget.groupName).collection('messages').get().then((snapshot) {
+      await _firestore
+          .collection('groups')
+          .doc(widget.groupName)
+          .collection('messages')
+          .get()
+          .then((snapshot) {
         for (DocumentSnapshot ds in snapshot.docs) {
           ds.reference.delete();
         }
@@ -294,7 +328,9 @@ class ChatSection extends StatefulWidget {
   final Function(String) onSendPressed;
   final String groupName;
 
-  const ChatSection({Key? key, required this.onSendPressed, required this.groupName}) : super(key: key);
+  const ChatSection(
+      {Key? key, required this.onSendPressed, required this.groupName})
+      : super(key: key);
 
   @override
   _ChatSectionState createState() => _ChatSectionState();
@@ -369,7 +405,9 @@ class _ChatSectionState extends State<ChatSection> {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => ExpenseEntryScreen(groupName: widget.groupName)),
+                MaterialPageRoute(
+                    builder: (context) =>
+                        ExpenseEntryScreen(groupName: widget.groupName)),
               );
             },
           ),
@@ -389,83 +427,42 @@ class _ChatSectionState extends State<ChatSection> {
 
 class SplitAmountCard extends StatelessWidget {
   final double totalAmount;
-  final int numberOfPeople;
-  final int peoplePaid;
-  final double cardWidth;
 
   SplitAmountCard({
     required this.totalAmount,
-    required this.numberOfPeople,
-    required this.peoplePaid,
-    this.cardWidth = 250.0,
   });
 
   @override
   Widget build(BuildContext context) {
-    double splitAmount = totalAmount / numberOfPeople;
-    double paidRatio = peoplePaid / numberOfPeople;
-
     return Card(
       elevation: 2.0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(8.0),
       ),
-      child: SizedBox(
-        width: cardWidth,
-        child: Padding(
-          padding: EdgeInsets.all(12.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              Text(
-                'Split Amount',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16.0,
-                ),
+      child: Padding(
+        padding: EdgeInsets.all(12.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            Text(
+              'Split Amount',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 16.0,
               ),
-              SizedBox(height: 8.0),
-              Row(
-                children: <Widget>[
-                  Text(
-                    '₹', // Rupee symbol
-                    style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
-                  ),
-                  SizedBox(width: 4.0),
-                  Text(
-                    '${splitAmount.toStringAsFixed(2)} per person',
-                    style: TextStyle(
-                      fontSize: 18.0,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
+            ),
+            SizedBox(height: 8.0),
+            Text(
+              'Total Amount: ₹${totalAmount.toStringAsFixed(2)}',
+              style: TextStyle(
+                fontSize: 14.0,
               ),
-              SizedBox(height: 8.0),
-              Text(
-                'Total Amount: ₹${totalAmount.toStringAsFixed(2)}',
-                style: TextStyle(
-                  fontSize: 14.0,
-                ),
-              ),
-              SizedBox(height: 8.0),
-              Text(
-                '$peoplePaid/$numberOfPeople paid',
-                style: TextStyle(
-                  fontSize: 14.0,
-                ),
-              ),
-              SizedBox(height: 8.0),
-              LinearProgressIndicator(
-                value: paidRatio,
-                backgroundColor: Colors.grey[300],
-                valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
   }
 }
+
