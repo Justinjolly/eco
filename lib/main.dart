@@ -57,6 +57,7 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       theme: ThemeData.dark(),
       home: isLoggin ? BottomNavigationBarExample() : MyHomePage(),
+      debugShowCheckedModeBanner: false,
     );
   }
 }
