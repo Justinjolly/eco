@@ -18,7 +18,22 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Chat App',
-      home: HomePage(),
+      home: Scaffold(
+        appBar: AppBar(
+          title: Text('Split Amount Card Example'),
+        ),
+        body: Stack(
+          children: [
+            Container(
+              alignment: Alignment.bottomRight,
+              child: Padding(
+                padding: EdgeInsets.all(16.0),
+                child: GroupPage(groupName: 'example_group', currentUser: FirebaseAuth.instance.currentUser!),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -40,6 +55,7 @@ class _GroupPageState extends State<GroupPage> {
   late String _username;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   late Stream<List<Map<String, dynamic>>> _messagesStream;
+  late Stream<List<Map<String, dynamic>>> _splitStream; // Added stream for split details
   final TextEditingController _controller = TextEditingController();
   bool _showNotification = true;
 
@@ -47,6 +63,7 @@ class _GroupPageState extends State<GroupPage> {
   void initState() {
     super.initState();
     _messagesStream = _getMessagesStream();
+    _splitStream = _getSplitStream(); // Initialize split stream
     _fetchUsername();
   }
 
@@ -59,20 +76,17 @@ class _GroupPageState extends State<GroupPage> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) =>
-                    GroupSettingsPage(groupName: widget.groupName,groupMembers: [],),
+                builder: (context) => GroupSettingsPage(groupName: widget.groupName, groupMembers: []),
               ),
             );
           },
           child: Text(widget.groupName),
         ),
         actions: [
-          if (_showNotification) // Show notification icon always
+          if (_showNotification)
             IconButton(
               icon: Icon(Icons.notifications),
-              onPressed: () {
-                // Handle notification icon press
-              },
+              onPressed: () {},
             ),
           PopupMenuButton<String>(
             onSelected: (String result) {
@@ -80,8 +94,7 @@ class _GroupPageState extends State<GroupPage> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) =>
-                        GroupSettingsPage(groupName: widget.groupName,groupMembers: [],),
+                    builder: (context) => GroupSettingsPage(groupName: widget.groupName, groupMembers: []),
                   ),
                 );
               } else if (result == 'clear') {
@@ -134,7 +147,33 @@ class _GroupPageState extends State<GroupPage> {
               },
             ),
           ),
-          ChatSection(onSendPressed: _sendMessage,groupName: widget.groupName,),
+          StreamBuilder<List<Map<String, dynamic>>>(
+            stream: _splitStream,
+            builder: (context, snapshot) {
+              print(snapshot.data);
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return CircularProgressIndicator();
+              } else if (snapshot.hasError) {
+                return Text('Error: ${snapshot.error}');
+              } else {
+                final splitDetails = snapshot.data ?? [];
+                if (splitDetails.isEmpty) {
+                  return SizedBox.shrink(); // Hide split card if no split details
+                } else {
+                  final totalAmount = splitDetails[0]['totalAmount'];
+                  final numberOfPeople = splitDetails[0]['numberOfPeople'];
+                  final peoplePaid = splitDetails[0]['peoplePaid'];
+                  return SplitAmountCard(
+                    totalAmount: totalAmount,
+                    numberOfPeople: numberOfPeople,
+                    peoplePaid: peoplePaid,
+                    cardWidth: 250.0,
+                  );
+                }
+              }
+            },
+          ),
+          ChatSection(onSendPressed: _sendMessage, groupName: widget.groupName),
         ],
       ),
     );
@@ -143,10 +182,7 @@ class _GroupPageState extends State<GroupPage> {
   Future<void> _fetchUsername() async {
     try {
       DocumentSnapshot<Map<String, dynamic>> userSnapshot =
-          await FirebaseFirestore.instance
-              .collection('users')
-              .doc(widget.currentUser.uid)
-              .get();
+          await FirebaseFirestore.instance.collection('users').doc(widget.currentUser.uid).get();
 
       if (userSnapshot.exists) {
         Map<String, dynamic>? userData = userSnapshot.data();
@@ -160,7 +196,6 @@ class _GroupPageState extends State<GroupPage> {
     } catch (error) {
       print('Error fetching username: $error');
     }
-    // If fetching the username fails, set it to a default value
     setState(() {
       _username = 'Unknown User';
     });
@@ -173,18 +208,21 @@ class _GroupPageState extends State<GroupPage> {
         .collection('messages')
         .orderBy('timestamp', descending: true)
         .snapshots()
-        .map((snapshot) => snapshot.docs
-            .map((doc) => doc.data() as Map<String, dynamic>)
-            .toList());
+        .map((snapshot) => snapshot.docs.map((doc) => doc.data() as Map<String, dynamic>).toList());
+  }
+
+  Stream<List<Map<String, dynamic>>> _getSplitStream() {
+    return _firestore
+        .collection('groups')
+        .doc(widget.groupName)
+        .collection('amount')
+        .snapshots()
+        .map((snapshot) => snapshot.docs.map((doc) => doc.data() as Map<String, dynamic>).toList());
   }
 
   Future<void> _sendMessage(String message) async {
     try {
-      await _firestore
-          .collection('groups')
-          .doc(widget.groupName)
-          .collection('messages')
-          .add({
+      await _firestore.collection('groups').doc(widget.groupName).collection('messages').add({
         'message': message,
         'username': _username,
         'timestamp': Timestamp.now(),
@@ -223,12 +261,7 @@ class _GroupPageState extends State<GroupPage> {
 
   void _clearChatHistory() async {
     try {
-      await _firestore
-          .collection('groups')
-          .doc(widget.groupName)
-          .collection('messages')
-          .get()
-          .then((snapshot) {
+      await _firestore.collection('groups').doc(widget.groupName).collection('messages').get().then((snapshot) {
         for (DocumentSnapshot ds in snapshot.docs) {
           ds.reference.delete();
         }
@@ -260,7 +293,6 @@ class ChatSection extends StatefulWidget {
 }
 
 class _ChatSectionState extends State<ChatSection> {
-  
   final TextEditingController _controller = TextEditingController();
 
   @override
@@ -329,7 +361,7 @@ class _ChatSectionState extends State<ChatSection> {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => ExpenseEntryScreen(groupName: widget.groupName,)),
+                MaterialPageRoute(builder: (context) => ExpenseEntryScreen(groupName: widget.groupName)),
               );
             },
           ),
@@ -344,5 +376,88 @@ class _ChatSectionState extends State<ChatSection> {
       widget.onSendPressed(message);
       _controller.clear();
     }
+  }
+}
+
+class SplitAmountCard extends StatelessWidget {
+  final double totalAmount;
+  final int numberOfPeople;
+  final int peoplePaid;
+  final double cardWidth;
+
+  SplitAmountCard({
+    required this.totalAmount,
+    required this.numberOfPeople,
+    required this.peoplePaid,
+    this.cardWidth = 250.0,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    double splitAmount = totalAmount / numberOfPeople;
+    double paidRatio = peoplePaid / numberOfPeople;
+
+    return Card(
+      elevation: 2.0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8.0),
+      ),
+      child: SizedBox(
+        width: cardWidth,
+        child: Padding(
+          padding: EdgeInsets.all(12.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              Text(
+                'Split Amount',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16.0,
+                ),
+              ),
+              SizedBox(height: 8.0),
+              Row(
+                children: <Widget>[
+                  Text(
+                    '₹', // Rupee symbol
+                    style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(width: 4.0),
+                  Text(
+                    '${splitAmount.toStringAsFixed(2)} per person',
+                    style: TextStyle(
+                      fontSize: 18.0,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 8.0),
+              Text(
+                'Total Amount: ₹${totalAmount.toStringAsFixed(2)}',
+                style: TextStyle(
+                  fontSize: 14.0,
+                ),
+              ),
+              SizedBox(height: 8.0),
+              Text(
+                '$peoplePaid/$numberOfPeople paid',
+                style: TextStyle(
+                  fontSize: 14.0,
+                ),
+              ),
+              SizedBox(height: 8.0),
+              LinearProgressIndicator(
+                value: paidRatio,
+                backgroundColor: Colors.grey[300],
+                valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }
