@@ -31,9 +31,11 @@ class _SettingsPageState extends State<SettingsPage> {
     if (user != null) {
       userData = await _firestore.collection('users').doc(user.uid).get();
       setState(() {
-        nameController = TextEditingController(text: userData['fullName'] ?? 'N/A');
+        nameController =
+            TextEditingController(text: userData['fullName'] ?? 'N/A');
         emailController = TextEditingController(text: user.email ?? 'N/A');
-        phoneController = TextEditingController(text: userData['mobileNumber'] ?? 'N/A');
+        phoneController =
+            TextEditingController(text: userData['mobileNumber'] ?? 'N/A');
         // Password field remains untouched or you can set a dummy value
       });
     } else {
