@@ -147,30 +147,41 @@ class _GroupPageState extends State<GroupPage> {
               },
             ),
           ),
-          StreamBuilder<Map<String, dynamic>>(
-            stream: _splitStream,
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return CircularProgressIndicator();
-              } else if (snapshot.hasError) {
-                return Text('Error: ${snapshot.error}');
-              } else {
-                final splitDetails = snapshot.data ?? {};
-                final totalAmount = splitDetails['totalAmount'] ?? 0.0;
-                final splitAmounts = splitDetails['splitAmounts'] ?? [];
-                print('Total amount: $totalAmount');
-                print('Split amounts: $splitAmounts');
-                if (splitAmounts.isEmpty) {
-                  return SizedBox
-                      .shrink(); // Hide split card if no split details
-                } else {
-                  return SplitAmountCard(
-                    totalAmount: totalAmount,
-                  );
-                }
-              }
+        StreamBuilder<QuerySnapshot>(
+  stream: FirebaseFirestore.instance
+      .collection('amount')
+      .where('groupName', isEqualTo: widget.groupName)
+      .snapshots(),
+  builder: (context, snapshot) {
+    if (snapshot.connectionState == ConnectionState.waiting) {
+      return CircularProgressIndicator();
+    } else if (snapshot.hasError) {
+      return Text('Error: ${snapshot.error}');
+    } else {
+      final documents = snapshot.data!.docs; // Accessing documents directly
+      print(documents);
+
+      if (documents.isEmpty) {
+        return SizedBox.shrink(); // Hide split card if no split details
+      } else {
+        return Expanded(
+          child: ListView.builder(
+            itemCount: documents.length,
+            reverse: true,
+            itemBuilder: (context, index) {
+              DocumentSnapshot documentSnapshot = documents[index];
+
+              return SplitAmountCard(
+                totalAmount: documentSnapshot['totalAmount'],
+              );
             },
           ),
+        );
+      }
+    }
+  },
+)
+,
           ChatSection(onSendPressed: _sendMessage, groupName: widget.groupName),
         ],
       ),
@@ -440,7 +451,8 @@ class SplitAmountCard extends StatelessWidget {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => TripDetailsPage(), // Replace AnotherPage with the desired page
+            builder: (context) =>
+                TripDetailsPage(), // Replace AnotherPage with the desired page
           ),
         );
       },
