@@ -69,156 +69,144 @@ class GroupCreate extends StatelessWidget {
         ),
         centerTitle: true,
         automaticallyImplyLeading: false, // Disable the back button
-        backgroundColor:
-            Color.fromARGB(236, 72, 74, 74), // Example app bar color
+        backgroundColor: Colors.blue, // Updated app bar color
       ),
       body: Center(
         child: Padding(
-          padding: const EdgeInsets.symmetric(
-              vertical: 15.0, horizontal: 16.0), // Adjust padding
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center, // Center vertically
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Container(
-                padding: EdgeInsets.all(16.0),
-                decoration: BoxDecoration(
-                  border: Border.all(
-                    color: Color.fromARGB(255, 125, 123, 123), // Border color
-                    width: 2, // Border width
-                  ),
-                  borderRadius: BorderRadius.circular(8.0), // Border radius
+              Card(
+                elevation: 3,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15.0),
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Text(
-                      'Group Information',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
+                child: Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Text(
+                        'Group Information',
+                        style: TextStyle(
+                          color: const Color.fromARGB(255, 221, 218, 218),
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        textAlign: TextAlign.center,
                       ),
-                      textAlign: TextAlign.center,
-                    ),
-                    SizedBox(height: 20),
-                    TextField(
-                      controller: groupNameController,
-                      style: TextStyle(color: Colors.white),
-                      decoration: InputDecoration(
-                        labelText: 'Group Name',
-                        labelStyle: TextStyle(color: Colors.white),
-                        enabledBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.white),
-                          borderRadius: BorderRadius.circular(8.0),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.white),
-                          borderRadius: BorderRadius.circular(8.0),
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: 16),
-                    TextField(
-                      controller: groupTypeController,
-                      style: TextStyle(color: Colors.white),
-                      decoration: InputDecoration(
-                        labelText: 'Group Type',
-                        labelStyle: TextStyle(color: Colors.white),
-                        enabledBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.white),
-                          borderRadius: BorderRadius.circular(8.0),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.white),
-                          borderRadius: BorderRadius.circular(8.0),
+                      SizedBox(height: 20),
+                      TextField(
+                        controller: groupNameController,
+                        style: TextStyle(color: Colors.black),
+                        decoration: InputDecoration(
+                          labelText: 'Group Name',
+                          labelStyle: TextStyle(
+                              color: const Color.fromARGB(255, 255, 254, 254)),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8.0),
+                          ),
                         ),
                       ),
-                    ),
-                    SizedBox(height: 24),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        ElevatedButton(
-                          onPressed: () async {
-                            String groupName = groupNameController.text;
-                            String groupType = groupTypeController.text;
-                            String userId =
-                                FirebaseAuth.instance.currentUser?.uid ?? '';
+                      SizedBox(height: 16),
+                      TextField(
+                        controller: groupTypeController,
+                        style: TextStyle(color: Colors.black),
+                        decoration: InputDecoration(
+                          labelText: 'Group Type',
+                          labelStyle: TextStyle(
+                              color: const Color.fromARGB(255, 229, 225, 225)),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8.0),
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 24),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          ElevatedButton(
+                            onPressed: () async {
+                              String groupName = groupNameController.text;
+                              String groupType = groupTypeController.text;
+                              String userId =
+                                  FirebaseAuth.instance.currentUser?.uid ?? '';
 
-                            if (groupName.isNotEmpty &&
-                                groupType.isNotEmpty &&
-                                userId.isNotEmpty) {
-                              bool groupExists =
-                                  await _checkGroupExists(groupName, context);
-                              if (groupExists) {
-                                _showRenameDialog(context, groupName);
+                              if (groupName.isNotEmpty &&
+                                  groupType.isNotEmpty &&
+                                  userId.isNotEmpty) {
+                                bool groupExists =
+                                    await _checkGroupExists(groupName, context);
+                                if (groupExists) {
+                                  _showRenameDialog(context, groupName);
+                                } else {
+                                  DateTime now = DateTime.now();
+                                  String formattedDate =
+                                      '${now.day}-${now.month}-${now.year}';
+
+                                  DocumentReference groupRef =
+                                      await FirebaseFirestore.instance
+                                          .collection('groups')
+                                          .add({
+                                    'groupName': groupName,
+                                    'groupType': groupType,
+                                    'creator': userId,
+                                    'creationDate': formattedDate,
+                                  });
+                                  String groupId = groupRef.id;
+                                  print(
+                                      'Group created successfully! Group ID: $groupId');
+
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => AddFriendPage(
+                                          groupId: groupId, userId: userId),
+                                    ),
+                                  );
+                                }
                               } else {
-                                // Get the current date
-                                DateTime now = DateTime.now();
-                                String formattedDate =
-                                    '${now.day}-${now.month}-${now.year}';
-
-                                DocumentReference groupRef =
-                                    await FirebaseFirestore.instance
-                                        .collection('groups')
-                                        .add({
-                                  'groupName': groupName,
-                                  'groupType': groupType,
-                                  'creator':
-                                      userId, // Store the user ID as creator
-                                  'creationDate':
-                                      formattedDate, // Store the creation date
-                                });
-                                String groupId = groupRef.id;
-                                print(
-                                    'Group created successfully! Group ID: $groupId');
-
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => AddFriendPage(
-                                        groupId: groupId, userId: userId),
-                                  ),
-                                );
+                                _showAlertDialog(context);
                               }
-                            } else {
-                              _showAlertDialog(context);
-                            }
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.blue,
-                            elevation: 3,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8.0),
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.blue, // Button color
+                              elevation: 3,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8.0),
+                              ),
+                            ),
+                            child: Text(
+                              'Create Group',
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 16),
                             ),
                           ),
-                          child: Text(
-                            'Create Group',
-                            style: TextStyle(color: Colors.white, fontSize: 16),
-                          ),
-                        ),
-                        ElevatedButton(
-                          onPressed: () {
-                            Navigator.popUntil(
-                              context,
-                              (route) => route.isFirst,
-                            );
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.grey,
-                            elevation: 3,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8.0),
+                          ElevatedButton(
+                            onPressed: () {
+                              Navigator.popUntil(
+                                context,
+                                (route) => route.isFirst,
+                              );
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.grey, // Button color
+                              elevation: 3,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8.0),
+                              ),
+                            ),
+                            child: Text(
+                              'Back to Home',
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 16),
                             ),
                           ),
-                          child: Text(
-                            'Back to Home',
-                            style: TextStyle(color: Colors.white, fontSize: 16),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ],
