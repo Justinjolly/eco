@@ -294,28 +294,48 @@ class _GroupSettingsPageState extends State<GroupSettingsPage> {
                             collectionRef.doc(groupId);
 
                         // Update the Firestore document with the modified 'members' array
+                        List<String> updatedMembers = List<String>.from(
+                            snapshot.data!.docs.first['members']);
                         if (isGroupCreator) {
-                          // If the current user is the group creator, remove and update the members array
-                          await groupDocRef.update({
-                            'creator': '', // Clear the creator ID
-                            'members': FieldValue.arrayRemove([
-                              widget.currentUsername
-                            ]), // Remove current user
-                          });
+                          // If the current user is the group creator
+                          updatedMembers.remove(widget
+                              .currentUsername); // Remove current user from members list
+                          if (updatedMembers.isNotEmpty) {
+                            // If there are other members in the group, fetch the user ID of the next member (new creator)
+                            String newCreatorUsername = updatedMembers.first;
+                            DocumentSnapshot userSnapshot =
+                                await FirebaseFirestore.instance
+                                    .collection('users')
+                                    .doc(newCreatorUsername)
+                                    .get();
+                            String newCreatorId = userSnapshot
+                                .id; // Get the user ID of the new creator
+                            await groupDocRef.update({
+                              'creator':
+                                  newCreatorId, // Set the new creator's user ID as the creator
+                              'members':
+                                  updatedMembers, // Update the members list
+                            });
+                          } else {
+                            // If there are no other members in the group, clear the creator field
+                            await groupDocRef.update({
+                              'creator': '', // Clear the creator ID
+                              'members':
+                                  updatedMembers, // Update the members list (empty)
+                            });
+                          }
                         } else {
                           // If the current user is not the group creator, just remove the current user
+                          updatedMembers.remove(widget.currentUsername);
                           await groupDocRef.update({
-                            'members': FieldValue.arrayRemove([
-                              widget.currentUsername
-                            ]), // Remove current user
+                            'members':
+                                updatedMembers, // Update the members list
                           });
                         }
                         // Navigate to a different page or perform any other action after leaving the group
                         Navigator.pushReplacement(
                           context,
-                          MaterialPageRoute(
-                              builder: (context) =>
-                                  BottomNavigationBarExample()),
+                          MaterialPageRoute(builder: (context) => HomePage()),
                         );
                       }
                     },
