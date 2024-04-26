@@ -1,33 +1,16 @@
 import 'package:flutter/material.dart';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 
 class MyApp extends StatelessWidget {
   @override
- Widget build(BuildContext context) {
-    return FutureBuilder<DocumentSnapshot>(
-      future: FirebaseFirestore.instance.collection('amount').doc('your_document_id').get(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return CircularProgressIndicator(); // Show loading indicator while fetching data
-        }
-        if (snapshot.hasError) {
-          return Text('Error: ${snapshot.error}');
-        }
-        final groupName = snapshot.data!['groupName']; // Fetch groupName from Firestore
-        return MaterialApp(
-          home: TripDetailsPage(groupName: groupName),
-        );
-      },
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: TripDetailsPage(),
     );
   }
-
 }
-//poda
-class TripDetailsPage extends StatefulWidget {
-    final String groupName;
 
-  TripDetailsPage({required this.groupName});
+class TripDetailsPage extends StatefulWidget {
   @override
   _TripDetailsPageState createState() => _TripDetailsPageState();
 }
@@ -61,7 +44,7 @@ class _TripDetailsPageState extends State<TripDetailsPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.groupName), // Set the page title to groupName
+        title: Text('Trip'),
         backgroundColor: Colors.blue,
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
