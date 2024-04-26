@@ -21,8 +21,8 @@ class MyApp extends StatelessWidget {
       },
     );
   }
-
 }
+
 
 class TripDetailsPage extends StatefulWidget {
     final String groupName;
@@ -61,7 +61,7 @@ class _TripDetailsPageState extends State<TripDetailsPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.groupName), // Set the page title to groupName
+        title: Text('Trip'),
         backgroundColor: Colors.blue,
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
