@@ -173,6 +173,7 @@ class _GroupPageState extends State<GroupPage> {
 
               return SplitAmountCard(
                 totalAmount: documentSnapshot['totalAmount'],
+                groupName: documentSnapshot['groupName'],
               );
             },
           ),
@@ -439,9 +440,11 @@ class _ChatSectionState extends State<ChatSection> {
 
 class SplitAmountCard extends StatelessWidget {
   final double totalAmount;
+  final String groupName;
 
   SplitAmountCard({
     required this.totalAmount,
+    required this.groupName,
   });
 
   @override
@@ -452,7 +455,7 @@ class SplitAmountCard extends StatelessWidget {
           context,
           MaterialPageRoute(
             builder: (context) =>
-                TripDetailsPage(), // Replace AnotherPage with the desired page
+                TripDetailsPage(groupName: groupName), // Replace AnotherPage with the desired page
           ),
         );
       },
