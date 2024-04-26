@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class MyApp extends StatelessWidget {
@@ -14,20 +13,21 @@ class MyApp extends StatelessWidget {
         if (snapshot.hasError) {
           return Text('Error: ${snapshot.error}');
         }
-        final groupName = snapshot.data!['groupName']; // Fetch groupName from Firestore
+        final groupName = snapshot.data!['groupName'];
+         final totalAmount = snapshot.data!['totalAmount']; // Fetch groupName from Firestore
         return MaterialApp(
-          home: TripDetailsPage(groupName: groupName),
+           home: TripDetailsPage(groupName: groupName, totalAmount: totalAmount),
         );
       },
     );
   }
 
 }
-//poda
+
 class TripDetailsPage extends StatefulWidget {
     final String groupName;
-
-  TripDetailsPage({required this.groupName});
+    final String totalAmount;
+  TripDetailsPage({required this.groupName, required this.totalAmount});
   @override
   _TripDetailsPageState createState() => _TripDetailsPageState();
 }
@@ -39,7 +39,7 @@ class _TripDetailsPageState extends State<TripDetailsPage> {
     {'name': 'Justin', 'initial': 'J', 'paid': false},
     {'name': 'Adwaith', 'initial': 'A', 'paid': false, 'requester': true},
   ];
-  final String totalAmount = "\$100.00";
+  
 
   void _markAsPaid(int index) {
     setState(() {
@@ -95,7 +95,7 @@ class _TripDetailsPageState extends State<TripDetailsPage> {
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             Text(
-              totalAmount,
+              widget.totalAmount,
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.green),
             ),
 

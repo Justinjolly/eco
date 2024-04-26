@@ -6,6 +6,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
 import 'split.dart';
 import 'groupsettings.dart';
+import 'package:app/pages/account.dart';
 
 class MyApp extends StatelessWidget {
   @override
@@ -455,7 +456,7 @@ class SplitAmountCard extends StatelessWidget {
           context,
           MaterialPageRoute(
             builder: (context) =>
-                TripDetailsPage(groupName: groupName), // Replace AnotherPage with the desired page
+                TripDetailsPage(groupName: groupName, totalAmount: totalAmount.toStringAsFixed(2),), // Replace AnotherPage with the desired page
           ),
         );
       },
