@@ -6,6 +6,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
 import 'split.dart';
 import 'groupsettings.dart';
+import 'package:app/pages/account.dart';
 
 class MyApp extends StatelessWidget {
   @override
@@ -178,8 +179,9 @@ class _GroupPageState extends State<GroupPage> {
                         DocumentSnapshot documentSnapshot = documents[index];
 
                         return SplitAmountCard(
-                          totalAmount: documentSnapshot['totalAmount'],
-                        );
+                totalAmount: documentSnapshot['totalAmount'],
+                groupName: documentSnapshot['groupName'],
+              );
                       },
                     ),
                   );
@@ -444,9 +446,11 @@ class _ChatSectionState extends State<ChatSection> {
 
 class SplitAmountCard extends StatelessWidget {
   final double totalAmount;
+  final String groupName;
 
   SplitAmountCard({
     required this.totalAmount,
+    required this.groupName,
   });
 
   @override
@@ -457,7 +461,7 @@ class SplitAmountCard extends StatelessWidget {
           context,
           MaterialPageRoute(
             builder: (context) =>
-                TripDetailsPage(), // Replace AnotherPage with the desired page
+                TripDetailsPage(groupName: groupName, totalAmount: totalAmount.toStringAsFixed(2),), // Replace AnotherPage with the desired page
           ),
         );
       },
