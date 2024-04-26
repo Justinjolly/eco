@@ -99,8 +99,7 @@ class GroupCreate extends StatelessWidget {
                       SizedBox(height: 20),
                       TextField(
                         controller: groupNameController,
-                        style: TextStyle(
-                            color: const Color.fromARGB(255, 229, 227, 227)),
+                        style: TextStyle(color: Colors.black),
                         decoration: InputDecoration(
                           labelText: 'Group Name',
                           labelStyle: TextStyle(
@@ -113,8 +112,7 @@ class GroupCreate extends StatelessWidget {
                       SizedBox(height: 16),
                       TextField(
                         controller: groupTypeController,
-                        style: TextStyle(
-                            color: const Color.fromARGB(255, 240, 239, 239)),
+                        style: TextStyle(color: Colors.black),
                         decoration: InputDecoration(
                           labelText: 'Group Type',
                           labelStyle: TextStyle(

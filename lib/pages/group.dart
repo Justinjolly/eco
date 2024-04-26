@@ -75,9 +75,7 @@ class _GroupPageState extends State<GroupPage> {
               context,
               MaterialPageRoute(
                 builder: (context) => GroupSettingsPage(
-                    groupName: widget.groupName,
-                    groupMembers: [],
-                    currentUsername: _username),
+                    groupName: widget.groupName, groupMembers: []),
               ),
             );
           },
@@ -96,9 +94,7 @@ class _GroupPageState extends State<GroupPage> {
                   context,
                   MaterialPageRoute(
                     builder: (context) => GroupSettingsPage(
-                        groupName: widget.groupName,
-                        groupMembers: [],
-                        currentUsername: _username),
+                        groupName: widget.groupName, groupMembers: []),
                   ),
                 );
               } else if (result == 'clear') {
@@ -151,31 +147,29 @@ class _GroupPageState extends State<GroupPage> {
               },
             ),
           ),
-          StreamBuilder<QuerySnapshot>(
-            stream: FirebaseFirestore.instance
-                .collection('amount')
-                .where('groupName', isEqualTo: widget.groupName)
-                .snapshots(),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return CircularProgressIndicator();
-              } else if (snapshot.hasError) {
-                return Text('Error: ${snapshot.error}');
-              } else {
-                final documents =
-                    snapshot.data!.docs; // Accessing documents directly
-                print(documents);
+        StreamBuilder<QuerySnapshot>(
+  stream: FirebaseFirestore.instance
+      .collection('amount')
+      .where('groupName', isEqualTo: widget.groupName)
+      .snapshots(),
+  builder: (context, snapshot) {
+    if (snapshot.connectionState == ConnectionState.waiting) {
+      return CircularProgressIndicator();
+    } else if (snapshot.hasError) {
+      return Text('Error: ${snapshot.error}');
+    } else {
+      final documents = snapshot.data!.docs; // Accessing documents directly
+      print(documents);
 
-                if (documents.isEmpty) {
-                  return SizedBox
-                      .shrink(); // Hide split card if no split details
-                } else {
-                  return Expanded(
-                    child: ListView.builder(
-                      itemCount: documents.length,
-                      reverse: true,
-                      itemBuilder: (context, index) {
-                        DocumentSnapshot documentSnapshot = documents[index];
+      if (documents.isEmpty) {
+        return SizedBox.shrink(); // Hide split card if no split details
+      } else {
+        return Expanded(
+          child: ListView.builder(
+            itemCount: documents.length,
+            reverse: true,
+            itemBuilder: (context, index) {
+              DocumentSnapshot documentSnapshot = documents[index];
 
               return SplitAmountCard(
                 totalAmount: documentSnapshot['totalAmount'],
