@@ -1,5 +1,6 @@
 import 'package:app/pages/friendsettings.dart';
 import 'package:app/pages/groupsettingsedit.dart';
+import 'package:app/pages/homepage.dart';
 import 'package:app/pages/navbar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -11,7 +12,10 @@ class GroupSettingsPage extends StatefulWidget {
   final List<Map<String, String>> groupMembers;
   final String currentUsername; // Remove example data
 
-  GroupSettingsPage({required this.groupName, required this.groupMembers, required this.currentUsername});
+  GroupSettingsPage(
+      {required this.groupName,
+      required this.groupMembers,
+      required this.currentUsername});
 
   @override
   State<GroupSettingsPage> createState() => _GroupSettingsPageState();
@@ -314,6 +318,7 @@ class _GroupSettingsPageState extends State<GroupSettingsPage> {
                                   BottomNavigationBarExample()),
                         );
                       }
+                    },
                     child: Row(
                       children: [
                         Icon(Icons.exit_to_app,
@@ -327,6 +332,7 @@ class _GroupSettingsPageState extends State<GroupSettingsPage> {
                       ],
                     ),
                   ),
+
                   SizedBox(height: 10),
                   InkWell(
                     onTap: () {
