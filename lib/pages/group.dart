@@ -179,8 +179,9 @@ class _GroupPageState extends State<GroupPage> {
                         DocumentSnapshot documentSnapshot = documents[index];
 
                         return SplitAmountCard(
-                          totalAmount: documentSnapshot['totalAmount'],
-                        );
+                totalAmount: documentSnapshot['totalAmount'],
+                groupName: documentSnapshot['groupName'],
+              );
                       },
                     ),
                   );
@@ -445,9 +446,11 @@ class _ChatSectionState extends State<ChatSection> {
 
 class SplitAmountCard extends StatelessWidget {
   final double totalAmount;
+  final String groupName;
 
   SplitAmountCard({
     required this.totalAmount,
+    required this.groupName,
   });
 
   @override
