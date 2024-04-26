@@ -14,9 +14,10 @@ class MyApp extends StatelessWidget {
           return Text('Error: ${snapshot.error}');
         }
         final groupName = snapshot.data!['groupName'];
-         final totalAmount = snapshot.data!['totalAmount']; // Fetch groupName from Firestore
+         final totalAmount = snapshot.data!['totalAmount'];
+         final members = List<String>.from(snapshot.data!['splitAmount'].map((member) => member['member'])); // Fetch groupName from Firestore
         return MaterialApp(
-           home: TripDetailsPage(groupName: groupName, totalAmount: totalAmount),
+           home: TripDetailsPage(groupName: groupName, totalAmount: totalAmount, members: members),
         );
       },
     );
@@ -27,20 +28,21 @@ class MyApp extends StatelessWidget {
 class TripDetailsPage extends StatefulWidget {
     final String groupName;
     final String totalAmount;
-  TripDetailsPage({required this.groupName, required this.totalAmount});
+    final List<String> members;
+   TripDetailsPage({required this.groupName, required this.totalAmount, required this.members});
   @override
   _TripDetailsPageState createState() => _TripDetailsPageState();
 }
 
 class _TripDetailsPageState extends State<TripDetailsPage> {
-  final List<Map<String, dynamic>> users = [
-    {'name': 'Dony', 'initial': 'D', 'paid': false},
-    {'name': 'Jibbin', 'initial': 'J', 'paid': false},
-    {'name': 'Justin', 'initial': 'J', 'paid': false},
-    {'name': 'Adwaith', 'initial': 'A', 'paid': false, 'requester': true},
-  ];
+ List<Map<String, dynamic>> users = [];
   
-
+  void initState() {
+    super.initState();
+    // Initialize the users list with members fetched from Firebase
+    users = widget.members.map((member) => {'member': member, 'initial': member[0], 'paid': false}).toList();
+    // Assuming there's no requester in the fetched members
+  }
   void _markAsPaid(int index) {
     setState(() {
       users[index]['paid'] = true;
@@ -86,7 +88,7 @@ class _TripDetailsPageState extends State<TripDetailsPage> {
             ),
             SizedBox(height: 10),
             Text(
-              users.last['name']!,
+              users.last['member']!,
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             SizedBox(height: 20),
@@ -128,7 +130,7 @@ class _TripDetailsPageState extends State<TripDetailsPage> {
                         style: TextStyle(color: Colors.black),
                       ),
                     ),
-                    title: Text(user['name'], style: TextStyle(fontSize: 18)),
+                    title: Text(user['member'], style: TextStyle(fontSize: 18)),
                     subtitle: Text(
                       user.containsKey('requester') && user['requester'] ? "Sent this request" : user['paid'] ? "Paid" : "Unpaid",
                       style: TextStyle(color: user.containsKey('requester') && user['requester'] ? Colors.grey : user['paid'] ? Colors.green : Colors.red),
