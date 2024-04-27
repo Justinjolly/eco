@@ -461,7 +461,7 @@ class SplitAmountCard extends StatelessWidget {
           context,
           MaterialPageRoute(
             builder: (context) =>
-                TripDetailsPage(groupName: groupName, totalAmount: totalAmount.toStringAsFixed(2),), // Replace AnotherPage with the desired page
+                TripDetailsPage(), // Replace AnotherPage with the desired page
           ),
         );
       },
