@@ -3,11 +3,76 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:app/pages/SignUpPage.dart';
 import 'package:app/pages/HomePage.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:app/pages/forgotpassword.dart'; // Import the new page
 
 class LoginPage extends StatefulWidget {
   @override
   _LoginPageState createState() => _LoginPageState();
+}
+
+Future<void> addSession(String userId, String email) async {
+  try {
+    // Generate a unique session ID (you can use UUID or any other method)
+    String sessionId = DateTime.now().millisecondsSinceEpoch.toString();
+
+    // Create a new session document in the sessions collection
+    await FirebaseFirestore.instance.collection('sessions').doc(sessionId).set({
+      'userId': userId,
+      'email': email,
+      'loginTimestamp': FieldValue.serverTimestamp(), // Store server timestamp
+      // Add any additional fields you need
+    });
+  } catch (error) {
+    // Handle errors
+    print('Error adding session: $error');
+  }
+}
+
+Future<void> createSession(User user) async {
+  try {
+    // Get a reference to the Firestore collection
+    CollectionReference sessions =
+        FirebaseFirestore.instance.collection('sessions');
+
+    // Check if the 'sessions' collection exists
+    var sessionsSnapshot = await sessions.get();
+    if (sessionsSnapshot.docs.isEmpty) {
+      // 'sessions' collection does not exist, create it
+      await sessions.add({});
+      print('Created sessions collection');
+    }
+
+    // Create a new document for the user session
+    await sessions.doc(user.uid).set({
+      'email': user.email,
+      'lastLogin': DateTime.now(), // Timestamp of the last login
+      // Add any other user session data you want to store
+    });
+
+    print('Session created successfully for user: ${user.uid}');
+  } catch (e) {
+    print('Error creating session: $e');
+    // Handle any errors that occur during session creation
+  }
+}
+
+Future<bool> _checkActiveSession(String email) async {
+  try {
+    // Query the sessions collection to check for active sessions
+    QuerySnapshot<Map<String, dynamic>> querySnapshot = await FirebaseFirestore
+        .instance
+        .collection('sessions')
+        .where('email', isEqualTo: email)
+        .get();
+
+    // Check if any active sessions exist for the provided email
+    return querySnapshot.docs.isNotEmpty;
+  } catch (error) {
+    // Handle any errors that occur during the query
+    print('Error checking active session: $error');
+    return false; // Return false in case of error
+  }
 }
 
 class _LoginPageState extends State<LoginPage> {
@@ -23,6 +88,19 @@ class _LoginPageState extends State<LoginPage> {
     });
 
     try {
+      // Check if the user already has an active session
+      bool hasActiveSession = await _checkActiveSession(_emailController.text);
+
+      if (hasActiveSession) {
+        // Handle case where user already has an active session
+        setState(() {
+          _errorMessage = 'You are already logged in from another device.';
+          _isLoggingIn = false; // Stop the login animation
+        });
+        return;
+      }
+
+      // Proceed with login if no active session found
       UserCredential userCredential =
           await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: _emailController.text,
@@ -31,6 +109,9 @@ class _LoginPageState extends State<LoginPage> {
 
       // Handle successful login
       print('User logged in: ${userCredential.user!.uid}');
+
+      // Create session for the user
+      await addSession(userCredential.user!.uid, userCredential.user!.email!);
 
       // Navigate to the home page
       Navigator.pushReplacement(
