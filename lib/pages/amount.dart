@@ -18,6 +18,10 @@ class TripDetailsPage extends StatefulWidget {
 class _TripDetailsPageState extends State<TripDetailsPage> {
   final users = [];
   late String totalAmount = '';
+  late String groupName = '';
+   late String Amount = '';
+   late String userId = '';
+   late String userName = '';
 
   @override
   void initState() {
@@ -26,23 +30,45 @@ class _TripDetailsPageState extends State<TripDetailsPage> {
   }
 
 Future<void> _fetchData() async {
-  // Fetch data from Firestore
-  final snapshot = await FirebaseFirestore.instance.collection('amount').doc('Wms6j9aqramDy7gysC8G').get();
+  
+  final snapshot = await FirebaseFirestore.instance.collection('amount').doc('xFAtIwZSorKMVWV0ObsT').get();
   final data = snapshot.data();
-  print(data!['splitAmounts'].length);
+  userId=data!['userId'].toString();
+  final userSnapshot = await FirebaseFirestore.instance.collection('users').doc(userId).get();
+  final userData = userSnapshot.data();
+  
   setState(() {
-    users.clear(); // Clear existing users list
+    userName = userName;
+    userName=userData!['userName'].toString();
+    users.clear();
     for (var i = 0; i < data!['splitAmounts'].length; i++) {
       final splitAmount = data['splitAmounts'][i];
       final member = splitAmount['member'];
-      print(member);// Assuming 'member' is a String
+        bool isRequester = false;
       if (member != null) {
-        users.add({'name': member.toString()}); // Add 'member' as a map with 'name' key
+        if (member is String) {
+          if (member == userName) {
+            isRequester = true;
+          }
+          users.add({'name': member, 'paid': false, 'requester': isRequester});
+        } else if (member is int) {
+          if (member.toString() == userName) {
+            isRequester = true;
+          }
+          users.add({'name': member.toString(), 'paid': false, 'requester': isRequester});
+        }
       }
     }
-
+    
     print(users);
-    totalAmount = data['splitAmounts'][0]['amount']; // Get 'amount' from the first splitAmount mapping
+    
+    print(userId);
+    
+    print(userName);
+    totalAmount = data['totalAmount'].toString();
+    groupName= data['groupName'].toString();
+    Amount = data['splitAmounts'][0]['amount'].toString();
+    
   });
 }
 
@@ -51,21 +77,36 @@ Future<void> _fetchData() async {
 
 
 
-  void _markAsPaid(int index) {
-    setState(() {
-      users[index]['paid'] = true;
-    });
-  }
 
-  int _countPaidUsers() {
-    int count = 0;
-    for (var user in users) {
-      if (user['paid'] == true) {
-        count++;
+void _markAsPaid(int index) {
+  setState(() {
+    // Mark the user as paid
+    users[index]['paid'] = true;
+
+    // If the user is a requester, find and mark them as paid
+    if (users[index].containsKey('requester') && users[index]['requester']) {
+      for (var i = 0; i < users.length; i++) {
+        if (users[i]['name'] == userName) {
+          users[i]['paid'] = true;
+          break; // Stop loop once the requester is found and marked as paid
+        }
       }
     }
-    return count;
+  });
+}
+
+int _countPaidUsers() {
+  int count = 1;
+  for (var user in users) {
+    // Use null-aware operator to handle potential null value of 'paid'
+    if (user['paid'] ?? false) {
+      count++;
+    }
   }
+  return count;
+}
+
+
 
   @override
  @override
@@ -78,13 +119,13 @@ Widget build(BuildContext context) {
     );
   }
 
-  double splitAmount = double.parse(totalAmount) / users.length;
+  double splitAmount = double.parse(Amount);
   int paidUsers = _countPaidUsers();
 
   return Scaffold(
     appBar: AppBar(
-      title: Text('Trip'),
-      backgroundColor: Colors.blue,
+      title: Text(groupName),
+      backgroundColor: const Color.fromARGB(255, 0, 0, 0),
       leading: IconButton(
         icon: Icon(Icons.arrow_back),
         onPressed: () => Navigator.of(context).pop(), // Navigate back
@@ -97,16 +138,20 @@ Widget build(BuildContext context) {
         children: [
           CircleAvatar(
             radius: 40,
-            backgroundColor: Colors.grey.shade200,
+            backgroundColor: Color.fromARGB(255, 1, 112, 1),
             child: Text(
-    'D' ,// Ensure 'initial' is treated as a String
-              style: TextStyle(fontSize: 40, color: Colors.black),
-            ),
+                                    userName[
+                                        0], // Access the first character of the member's name
+                                    style: TextStyle(
+                                      color: Color.fromARGB(255, 0, 0, 0),
+                                      fontWeight: FontWeight.w900,
+                                    ),
+                                  ),
           ),
           SizedBox(height: 10),
           Text(
             // users.last['name']!.toString(),
-            'd',
+            userName,
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
           SizedBox(height: 20),
@@ -114,8 +159,9 @@ Widget build(BuildContext context) {
             'Total Amount',
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
+          SizedBox(width: 4.0),
           Text(
-            totalAmount,
+            '₹${totalAmount}',
             style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.green),
           ),
           SizedBox(height: 10),
@@ -143,16 +189,20 @@ Widget build(BuildContext context) {
                   leading: CircleAvatar(
                     backgroundColor: Colors.grey.shade200,
                     child: Text(
-                      'd',
-                      style: TextStyle(color: Colors.black),
-                    ),
+                                    userName[
+                                        0], // Access the first character of the member's name
+                                    style: TextStyle(
+                                      color: const Color.fromARGB(255, 0, 0, 0),
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
                   ),
                   title: Text(user['name'], style: TextStyle(fontSize: 18)),
                   subtitle: Text(
                     user.containsKey('requester') && user['requester'] ? "Sent this request" : user['paid'] ? "Paid" : "Unpaid",
                     style: TextStyle(color: user.containsKey('requester') && user['requester'] ? Colors.grey : user['paid'] ? Colors.green : Colors.red),
                   ),
-                  trailing: Text('\$${splitAmount.toStringAsFixed(2)}'),
+                  trailing: Text('\₹${splitAmount.toStringAsFixed(2)}'),
                   onTap: () {
                     if (!user['paid'] && !(user.containsKey('requester') && user['requester'])) {
                       showDialog(
@@ -188,6 +238,16 @@ Widget build(BuildContext context) {
         ],
       ),
     ),
+     floatingActionButton: FloatingActionButton.extended(
+    onPressed: () {
+      // Action to be performed when the Pay button is pressed
+    },
+    label: Text('Pay'),
+    icon: Icon(Icons.payment),
+    backgroundColor: Colors.blue, // Customize button color as needed
+  ),
+  floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+
   );
 }
 }
