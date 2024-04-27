@@ -71,13 +71,6 @@ Future<void> _fetchData() async {
     
   });
 }
-
-
-
-
-
-
-
 void _markAsPaid(int index) {
   setState(() {
     // Mark the user as paid
