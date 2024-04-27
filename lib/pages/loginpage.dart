@@ -15,6 +15,7 @@ class _LoginPageState extends State<LoginPage> {
   TextEditingController _passwordController = TextEditingController();
   String _errorMessage = '';
   bool _isLoggingIn = false; // Track whether login process is in progress
+  bool _isPasswordVisible = false;
 
   void _handleEmailSignIn() async {
     setState(() {
@@ -98,40 +99,41 @@ class _LoginPageState extends State<LoginPage> {
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(10),
                     border: Border.all(
-                        color: const Color.fromARGB(255, 239, 239, 239)),
+                      color: const Color.fromARGB(255, 239, 239, 239),
+                    ),
                   ),
                   child: TextField(
                     controller: _passwordController,
-                    obscureText: true,
+                    obscureText: !_isPasswordVisible,
                     style: TextStyle(
-                        color: const Color.fromARGB(255, 255, 255, 255)),
+                      color: const Color.fromARGB(255, 255, 255, 255),
+                    ),
                     decoration: InputDecoration(
                       labelText: 'Password',
-                      labelStyle:
-                          TextStyle(color: Color.fromARGB(255, 255, 255, 255)),
+                      labelStyle: TextStyle(
+                        color: Color.fromARGB(255, 255, 255, 255),
+                      ),
                       border: InputBorder.none,
                       contentPadding: EdgeInsets.all(12),
+                      suffixIcon: IconButton(
+                        onPressed: () {
+                          // Toggle password visibility
+                          setState(() {
+                            _isPasswordVisible = !_isPasswordVisible;
+                          });
+                        },
+                        icon: Icon(
+                          _isPasswordVisible
+                              ? Icons.visibility
+                              : Icons.visibility_off,
+                          color: Color.fromARGB(255, 255, 255, 255),
+                        ),
+                      ),
                     ),
                   ),
                 ),
                 Align(
                   alignment: Alignment.centerRight,
-                  child: TextButton(
-                    onPressed: () {
-                      // Navigate to the ForgotPasswordPage when clicked
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => ForgotPasswordPage(),
-                        ),
-                      );
-                    },
-                    child: Text(
-                      'Forgot Password?',
-                      style: TextStyle(
-                          color: const Color.fromARGB(255, 255, 255, 255)),
-                    ),
-                  ),
                 ),
                 SizedBox(height: 16),
                 ElevatedButton(
