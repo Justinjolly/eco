@@ -14,6 +14,28 @@ class GroupSettingsPage extends StatefulWidget {
   State<GroupSettingsPage> createState() => _GroupSettingsPageState();
 }
 
+void _deleteGroup(BuildContext context, String groupId) async {
+  try {
+    // Reference to the group document in Firestore
+    DocumentReference groupDocRef =
+        FirebaseFirestore.instance.collection('groups').doc(groupId);
+    // Delete the group document
+    await groupDocRef.delete();
+    // Navigate to the home page
+    Navigator.popUntil(context, ModalRoute.withName('/'));
+  } catch (e) {
+    // Handle any errors that occur during deletion
+    print('Error deleting group: $e');
+    // Show a snackbar or dialog to inform the user about the error
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Failed to delete group. Please try again later.'),
+      ),
+    );
+  }
+}
+
+
 class _GroupSettingsPageState extends State<GroupSettingsPage> {
   @override
   Widget build(BuildContext context) {
@@ -257,19 +279,20 @@ class _GroupSettingsPageState extends State<GroupSettingsPage> {
                     ),
                   ),
                   SizedBox(height: 10),
-                  InkWell(
-                    onTap: () {
-                      // Handle delete group action
-                    },
-                    child: Row(
-                      children: [
-                        Icon(Icons.delete, color: Colors.red),
-                        SizedBox(width: 8),
-                        Text('Delete Group',
-                            style: TextStyle(fontSize: 18, color: Colors.red)),
-                      ],
-                    ),
-                  ),
+                 InkWell(
+  onTap: () {
+    // Call the method to delete the group document
+    _deleteGroup(context, snapshot.data!.docs.first.id);
+  },
+  child: Row(
+    children: [
+      Icon(Icons.delete, color: Colors.red),
+      SizedBox(width: 8),
+      Text('Delete Group', style: TextStyle(fontSize: 18, color: Colors.red)),
+    ],
+  ),
+),
+
                 ],
               ),
             ),
