@@ -21,96 +21,93 @@ class _AddFriendPageState extends State<AddFriendPage> {
   List<String> displayedUsers = [];
   Set<String> selectedUsers = Set();
 
-
-@override
-void initState() {
-  super.initState();
-  _fetchUserData();
-}
-
-void _fetchUserData() {
-  FirebaseFirestore.instance.collection('users').get().then((querySnapshot) {
-    setState(() {
-      allUsers = querySnapshot.docs.map((doc) {
-        Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-        // Check if 'userName' field is not null before adding it to the list
-        if (data['userName'] != null) {
-          return data['userName'] as String;
-        } else {
-          return ''; // Return empty string for null values
-        }
-      }).toList();
-      displayedUsers = List.from(allUsers);
-    });
-  }).catchError((error) {
-    print('Failed to fetch user data from Firestore: $error');
-  });
-}
-
-void filterUsers(String query) {
-  setState(() {
-    displayedUsers = allUsers
-        .where((user) => user.toLowerCase().contains(query.toLowerCase()))
-        .toList();
-  });
-}
-
-void toggleSelectedUser(String user) {
-  setState(() {
-    if (selectedUsers.contains(user)) {
-      selectedUsers.remove(user);
-    } else {
-      selectedUsers.add(user);
-    }
-  });
-}
-
-void addToFriends(String groupId) {
-  // Fetch the user ID of the logged-in user
-  User? currentUser = FirebaseAuth.instance.currentUser;
-
-  if (currentUser != null) {
-    FirebaseFirestore.instance
-        .collection('users')
-        .doc(currentUser.uid)
-        .get()
-        .then((userData) {
-      String userName = userData.data()?['userName'] ?? '';
-      if (userName.isNotEmpty) {
-        print('Added $userName to friends');
-        // Add the current signed-in user to the selected users
-        
-
-        // Add all selected users to the group
-        FirebaseFirestore.instance.collection('groups').doc(groupId).update({
-          'members': FieldValue.arrayUnion(selectedUsers.toList())
-        }).then((_) {
-          // Store the group name and members in the 'friends' collection
-          FirebaseFirestore.instance.collection('friends').add({
-            'creatorName': userName,
-            'members': selectedUsers.toList()
-          }).then((_) {
-            print('Users added to the friends collection successfully');
-            // Clear the selected users list
-            selectedUsers.clear();
-          }).catchError((error) {
-            print('Error adding users to the friends collection: $error');
-          });
-        }).catchError((error) {
-          print('Error adding users to the group: $error');
-        });
-      } else {
-        print('Failed to fetch username for user ID: ${currentUser.uid}');
-      }
-    }).catchError((error) {
-      print('Error fetching user data: $error');
-    });
-  } else {
-    print('User is not logged in. Cannot add user to the group.');
+  @override
+  void initState() {
+    super.initState();
+    _fetchUserData();
   }
-}
 
+  void _fetchUserData() {
+    FirebaseFirestore.instance.collection('users').get().then((querySnapshot) {
+      setState(() {
+        allUsers = querySnapshot.docs.map((doc) {
+          Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+          // Check if 'userName' field is not null before adding it to the list
+          if (data['userName'] != null) {
+            return data['userName'] as String;
+          } else {
+            return ''; // Return empty string for null values
+          }
+        }).toList();
+        displayedUsers = List.from(allUsers);
+      });
+    }).catchError((error) {
+      print('Failed to fetch user data from Firestore: $error');
+    });
+  }
 
+  void filterUsers(String query) {
+    setState(() {
+      displayedUsers = allUsers
+          .where((user) => user.toLowerCase().contains(query.toLowerCase()))
+          .toList();
+    });
+  }
+
+  void toggleSelectedUser(String user) {
+    setState(() {
+      if (selectedUsers.contains(user)) {
+        selectedUsers.remove(user);
+      } else {
+        selectedUsers.add(user);
+      }
+    });
+  }
+
+  void addToFriends(String groupId) {
+    // Fetch the user ID of the logged-in user
+    User? currentUser = FirebaseAuth.instance.currentUser;
+
+    if (currentUser != null) {
+      FirebaseFirestore.instance
+          .collection('users')
+          .doc(currentUser.uid)
+          .get()
+          .then((userData) {
+        String userName = userData.data()?['userName'] ?? '';
+        if (userName.isNotEmpty) {
+          print('Added $userName to friends');
+          // Add the current signed-in user to the selected users
+          selectedUsers.add(userName);
+
+          // Add all selected users to the group
+          FirebaseFirestore.instance.collection('groups').doc(groupId).update({
+            'members': FieldValue.arrayUnion(selectedUsers.toList())
+          }).then((_) {
+            // Store the group name and members in the 'friends' collection
+            FirebaseFirestore.instance.collection('friends').add({
+              'creatorName': userName,
+              'members': selectedUsers.toList()
+            }).then((_) {
+              print('Users added to the friends collection successfully');
+              // Clear the selected users list
+              selectedUsers.clear();
+            }).catchError((error) {
+              print('Error adding users to the friends collection: $error');
+            });
+          }).catchError((error) {
+            print('Error adding users to the group: $error');
+          });
+        } else {
+          print('Failed to fetch username for user ID: ${currentUser.uid}');
+        }
+      }).catchError((error) {
+        print('Error fetching user data: $error');
+      });
+    } else {
+      print('User is not logged in. Cannot add user to the group.');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {

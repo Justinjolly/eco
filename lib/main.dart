@@ -56,7 +56,6 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       theme: ThemeData.dark(),
-  
       home: isLoggin ? BottomNavigationBarExample() : MyHomePage(),
       debugShowCheckedModeBanner: false,
     );
@@ -67,7 +66,7 @@ class MyHomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: YourMainWidget(), // Your main widget containing the buttons
+      body: YourMainWidget(), 
     );
   }
 }
