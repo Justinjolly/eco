@@ -21,6 +21,29 @@ class GroupSettingsPage extends StatefulWidget {
   State<GroupSettingsPage> createState() => _GroupSettingsPageState();
 }
 
+Future<String?> getUserIdFromUsername(String username) async {
+  try {
+    // Query Firestore to find the document where 'userName' field matches the provided username
+    QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+        .collection('users')
+        .where('userName', isEqualTo: username)
+        .limit(1) // Limit to only one document (assuming usernames are unique)
+        .get();
+
+    if (querySnapshot.docs.isNotEmpty) {
+      // If there's a matching document, return the user ID
+      return querySnapshot.docs.first.id;
+    } else {
+      // If no matching document is found, return null
+      return null;
+    }
+  } catch (error) {
+    // Handle any errors that occur during the query
+    print('Error getting user ID from username: $error');
+    return null;
+  }
+}
+
 class _GroupSettingsPageState extends State<GroupSettingsPage> {
   @override
   Widget build(BuildContext context) {
@@ -310,9 +333,12 @@ class _GroupSettingsPageState extends State<GroupSettingsPage> {
                                     .get();
                             String newCreatorId = userSnapshot
                                 .id; // Get the user ID of the new creator
+                            String? userId =
+                                await getUserIdFromUsername(newCreatorId);
+                            print(userId);
                             await groupDocRef.update({
                               'creator':
-                                  newCreatorId, // Set the new creator's user ID as the creator
+                                  userId, // Set the new creator's user ID as the creator
                               'members':
                                   updatedMembers, // Update the members list
                             });
