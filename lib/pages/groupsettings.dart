@@ -65,7 +65,6 @@ void _deleteGroup(BuildContext context, String groupId) async {
   }
 }
 
-
 class _GroupSettingsPageState extends State<GroupSettingsPage> {
   @override
   Widget build(BuildContext context) {
@@ -402,20 +401,20 @@ class _GroupSettingsPageState extends State<GroupSettingsPage> {
                   ),
 
                   SizedBox(height: 10),
-                 InkWell(
-  onTap: () {
-    // Call the method to delete the group document
-    _deleteGroup(context, snapshot.data!.docs.first.id);
-  },
-  child: Row(
-    children: [
-      Icon(Icons.delete, color: Colors.red),
-      SizedBox(width: 8),
-      Text('Delete Group', style: TextStyle(fontSize: 18, color: Colors.red)),
-    ],
-  ),
-),
-
+                  InkWell(
+                    onTap: () {
+                      // Call the method to delete the group document
+                      _deleteGroup(context, snapshot.data!.docs.first.id);
+                    },
+                    child: Row(
+                      children: [
+                        Icon(Icons.delete, color: Colors.red),
+                        SizedBox(width: 8),
+                        Text('Delete Group',
+                            style: TextStyle(fontSize: 18, color: Colors.red)),
+                      ],
+                    ),
+                  ),
                 ],
               ),
             ),
