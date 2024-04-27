@@ -24,14 +24,13 @@ class _ExpenseEntryScreenState extends State<ExpenseEntryScreen> {
   @override
   Widget build(BuildContext context) {
     _unequallyControllers = List<TextEditingController>.generate(
-        groupMembersList.length > 1 ? groupMembersList.length - 1 : 0,
+        groupMembersList.length > 1 ? groupMembersList.length-1 : 0,
         (index) => TextEditingController());
     final CollectionReference collectionRef =
         FirebaseFirestore.instance.collection('groups');
     return Scaffold(
       appBar: AppBar(
-        title:
-            const Text('Expense Entry', style: TextStyle(color: Colors.white)),
+        title: const Text('Expense Entry', style: TextStyle(color: Colors.white)),
       ),
       body: StreamBuilder(
         stream: collectionRef
@@ -67,8 +66,7 @@ class _ExpenseEntryScreenState extends State<ExpenseEntryScreen> {
                 ),
               ),
               Padding(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+                padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
                 child: Column(
                   children: [
                     Row(
@@ -226,8 +224,7 @@ class _ExpenseEntryScreenState extends State<ExpenseEntryScreen> {
         ),
         filled: true,
         fillColor: const Color.fromARGB(255, 19, 19, 21),
-        contentPadding:
-            const EdgeInsets.symmetric(vertical: 15.0, horizontal: 10.0),
+        contentPadding: const EdgeInsets.symmetric(vertical: 15.0, horizontal: 10.0),
       ),
       maxLines: 1,
     );
@@ -264,7 +261,7 @@ class _ExpenseEntryScreenState extends State<ExpenseEntryScreen> {
           if (_unequallyControllers.isNotEmpty) {
             print('loop2');
             int totalSplitAmount = 0;
-            for (int i = 0; i < _unequallyControllers.length - 1; i++) {
+            for (int i = 0; i < _unequallyControllers.length-1; i++) {
               int splitAmount = int.parse(
                   _unequallyControllers[i].text.isNotEmpty
                       ? _unequallyControllers[i].text
@@ -285,7 +282,7 @@ class _ExpenseEntryScreenState extends State<ExpenseEntryScreen> {
           if (_unequallyControllers.isNotEmpty) {
             print('loop2');
             int totalSplitAmount = 0;
-            for (int i = 0; i < _unequallyControllers.length - 1; i++) {
+            for (int i = 0; i < _unequallyControllers.length-1; i++) {
               int splitAmount = int.parse(
                   _unequallyControllers[i].text.isNotEmpty
                       ? _unequallyControllers[i].text
@@ -301,6 +298,7 @@ class _ExpenseEntryScreenState extends State<ExpenseEntryScreen> {
                 {'member': groupMembersList.last, 'amount': remainingAmount});
           }
         }
+
 
         // Store member names, split amounts, total amount, and user details in a single document
         await amountRef.add({
@@ -323,7 +321,7 @@ class _ExpenseEntryScreenState extends State<ExpenseEntryScreen> {
     final amount = _amountController.text.isNotEmpty
         ? int.parse(_amountController.text)
         : 0;
-    _unequallyControllers = List<TextEditingController>.generate(
+   _unequallyControllers = List<TextEditingController>.generate(
         groupMembersList.length,
         (index) => TextEditingController(
             text: (amount ~/ groupMembersList.length).toString()));
@@ -378,8 +376,8 @@ class _ExpenseEntryScreenState extends State<ExpenseEntryScreen> {
                   ),
                   filled: true,
                   fillColor: const Color.fromARGB(255, 52, 52, 52),
-                  contentPadding: const EdgeInsets.symmetric(
-                      vertical: 15.0, horizontal: 10.0),
+                  contentPadding:
+                      const EdgeInsets.symmetric(vertical: 15.0, horizontal: 10.0),
                 ),
                 keyboardType: TextInputType.number,
               ),
@@ -391,7 +389,7 @@ class _ExpenseEntryScreenState extends State<ExpenseEntryScreen> {
   }
 
   Widget _buildPercentageMembersList() {
-    _unequallyControllers = List<TextEditingController>.generate(
+   _unequallyControllers = List<TextEditingController>.generate(
         groupMembersList.length, (index) => TextEditingController());
 
     void onChangedCallback() {
@@ -402,9 +400,8 @@ class _ExpenseEntryScreenState extends State<ExpenseEntryScreen> {
               int.parse(controller.text.isEmpty ? '0' : controller.text));
       int excess = totalPercentage - 100;
       if (excess != 0) {
-        int lastValue = int.parse(_unequallyControllers.last.text.isEmpty
-            ? '0'
-            : _unequallyControllers.last.text);
+        int lastValue = int.parse(
+           _unequallyControllers.last.text.isEmpty ? '0' : _unequallyControllers.last.text);
         lastValue -= excess;
         _unequallyControllers.last.text = lastValue.toString();
       }
@@ -414,7 +411,7 @@ class _ExpenseEntryScreenState extends State<ExpenseEntryScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: List.generate(groupMembersList.length, (index) {
         final memberName = groupMembersList[index];
-        final controller = _unequallyControllers[index];
+        final controller =_unequallyControllers[index];
 
         return Row(
           children: [
@@ -439,8 +436,8 @@ class _ExpenseEntryScreenState extends State<ExpenseEntryScreen> {
                   ),
                   filled: true,
                   fillColor: const Color.fromARGB(255, 52, 52, 52),
-                  contentPadding: const EdgeInsets.symmetric(
-                      vertical: 15.0, horizontal: 10.0),
+                  contentPadding:
+                      const EdgeInsets.symmetric(vertical: 15.0, horizontal: 10.0),
                   suffixIcon: const Padding(
                     padding: EdgeInsets.all(12.0),
                     child: Text(
@@ -492,8 +489,8 @@ class _ExpenseEntryScreenState extends State<ExpenseEntryScreen> {
                   ),
                   filled: true,
                   fillColor: const Color.fromARGB(255, 52, 52, 52),
-                  contentPadding: const EdgeInsets.symmetric(
-                      vertical: 15.0, horizontal: 10.0),
+                  contentPadding:
+                      const EdgeInsets.symmetric(vertical: 15.0, horizontal: 10.0),
                 ),
                 keyboardType: TextInputType.number,
               ),
