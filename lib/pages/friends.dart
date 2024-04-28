@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 enum FriendFilter { All, IOwe, OweMe }
 
@@ -8,24 +10,46 @@ class FriendsPage extends StatefulWidget {
 }
 
 class _FriendsPageState extends State<FriendsPage> {
-  List<Friend> allFriends = [
-    Friend(name: "Justin", amount: -150.0),
-    Friend(name: "Jibbin", amount: 30.0),
-    Friend(name: "Adwaith", amount: -120.0),
-    Friend(name: "Bibin", amount: 100.0),
-    Friend(name: "Chris", amount: 0.0),
-    Friend(name: "Dony", amount: 150.0),
-    // Add more friends as needed
-  ];
-
+  List<Friend> allFriends = [];
   List<Friend> displayedFriends = [];
-
   FriendFilter _selectedFilter = FriendFilter.All;
 
   @override
   void initState() {
     super.initState();
-    displayedFriends = List.from(allFriends);
+    fetchFriends();
+  }
+
+  void fetchFriends() {
+    // Fetch the user ID of the logged-in user
+    User? currentUser = FirebaseAuth.instance.currentUser;
+
+    if (currentUser != null) {
+      FirebaseFirestore.instance
+          .collection('friends')
+          .where('groupName', isEqualTo: currentUser.displayName)
+          .get()
+          .then((querySnapshot) {
+        List<Friend> friends = [];
+        querySnapshot.docs.forEach((doc) {
+          List<dynamic> members = doc['members'];
+          members.forEach((member) {
+            if (member != currentUser.displayName) {
+              friends.add(Friend(name: member, amount: 0.0));
+            }
+          });
+        });
+
+        setState(() {
+          allFriends = friends;
+          displayedFriends = List.from(allFriends);
+        });
+      }).catchError((error) {
+        print('Failed to fetch friends data from Firestore: $error');
+      });
+    } else {
+      print('User is not logged in. Cannot fetch friends data.');
+    }
   }
 
   void filterFriends(String query) {
@@ -145,7 +169,8 @@ class _FriendsPageState extends State<FriendsPage> {
                 IconData iconData = friend.amount > 0
                     ? Icons.arrow_drop_up
                     : Icons.arrow_drop_down;
-                Color iconColor = friend.amount > 0 ? Colors.green : Colors.red;
+                Color iconColor =
+                    friend.amount > 0 ? Colors.green : Colors.red;
 
                 return ListTile(
                   title: Text(
@@ -162,7 +187,8 @@ class _FriendsPageState extends State<FriendsPage> {
                       Text(
                         "${friend.amount > 0 ? '+' : ''}\$${friend.amount}",
                         style: TextStyle(
-                          color: friend.amount > 0 ? Colors.green : Colors.red,
+                          color:
+                              friend.amount > 0 ? Colors.green : Colors.red,
                           fontSize: 16.0, // Adjust the font size as needed
                         ),
                       ),

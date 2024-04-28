@@ -75,7 +75,7 @@ class ForgotPasswordPage extends StatelessWidget {
             ElevatedButton(
               onPressed: () => _sendPasswordResetEmail(context),
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.black,
+                backgroundColor: Color.fromARGB(255, 74, 135, 86),
                 minimumSize: Size(500, 50),
               ),
               child: Text(

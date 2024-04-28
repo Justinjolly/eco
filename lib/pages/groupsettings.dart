@@ -1,17 +1,47 @@
 import 'package:app/pages/friendsettings.dart';
 import 'package:app/pages/groupsettingsedit.dart';
+import 'package:app/pages/homepage.dart';
+import 'package:app/pages/navbar.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'addfriend.dart'; // Import the addfriend.dart file
 
 class GroupSettingsPage extends StatefulWidget {
   final String groupName;
-  final List<Map<String, String>> groupMembers; // Remove example data
+  final List<Map<String, String>> groupMembers;
+  final String currentUsername; // Remove example data
 
-  GroupSettingsPage({required this.groupName, required this.groupMembers});
+  GroupSettingsPage(
+      {required this.groupName,
+      required this.groupMembers,
+      required this.currentUsername});
 
   @override
   State<GroupSettingsPage> createState() => _GroupSettingsPageState();
+}
+
+Future<String?> getUserIdFromUsername(String username) async {
+  try {
+    // Query Firestore to find the document where 'userName' field matches the provided username
+    QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+        .collection('users')
+        .where('userName', isEqualTo: username)
+        .limit(1) // Limit to only one document (assuming usernames are unique)
+        .get();
+
+    if (querySnapshot.docs.isNotEmpty) {
+      // If there's a matching document, return the user ID
+      return querySnapshot.docs.first.id;
+    } else {
+      // If no matching document is found, return null
+      return null;
+    }
+  } catch (error) {
+    // Handle any errors that occur during the query
+    print('Error getting user ID from username: $error');
+    return null;
+  }
 }
 
 class _GroupSettingsPageState extends State<GroupSettingsPage> {
@@ -240,8 +270,100 @@ class _GroupSettingsPageState extends State<GroupSettingsPage> {
                   }).toList(),
                   Spacer(),
                   InkWell(
-                    onTap: () {
-                      // Handle leave group action
+                    onTap: () async {
+                      // Fetch the group ID from Firestore
+                      String groupId = snapshot.data!.docs.first.id;
+
+                      // Fetch the user ID of the group creator from the Firestore document
+                      String groupCreatorId =
+                          snapshot.data!.docs.first['creator'];
+
+                      // Check if the current user is the group creator
+                      bool isGroupCreator = groupCreatorId ==
+                          FirebaseAuth.instance.currentUser!.uid;
+
+                      // Display a confirmation dialog before leaving the group
+                      bool leaveConfirmation = await showDialog(
+                        context: context,
+                        builder: (context) {
+                          return AlertDialog(
+                            title: Text('Leave Group'),
+                            content: Text(
+                                'Are you sure you want to leave the group?'),
+                            actions: <Widget>[
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.of(context).pop(
+                                      false); // Return false if the user cancels
+                                },
+                                child: Text('Cancel'),
+                              ),
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.of(context).pop(
+                                      true); // Return true if the user confirms
+                                },
+                                child: Text('Leave'),
+                              ),
+                            ],
+                          );
+                        },
+                      );
+
+                      // If user confirms leaving the group
+                      if (leaveConfirmation == true) {
+                        // Reference to the Firestore document
+                        DocumentReference groupDocRef =
+                            collectionRef.doc(groupId);
+
+                        // Update the Firestore document with the modified 'members' array
+                        List<String> updatedMembers = List<String>.from(
+                            snapshot.data!.docs.first['members']);
+                        if (isGroupCreator) {
+                          // If the current user is the group creator
+                          updatedMembers.remove(widget
+                              .currentUsername); // Remove current user from members list
+                          if (updatedMembers.isNotEmpty) {
+                            // If there are other members in the group, fetch the user ID of the next member (new creator)
+                            String newCreatorUsername = updatedMembers.first;
+                            DocumentSnapshot userSnapshot =
+                                await FirebaseFirestore.instance
+                                    .collection('users')
+                                    .doc(newCreatorUsername)
+                                    .get();
+                            String newCreatorId = userSnapshot
+                                .id; // Get the user ID of the new creator
+                            String? userId =
+                                await getUserIdFromUsername(newCreatorId);
+                            print(userId);
+                            await groupDocRef.update({
+                              'creator':
+                                  userId, // Set the new creator's user ID as the creator
+                              'members':
+                                  updatedMembers, // Update the members list
+                            });
+                          } else {
+                            // If there are no other members in the group, clear the creator field
+                            await groupDocRef.update({
+                              'creator': '', // Clear the creator ID
+                              'members':
+                                  updatedMembers, // Update the members list (empty)
+                            });
+                          }
+                        } else {
+                          // If the current user is not the group creator, just remove the current user
+                          updatedMembers.remove(widget.currentUsername);
+                          await groupDocRef.update({
+                            'members':
+                                updatedMembers, // Update the members list
+                          });
+                        }
+                        // Navigate to a different page or perform any other action after leaving the group
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(builder: (context) => HomePage()),
+                        );
+                      }
                     },
                     child: Row(
                       children: [
@@ -256,6 +378,7 @@ class _GroupSettingsPageState extends State<GroupSettingsPage> {
                       ],
                     ),
                   ),
+
                   SizedBox(height: 10),
                   InkWell(
                     onTap: () {

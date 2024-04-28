@@ -306,58 +306,75 @@ class UserInfoSection extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      margin: EdgeInsets.all(20.0), // Adjust margins as needed
+      margin: EdgeInsets.all(20.0),
       padding: EdgeInsets.all(16.0),
       decoration: BoxDecoration(
-        color: Color.fromARGB(255, 49, 51, 51), // Example background color
-        borderRadius: BorderRadius.circular(10.0), // Example border radius
+        borderRadius: BorderRadius.circular(10.0),
         boxShadow: [
           BoxShadow(
             color: Colors.grey.withOpacity(0.5),
             spreadRadius: 0.1,
-            blurRadius: 7,
-            offset: Offset(0, 1), // changes position of shadow
+            blurRadius: 0.1,
+            offset: Offset(0, 1),
           ),
         ],
       ),
-      child: Column(
+      child: Stack(
         children: [
-          SizedBox(height: 8.0),
-          CircleAvatar(
-            radius: 40.0,
-            backgroundImage: AssetImage(
-              'lib/assets/g.png',
+          // Background image with low opacity
+          Opacity(
+            opacity: 0.3, // Adjust opacity as needed
+            child: Image.asset(
+              'lib/assets/bk.jpg', // Replace with your image path
+              fit: BoxFit.cover,
+              width: 2000,
+              height: 150,
             ),
           ),
-          SizedBox(height: 8.0),
-          FutureBuilder<DocumentSnapshot>(
-            future: FirebaseFirestore.instance
-                .collection('users')
-                .doc(currentUser.uid)
-                .get(),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return CircularProgressIndicator();
-              }
-              if (snapshot.hasError) {
-                return Text('Error: ${snapshot.error}',
-                    style: TextStyle(color: Colors.white));
-              }
-              if (snapshot.hasData && snapshot.data != null) {
-                final userData = snapshot.data!;
-                final fullName = userData['fullName'];
-                return Text(
-                  fullName ?? 'Your Full Name',
-                  style: TextStyle(
-                    fontSize: 18.0,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
+          // Content on top of the background image
+          Center(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                SizedBox(height: 8.0),
+                CircleAvatar(
+                  radius: 40.0,
+                  backgroundImage: AssetImage(
+                    'lib/assets/g.png',
                   ),
-                );
-              }
-              return Text('Your Full Name',
-                  style: TextStyle(color: Colors.white));
-            },
+                ),
+                SizedBox(height: 8.0),
+                FutureBuilder<DocumentSnapshot>(
+                  future: FirebaseFirestore.instance
+                      .collection('users')
+                      .doc(currentUser.uid)
+                      .get(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return CircularProgressIndicator();
+                    }
+                    if (snapshot.hasError) {
+                      return Text('Error: ${snapshot.error}',
+                          style: TextStyle(color: Colors.white));
+                    }
+                    if (snapshot.hasData && snapshot.data != null) {
+                      final userData = snapshot.data!;
+                      final fullName = userData['fullName'];
+                      return Text(
+                        fullName ?? 'Your Full Name',
+                        style: TextStyle(
+                          fontSize: 18.0,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      );
+                    }
+                    return Text('Your Full Name',
+                        style: TextStyle(color: Colors.white));
+                  },
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -380,8 +397,8 @@ class OptionsSection extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               SizedBox(
-                width: 150, // Fixed width
-                child: ElevatedButton(
+                width: 160,
+                child: ElevatedButton.icon(
                   onPressed: () {
                     Navigator.push(
                       context,
@@ -390,19 +407,35 @@ class OptionsSection extends StatelessWidget {
                       onGroupCreated();
                     });
                   },
-                  child: Text('Create Group'),
+                  icon: Icon(Icons.group_add), // Add icon
+                  label: Text('Create Group'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue, // Button color
+                    shape: RoundedRectangleBorder(
+                      borderRadius:
+                          BorderRadius.circular(20), // Rounded corners
+                    ),
+                  ),
                 ),
               ),
               SizedBox(
-                width: 150, // Fixed width, same as the other button
-                child: ElevatedButton(
+                width: 160,
+                child: ElevatedButton.icon(
                   onPressed: () {
                     Navigator.push(
                       context,
                       MaterialPageRoute(builder: (context) => SplitCard()),
                     );
                   },
-                  child: Text('Split'),
+                  icon: Icon(Icons.compare_arrows), // Add icon
+                  label: Text('Split'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green, // Button color
+                    shape: RoundedRectangleBorder(
+                      borderRadius:
+                          BorderRadius.circular(20), // Rounded corners
+                    ),
+                  ),
                 ),
               ),
             ],

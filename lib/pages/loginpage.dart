@@ -1,4 +1,3 @@
-// loginpage.dart
 import 'package:app/pages/navbar.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -15,8 +14,13 @@ class _LoginPageState extends State<LoginPage> {
   TextEditingController _emailController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
   String _errorMessage = '';
+  bool _isLoggingIn = false; // Track whether login process is in progress
 
   void _handleEmailSignIn() async {
+    setState(() {
+      _isLoggingIn = true; // Start the login animation
+    });
+
     try {
       UserCredential userCredential =
           await FirebaseAuth.instance.signInWithEmailAndPassword(
@@ -36,6 +40,7 @@ class _LoginPageState extends State<LoginPage> {
       // Handle errors
       setState(() {
         _errorMessage = 'Invalid credentials. Please try again.';
+        _isLoggingIn = false; // Stop the login animation
       });
       print('Error during login: $e');
     }
@@ -72,14 +77,17 @@ class _LoginPageState extends State<LoginPage> {
                 Container(
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: const Color.fromARGB(255, 255, 255, 255)),
+                    border: Border.all(
+                        color: const Color.fromARGB(255, 255, 255, 255)),
                   ),
                   child: TextField(
                     controller: _emailController,
-                    style: TextStyle(color: const Color.fromARGB(255, 255, 255, 255)),
+                    style: TextStyle(
+                        color: const Color.fromARGB(255, 255, 255, 255)),
                     decoration: InputDecoration(
                       labelText: 'Email',
-                      labelStyle: TextStyle(color: Color.fromARGB(255, 255, 255, 255)),
+                      labelStyle:
+                          TextStyle(color: Color.fromARGB(255, 255, 255, 255)),
                       border: InputBorder.none,
                       contentPadding: EdgeInsets.all(12),
                     ),
@@ -89,12 +97,14 @@ class _LoginPageState extends State<LoginPage> {
                 Container(
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: const Color.fromARGB(255, 239, 239, 239)),
+                    border: Border.all(
+                        color: const Color.fromARGB(255, 239, 239, 239)),
                   ),
                   child: TextField(
                     controller: _passwordController,
                     obscureText: true,
-                    style: TextStyle(color: const Color.fromARGB(255, 255, 255, 255)),
+                    style: TextStyle(
+                        color: const Color.fromARGB(255, 255, 255, 255)),
                     decoration: InputDecoration(
                       labelText: 'Password',
                       labelStyle:
@@ -118,21 +128,26 @@ class _LoginPageState extends State<LoginPage> {
                     },
                     child: Text(
                       'Forgot Password?',
-                      style: TextStyle(color: const Color.fromARGB(255, 255, 255, 255)),
+                      style: TextStyle(
+                          color: const Color.fromARGB(255, 255, 255, 255)),
                     ),
                   ),
                 ),
                 SizedBox(height: 16),
                 ElevatedButton(
-                  onPressed: _handleEmailSignIn,
+                  onPressed: _isLoggingIn ? null : _handleEmailSignIn,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Color.fromARGB(255, 25, 9, 128),
                     minimumSize: Size(500, 50),
                   ),
-                  child: Text(
-                    'Login',
-                    style: TextStyle(color: Colors.white, fontSize: 16),
-                  ),
+                  child: _isLoggingIn
+                      ? CircularProgressIndicator(
+                          valueColor: AlwaysStoppedAnimation<Color>(Colors
+                              .white)) // Show loading indicator if logging in
+                      : Text(
+                          'Login',
+                          style: TextStyle(color: Colors.white, fontSize: 16),
+                        ),
                 ),
                 SizedBox(height: 16),
                 Text(

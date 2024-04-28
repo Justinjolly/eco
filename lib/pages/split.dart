@@ -11,13 +11,23 @@ class ExpenseEntryScreen extends StatefulWidget {
   @override
   _ExpenseEntryScreenState createState() => _ExpenseEntryScreenState();
 }
-
+List<TextEditingController> _unequallyControllers = [];
 class _ExpenseEntryScreenState extends State<ExpenseEntryScreen> {
   List<String> groupMembersList = [];
   bool _showGroupMembers = false;
   bool _showUnequallyMembers = false;
   bool _showPercentageMembers = false;
   final TextEditingController _amountController = TextEditingController();
+  @override
+@override
+void initState() {
+  super.initState();
+  _unequallyControllers = List.generate(
+      groupMembersList.length > 1 ? groupMembersList.length - 1 : 0,
+      (index) => TextEditingController());
+}
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -234,23 +244,38 @@ class _ExpenseEntryScreenState extends State<ExpenseEntryScreen> {
       // If display name is not available, use email as the username
       userName = currentUser.email ?? 'Unknown';
     }
-
     int expenseAmount = _amountController.text.isNotEmpty
         ? int.parse(_amountController.text)
         : 0;
-
-    // Calculate split amount for each member
-    int splitAmount = expenseAmount ~/ groupMembersList.length;
-
     try {
       final CollectionReference amountRef =
           FirebaseFirestore.instance.collection('amount');
 
       // Create a list to hold member names and their split amounts as objects
       List<Map<String, dynamic>> splitAmountsList = [];
-      for (var member in groupMembersList) {
-        splitAmountsList.add({'member': member, 'amount': splitAmount});
-      }
+
+      if (_showGroupMembers) {
+        // Split Equally
+        int splitAmount = expenseAmount ~/ groupMembersList.length;
+        for (var member in groupMembersList) {
+          splitAmountsList.add({'member': member, 'amount': splitAmount});
+        }
+      } if (_showUnequallyMembers) {
+  // Split Unequally
+         if (_unequallyControllers.isNotEmpty) {
+          int totalSplitAmount = 0;
+          for (int i = 0; i < groupMembersList.length - 1; i++) {
+            int splitAmount = int.parse(_unequallyControllers[i].text.isNotEmpty
+            ? _unequallyControllers[i].text
+            : '0');
+            splitAmountsList.add({'member': groupMembersList[i], 'amount': splitAmount});
+            totalSplitAmount += splitAmount;
+          }
+    // Assign the remaining amount to the last member
+          int remainingAmount = expenseAmount - totalSplitAmount;
+          splitAmountsList.add({'member': groupMembersList.last, 'amount': remainingAmount});
+  }
+}
 
       // Store member names, split amounts, total amount, and user details in a single document
       await amountRef.add({
@@ -268,11 +293,6 @@ class _ExpenseEntryScreenState extends State<ExpenseEntryScreen> {
     }
   }
 }
-
-
-
-
-
   Widget _buildUnequallyMembersList() {
     final amount = _amountController.text.isNotEmpty
         ? int.parse(_amountController.text)

@@ -7,32 +7,6 @@ import 'package:app/pages/balances.dart';
 import 'package:app/pages/qr.dart';
 import 'package:app/pages/settings.dart';
 import 'package:app/pages/emailsettings.dart';
-import 'thememanager.dart'; // Import the theme manager
-import 'package:provider/provider.dart';
-
-void main() => runApp(ChangeNotifierProvider<ThemeManager>(
-      create: (_) => ThemeManager(),
-      child: MyApp(),
-    ));
-
-class MyApp extends StatefulWidget {
-  @override
-  _MyAppState createState() => _MyAppState();
-}
-
-class _MyAppState extends State<MyApp> {
-  @override
-  Widget build(BuildContext context) {
-    return Consumer<ThemeManager>(
-      builder: (context, themeManager, child) {
-        return MaterialApp(
-          home: AccountPage(),
-          theme: themeManager.themeData,
-        );
-      },
-    );
-  }
-}
 
 class AccountPage extends StatefulWidget {
   @override
@@ -93,13 +67,7 @@ class _AccountPageState extends State<AccountPage> {
         ),
       ),
       body: WillPopScope(
-        onWillPop: () async {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => AccountPage()),
-          );
-          return false;
-        },
+        onWillPop: () async => false, // Prevent pop action
         child: ListView(
           children: <Widget>[
             DrawerHeader(
@@ -109,9 +77,10 @@ class _AccountPageState extends State<AccountPage> {
               child: Row(
                 children: <Widget>[
                   CircleAvatar(
-                    backgroundColor: const Color.fromARGB(255, 44, 140, 188),
-                    radius:
-                        40, // Adjust the size of the circle avatar as needed
+                    backgroundColor: Color.fromARGB(255, 206, 210, 212),
+                    radius: 40,
+                    backgroundImage: AssetImage(
+                        'lib/assets/g.png'), // Adjust the size of the circle avatar as needed
                     child: Text(
                       _user?.displayName != null ? _user!.displayName![0] : "",
                       style: TextStyle(

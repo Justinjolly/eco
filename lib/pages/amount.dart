@@ -1,19 +1,36 @@
 import 'package:flutter/material.dart';
-
-void main() {
-  runApp(MyApp());
-}
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: TripDetailsPage(),
+    return FutureBuilder<DocumentSnapshot>(
+      future: FirebaseFirestore.instance
+          .collection('amount')
+          .doc('your_document_id')
+          .get(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return CircularProgressIndicator(); // Show loading indicator while fetching data
+        }
+        if (snapshot.hasError) {
+          return Text('Error: ${snapshot.error}');
+        }
+        final groupName = snapshot.data!['groupName'];
+        final totalAmount = snapshot.data!['totalAmount'];
+        // Fetch groupName from Firestore
+        return MaterialApp(
+          home: TripDetailsPage(groupName: groupName, totalAmount: totalAmount),
+        );
+      },
     );
   }
 }
 
 class TripDetailsPage extends StatefulWidget {
+  final String groupName;
+  final String totalAmount;
+  TripDetailsPage({required this.groupName, required this.totalAmount});
   @override
   _TripDetailsPageState createState() => _TripDetailsPageState();
 }
@@ -25,7 +42,6 @@ class _TripDetailsPageState extends State<TripDetailsPage> {
     {'name': 'Justin', 'initial': 'J', 'paid': false},
     {'name': 'Adwaith', 'initial': 'A', 'paid': false, 'requester': true},
   ];
-  final String totalAmount = "\$100.00";
 
   void _markAsPaid(int index) {
     setState(() {
@@ -81,8 +97,11 @@ class _TripDetailsPageState extends State<TripDetailsPage> {
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             Text(
-              totalAmount,
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.green),
+              widget.totalAmount,
+              style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.green),
             ),
 
             SizedBox(height: 10),
@@ -91,7 +110,8 @@ class _TripDetailsPageState extends State<TripDetailsPage> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('${paidUsers} of ${users.length} paid'), // Updated dynamically
+                  Text(
+                      '${paidUsers} of ${users.length} paid'), // Updated dynamically
                   ElevatedButton(
                     onPressed: () {
                       // Logic to send reminder to unpaid users
@@ -116,30 +136,45 @@ class _TripDetailsPageState extends State<TripDetailsPage> {
                     ),
                     title: Text(user['name'], style: TextStyle(fontSize: 18)),
                     subtitle: Text(
-                      user.containsKey('requester') && user['requester'] ? "Sent this request" : user['paid'] ? "Paid" : "Unpaid",
-                      style: TextStyle(color: user.containsKey('requester') && user['requester'] ? Colors.grey : user['paid'] ? Colors.green : Colors.red),
+                      user.containsKey('requester') && user['requester']
+                          ? "Sent this request"
+                          : user['paid']
+                              ? "Paid"
+                              : "Unpaid",
+                      style: TextStyle(
+                          color:
+                              user.containsKey('requester') && user['requester']
+                                  ? Colors.grey
+                                  : user['paid']
+                                      ? Colors.green
+                                      : Colors.red),
                     ),
                     trailing: Text('\$${splitAmount.toStringAsFixed(2)}'),
                     onTap: () {
-                      if (!user['paid'] && !(user.containsKey('requester') && user['requester'])) {
+                      if (!user['paid'] &&
+                          !(user.containsKey('requester') &&
+                              user['requester'])) {
                         showDialog(
                           context: context,
                           builder: (BuildContext context) {
                             return AlertDialog(
                               title: Text("Mark as Paid"),
-                              content: Text("Do you want to mark ${user['name']} as paid?"),
+                              content: Text(
+                                  "Do you want to mark ${user['name']} as paid?"),
                               actions: <Widget>[
                                 TextButton(
                                   child: Text("Cancel"),
                                   onPressed: () {
-                                    Navigator.of(context).pop(); // Close the dialog
+                                    Navigator.of(context)
+                                        .pop(); // Close the dialog
                                   },
                                 ),
                                 TextButton(
                                   child: Text("Mark as Paid"),
                                   onPressed: () {
                                     _markAsPaid(index);
-                                    Navigator.of(context).pop(); // Close the dialog
+                                    Navigator.of(context)
+                                        .pop(); // Close the dialog
                                   },
                                 ),
                               ],
