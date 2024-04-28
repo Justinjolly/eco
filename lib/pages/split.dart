@@ -24,13 +24,14 @@ class _ExpenseEntryScreenState extends State<ExpenseEntryScreen> {
   @override
   Widget build(BuildContext context) {
     _unequallyControllers = List<TextEditingController>.generate(
-        groupMembersList.length > 1 ? groupMembersList.length-1 : 0,
+        groupMembersList.length > 1 ? groupMembersList.length - 1 : 0,
         (index) => TextEditingController());
     final CollectionReference collectionRef =
         FirebaseFirestore.instance.collection('groups');
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Expense Entry', style: TextStyle(color: Colors.white)),
+        title:
+            const Text('Expense Entry', style: TextStyle(color: Colors.white)),
       ),
       body: StreamBuilder(
         stream: collectionRef
@@ -66,7 +67,8 @@ class _ExpenseEntryScreenState extends State<ExpenseEntryScreen> {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+                padding:
+                    const EdgeInsets.symmetric(vertical: 20, horizontal: 150),
                 child: Column(
                   children: [
                     Row(
@@ -79,7 +81,7 @@ class _ExpenseEntryScreenState extends State<ExpenseEntryScreen> {
                               setState(() {
                                 _showGroupMembers = !_showGroupMembers;
                                 _showUnequallyMembers = false;
-                                _showPercentageMembers = false;
+                                // _showPercentageMembers = false;
                               });
                             },
                             textColor: Colors.white,
@@ -92,26 +94,26 @@ class _ExpenseEntryScreenState extends State<ExpenseEntryScreen> {
                               setState(() {
                                 _showUnequallyMembers = !_showUnequallyMembers;
                                 _showGroupMembers = false;
-                                _showPercentageMembers = false;
+                                // _showPercentageMembers = false;
                               });
                             },
                             textColor: Colors.white,
                           ),
                         ),
-                        Expanded(
-                          child: SectionButton(
-                            title: 'Percentage',
-                            onPressed: () {
-                              setState(() {
-                                _showPercentageMembers =
-                                    !_showPercentageMembers;
-                                _showGroupMembers = false;
-                                _showUnequallyMembers = false;
-                              });
-                            },
-                            textColor: Colors.white,
-                          ),
-                        ),
+                        // Expanded(
+                        //   child: SectionButton(
+                        //     title: 'Percentage',
+                        //     onPressed: () {
+                        //       setState(() {
+                        //         _showPercentageMembers =
+                        //             !_showPercentageMembers;
+                        //         _showGroupMembers = false;
+                        //         _showUnequallyMembers = false;
+                        //       });
+                        //     },
+                        //     textColor: Colors.white,
+                        //   ),
+                        // ),
                       ],
                     ),
                     Visibility(
@@ -154,26 +156,26 @@ class _ExpenseEntryScreenState extends State<ExpenseEntryScreen> {
                         ],
                       ),
                     ),
-                    Visibility(
-                      visible: _showPercentageMembers,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Divider(),
-                          const SizedBox(height: 10),
-                          const Text(
-                            'Group Members:',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
-                          ),
-                          const SizedBox(height: 5),
-                          _buildPercentageMembersList(),
-                        ],
-                      ),
-                    ),
+                    // Visibility(
+                    //   visible: _showPercentageMembers,
+                    //   child: Column(
+                    //     crossAxisAlignment: CrossAxisAlignment.start,
+                    //     children: [
+                    //       const Divider(),
+                    //       const SizedBox(height: 10),
+                    //       const Text(
+                    //         'Group Members:',
+                    //         style: TextStyle(
+                    //           fontSize: 16,
+                    //           fontWeight: FontWeight.bold,
+                    //           color: Colors.white,
+                    //         ),
+                    //       ),
+                    //       const SizedBox(height: 5),
+                    //       _buildPercentageMembersList(),
+                    //     ],
+                    //   ),
+                    // ),
                   ],
                 ),
               ),
@@ -224,7 +226,8 @@ class _ExpenseEntryScreenState extends State<ExpenseEntryScreen> {
         ),
         filled: true,
         fillColor: const Color.fromARGB(255, 19, 19, 21),
-        contentPadding: const EdgeInsets.symmetric(vertical: 15.0, horizontal: 10.0),
+        contentPadding:
+            const EdgeInsets.symmetric(vertical: 15.0, horizontal: 10.0),
       ),
       maxLines: 1,
     );
@@ -261,7 +264,7 @@ class _ExpenseEntryScreenState extends State<ExpenseEntryScreen> {
           if (_unequallyControllers.isNotEmpty) {
             print('loop2');
             int totalSplitAmount = 0;
-            for (int i = 0; i < _unequallyControllers.length-1; i++) {
+            for (int i = 0; i < _unequallyControllers.length - 1; i++) {
               int splitAmount = int.parse(
                   _unequallyControllers[i].text.isNotEmpty
                       ? _unequallyControllers[i].text
@@ -282,7 +285,7 @@ class _ExpenseEntryScreenState extends State<ExpenseEntryScreen> {
           if (_unequallyControllers.isNotEmpty) {
             print('loop2');
             int totalSplitAmount = 0;
-            for (int i = 0; i < _unequallyControllers.length-1; i++) {
+            for (int i = 0; i < _unequallyControllers.length - 1; i++) {
               int splitAmount = int.parse(
                   _unequallyControllers[i].text.isNotEmpty
                       ? _unequallyControllers[i].text
@@ -298,7 +301,6 @@ class _ExpenseEntryScreenState extends State<ExpenseEntryScreen> {
                 {'member': groupMembersList.last, 'amount': remainingAmount});
           }
         }
-
 
         // Store member names, split amounts, total amount, and user details in a single document
         await amountRef.add({
@@ -317,11 +319,82 @@ class _ExpenseEntryScreenState extends State<ExpenseEntryScreen> {
     }
   }
 
+  // Widget _buildUnequallyMembersList() {
+  //   final amount = _amountController.text.isNotEmpty
+  //       ? int.parse(_amountController.text)
+  //       : 0;
+  //  _unequallyControllers = List<TextEditingController>.generate(
+  //       groupMembersList.length,
+  //       (index) => TextEditingController(
+  //           text: (amount ~/ groupMembersList.length).toString()));
+
+  //   int calculateSum() {
+  //     return _unequallyControllers.fold<int>(
+  //         0,
+  //         (previousValue, controller) =>
+  //             previousValue +
+  //             int.parse(controller.text.isEmpty ? '0' : controller.text));
+  //   }
+
+  // void adjustLastField() {
+  //   final sum = calculateSum();
+  //   final lastController = _unequallyControllers.last;
+  //   final lastValue =
+  //       int.parse(lastController.text.isEmpty ? '0' : lastController.text);
+  //   final excess = sum - amount;
+  //   final newValue = lastValue - excess;
+
+  //   lastController.text = newValue.toString();
+  // }
+
+  // void onChangedCallback(int index) {
+  //   adjustLastField();
+  // }
+
+  //   return Column(
+  //     crossAxisAlignment: CrossAxisAlignment.start,
+  //     children: List.generate(groupMembersList.length, (index) {
+  //       final memberName = groupMembersList[index];
+  //       return Row(
+  //         children: [
+  //           Expanded(
+  //             child: Text(
+  //               memberName,
+  //               style: const TextStyle(color: Colors.white),
+  //             ),
+  //           ),
+  //           const SizedBox(width: 10),
+  //           Expanded(
+  //             flex: 2,
+  //             child: TextField(
+  //               controller: _unequallyControllers[index],
+  //               style: const TextStyle(color: Colors.white),
+  //               inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+  //               onChanged: (_) => onChangedCallback(index),
+  //               decoration: InputDecoration(
+  //                 border: OutlineInputBorder(
+  //                   borderRadius: BorderRadius.circular(10.0),
+  //                   borderSide: const BorderSide(color: Colors.black),
+  //                 ),
+  //                 filled: true,
+  //                 fillColor: const Color.fromARGB(255, 52, 52, 52),
+  //                 contentPadding:
+  //                     const EdgeInsets.symmetric(vertical: 15.0, horizontal: 10.0),
+  //               ),
+  //               keyboardType: TextInputType.number,
+  //             ),
+  //           ),
+  //         ],
+  //       );
+  //     }),
+  //   );
+  // }
+
   Widget _buildUnequallyMembersList() {
     final amount = _amountController.text.isNotEmpty
         ? int.parse(_amountController.text)
         : 0;
-   _unequallyControllers = List<TextEditingController>.generate(
+    _unequallyControllers = List<TextEditingController>.generate(
         groupMembersList.length,
         (index) => TextEditingController(
             text: (amount ~/ groupMembersList.length).toString()));
@@ -345,7 +418,10 @@ class _ExpenseEntryScreenState extends State<ExpenseEntryScreen> {
       lastController.text = newValue.toString();
     }
 
-    void onChangedCallback(int index) {
+    _unequallyControllers = List<TextEditingController>.generate(
+        groupMembersList.length, (index) => TextEditingController());
+
+    void onChangedCallback() {
       adjustLastField();
     }
 
@@ -353,65 +429,7 @@ class _ExpenseEntryScreenState extends State<ExpenseEntryScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: List.generate(groupMembersList.length, (index) {
         final memberName = groupMembersList[index];
-        return Row(
-          children: [
-            Expanded(
-              child: Text(
-                memberName,
-                style: const TextStyle(color: Colors.white),
-              ),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              flex: 2,
-              child: TextField(
-                controller: _unequallyControllers[index],
-                style: const TextStyle(color: Colors.white),
-                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                onChanged: (_) => onChangedCallback(index),
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                    borderSide: const BorderSide(color: Colors.black),
-                  ),
-                  filled: true,
-                  fillColor: const Color.fromARGB(255, 52, 52, 52),
-                  contentPadding:
-                      const EdgeInsets.symmetric(vertical: 15.0, horizontal: 10.0),
-                ),
-                keyboardType: TextInputType.number,
-              ),
-            ),
-          ],
-        );
-      }),
-    );
-  }
-
-  Widget _buildPercentageMembersList() {
-   _unequallyControllers = List<TextEditingController>.generate(
-        groupMembersList.length, (index) => TextEditingController());
-
-    void onChangedCallback() {
-      int totalPercentage = _unequallyControllers.fold<int>(
-          0,
-          (previousValue, controller) =>
-              previousValue +
-              int.parse(controller.text.isEmpty ? '0' : controller.text));
-      int excess = totalPercentage - 100;
-      if (excess != 0) {
-        int lastValue = int.parse(
-           _unequallyControllers.last.text.isEmpty ? '0' : _unequallyControllers.last.text);
-        lastValue -= excess;
-        _unequallyControllers.last.text = lastValue.toString();
-      }
-    }
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: List.generate(groupMembersList.length, (index) {
-        final memberName = groupMembersList[index];
-        final controller =_unequallyControllers[index];
+        final controller = _unequallyControllers[index];
 
         return Row(
           children: [
@@ -436,15 +454,15 @@ class _ExpenseEntryScreenState extends State<ExpenseEntryScreen> {
                   ),
                   filled: true,
                   fillColor: const Color.fromARGB(255, 52, 52, 52),
-                  contentPadding:
-                      const EdgeInsets.symmetric(vertical: 15.0, horizontal: 10.0),
-                  suffixIcon: const Padding(
-                    padding: EdgeInsets.all(12.0),
-                    child: Text(
-                      '%',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  ),
+                  contentPadding: const EdgeInsets.symmetric(
+                      vertical: 15.0, horizontal: 10.0),
+                  // suffixIcon: const Padding(
+                  //   padding: EdgeInsets.all(12.0),
+                  //   child: Text(
+                  //     '%',
+                  //     style: TextStyle(color: Colors.white),
+                  //   ),
+                  // ),
                 ),
                 keyboardType: TextInputType.number,
               ),
@@ -489,8 +507,8 @@ class _ExpenseEntryScreenState extends State<ExpenseEntryScreen> {
                   ),
                   filled: true,
                   fillColor: const Color.fromARGB(255, 52, 52, 52),
-                  contentPadding:
-                      const EdgeInsets.symmetric(vertical: 15.0, horizontal: 10.0),
+                  contentPadding: const EdgeInsets.symmetric(
+                      vertical: 15.0, horizontal: 10.0),
                 ),
                 keyboardType: TextInputType.number,
               ),
