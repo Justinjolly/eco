@@ -45,38 +45,35 @@ class _TripDetailsPageState extends State<TripDetailsPage> {
       userName = userName;
       userName = userData!['userName'].toString();
       users.clear();
-      for (var i = 0; i < data!['splitAmounts'].length; i++) {
-        final splitAmount = data['splitAmounts'][i];
-        final member = splitAmount['member'];
-        bool isRequester = false;
-        if (member != null) {
-          if (member is String) {
-            if (member == userName) {
-              isRequester = true;
-            }
-            users
-                .add({'name': member, 'paid': false, 'requester': isRequester});
-          } else if (member is int) {
-            if (member.toString() == userName) {
-              isRequester = true;
-            }
-            users.add({
-              'name': member.toString(),
-              'paid': false,
-              'requester': isRequester
-            });
-          }
-        }
+final splitAmounts = widget.documentSnapshot[widget.index]['splitAmounts'];
+
+for (var splitAmount in splitAmounts) {
+  final member = splitAmount['member'];
+  bool isRequester = false;
+  
+  if (member != null) {
+    if (member is String) {
+      if (member == userName) {
+        isRequester = true;
       }
+      users.add({'name': member, 'paid': false, 'requester': isRequester});
+    } else if (member is int) {
+      if (member.toString() == userName) {
+        isRequester = true;
+      }
+      users.add({'name': member.toString(), 'paid': false, 'requester': isRequester});
+    }
+  }
+}
+
 
       print(users);
 
       print(userId);
 
       print(userName);
-      totalAmount = data['totalAmount'].toString();
+      totalAmount = widget.documentSnapshot[widget.index]['totalAmount'].toString();
       groupName = widget.documentSnapshot[widget.index]['groupName'].toString();
-      Amount = data['splitAmounts'][0]['amount'].toString();
     });
   }
 
@@ -119,7 +116,7 @@ class _TripDetailsPageState extends State<TripDetailsPage> {
       );
     }
 
-    double splitAmount = double.parse(Amount);
+    
     int paidUsers = _countPaidUsers();
 
     return Scaffold(
@@ -151,15 +148,15 @@ class _TripDetailsPageState extends State<TripDetailsPage> {
             Text(
               // users.last['name']!.toString(),
               userName,
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
             ),
-            SizedBox(height: 20),
+            SizedBox(height: 10),
             Text(
               'Total Amount',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             SizedBox(width: 4.0),
-            Text(widget.documentSnapshot[widget.index]['totalAmount'].toString(), style: TextStyle(fontSize: 18)),
+            Text('₹${totalAmount}', style: TextStyle(fontSize: 25)),
             SizedBox(height: 10),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 20),
@@ -209,7 +206,7 @@ class _TripDetailsPageState extends State<TripDetailsPage> {
                                       ? Colors.green
                                       : Colors.red),
                     ),
-                    trailing: Text(widget.documentSnapshot[widget.index]['splitAmounts'][index]['amount'].toString(), style: TextStyle(fontSize: 18)),
+                    trailing: Text('₹${widget.documentSnapshot[widget.index]['splitAmounts'][index]['amount'].toString()}', style: TextStyle(fontSize: 18)),
                     onTap: () {
                       if (!user['paid'] &&
                           !(user.containsKey('requester') &&
