@@ -21,36 +21,39 @@ class _FriendsPageState extends State<FriendsPage> {
   }
 
   void fetchFriends() {
-    // Fetch the user ID of the logged-in user
-    User? currentUser = FirebaseAuth.instance.currentUser;
+  // Fetch the user ID of the logged-in user
+  User? currentUser = FirebaseAuth.instance.currentUser;
 
-    if (currentUser != null) {
-      FirebaseFirestore.instance
-          .collection('friends')
-          .where('groupName', isEqualTo: currentUser.displayName)
-          .get()
-          .then((querySnapshot) {
-        List<Friend> friends = [];
-        querySnapshot.docs.forEach((doc) {
-          List<dynamic> members = doc['members'];
-          members.forEach((member) {
-            if (member != currentUser.displayName) {
-              friends.add(Friend(name: member, amount: 0.0));
-            }
-          });
-        });
+  if (currentUser != null) {
+    FirebaseFirestore.instance
+        .collection('friends')
+        .where('groupName', isEqualTo: currentUser.displayName)
+        .get()
+        .then((querySnapshot) {
+      Set<String> uniqueFriendNames = Set<String>(); // Use a set to store unique friend names
+      List<Friend> friends = [];
 
-        setState(() {
-          allFriends = friends;
-          displayedFriends = List.from(allFriends);
+      querySnapshot.docs.forEach((doc) {
+        List<dynamic> members = doc['members'];
+        members.forEach((member) {
+          if (member != currentUser.displayName && !uniqueFriendNames.contains(member)) {
+            uniqueFriendNames.add(member); // Add the friend's name to the set
+            friends.add(Friend(name: member, amount: 0.0));
+          }
         });
-      }).catchError((error) {
-        print('Failed to fetch friends data from Firestore: $error');
       });
-    } else {
-      print('User is not logged in. Cannot fetch friends data.');
-    }
+
+      setState(() {
+        allFriends = friends;
+        displayedFriends = List.from(allFriends);
+      });
+    }).catchError((error) {
+      print('Failed to fetch friends data from Firestore: $error');
+    });
+  } else {
+    print('User is not logged in. Cannot fetch friends data.');
   }
+}
 
   void filterFriends(String query) {
     setState(() {
@@ -162,42 +165,23 @@ class _FriendsPageState extends State<FriendsPage> {
             ],
           ),
           Expanded(
-            child: ListView.builder(
-              itemCount: displayedFriends.length,
-              itemBuilder: (context, index) {
-                Friend friend = displayedFriends[index];
-                IconData iconData = friend.amount > 0
-                    ? Icons.arrow_drop_up
-                    : Icons.arrow_drop_down;
-                Color iconColor =
-                    friend.amount > 0 ? Colors.green : Colors.red;
-
-                return ListTile(
-                  title: Text(
-                    "${friend.name}",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 18.0, // Adjust the font size as needed
-                    ),
-                  ),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(iconData, color: iconColor),
-                      Text(
-                        "${friend.amount > 0 ? '+' : ''}\$${friend.amount}",
-                        style: TextStyle(
-                          color:
-                              friend.amount > 0 ? Colors.green : Colors.red,
-                          fontSize: 16.0, // Adjust the font size as needed
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              },
-            ),
+  child: ListView.builder(
+    itemCount: displayedFriends.length,
+    itemBuilder: (context, index) {
+      Friend friend = displayedFriends[index];
+      return ListTile(
+        title: Text(
+          "${friend.name}",
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 18.0, // Adjust the font size as needed
           ),
+        ),
+      );
+    },
+  ),
+),
+
         ],
       ),
     );

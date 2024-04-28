@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart'; // Add this import
 import 'addfriend.dart'; // Import AddFriendPage if not already imported
 
+
 class GroupCreate extends StatelessWidget {
   final TextEditingController groupNameController = TextEditingController();
   final TextEditingController groupTypeController = TextEditingController();

@@ -18,7 +18,7 @@ class _ActivityPageState extends State<ActivityPage> {
     _groupActivities = _getGroupActivities();
   }
 
-  Future<List<GroupActivity>> _getGroupActivities() async {
+ Future<List<GroupActivity>> _getGroupActivities() async {
   String userId = FirebaseAuth.instance.currentUser?.uid ?? '';
 
   QuerySnapshot<Map<String, dynamic>> snapshot = await FirebaseFirestore
@@ -27,24 +27,46 @@ class _ActivityPageState extends State<ActivityPage> {
       .where('creator', isEqualTo: userId)
       .get();
 
+  QuerySnapshot<Map<String, dynamic>> memberSnapshot = await FirebaseFirestore
+      .instance
+      .collection('groups')
+      .where('members', arrayContains: userId)
+      .get();
+
+  Set<String> addedGroups = {}; // Set to keep track of added group IDs
+
   List<GroupActivity> groupActivities = [];
 
   snapshot.docs.forEach((doc) {
-    // Check if 'creationDate' exists in the document
-    if (doc.data().containsKey('creationDate')) {
-      // Assuming 'groupName' and 'creationDate' are fields in each document
+    String groupId = doc.id;
+    if (!addedGroups.contains(groupId)) {
+      String groupName = doc['groupName'];
+      String creationDate = doc.data().containsKey('creationDate') ? _formatDate(doc['creationDate']) : 'Not specified';
       groupActivities.add(GroupActivity(
-        groupName: doc['groupName'],
-        creationDate: _formatDate(doc['creationDate']),
+        groupName: groupName,
+        creationDate: creationDate,
       ));
-    } else {
-      // Handle case where 'creationDate' field does not exist
-      print('Error: creationDate field does not exist in the document');
+      addedGroups.add(groupId); // Add group ID to set
+    }
+  });
+
+  memberSnapshot.docs.forEach((doc) {
+    String groupId = doc.id;
+    if (!addedGroups.contains(groupId)) {
+      String groupName = doc['groupName'];
+      String creationDate = doc.data().containsKey('creationDate') ? _formatDate(doc['creationDate']) : 'Not specified';
+      groupActivities.add(GroupActivity(
+        groupName: groupName,
+        creationDate: creationDate,
+      ));
+      addedGroups.add(groupId); // Add group ID to set
     }
   });
 
   return groupActivities;
 }
+
+
 
 
   String _formatDate(String date) {

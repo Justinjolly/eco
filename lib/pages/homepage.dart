@@ -42,16 +42,18 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  Future<List<GroupWidget>> _fetchGroupsFromFirestore() async {
-    List<GroupWidget> groupsFromFirestore = [];
+Future<List<GroupWidget>> _fetchGroupsFromFirestore() async {
+  List<GroupWidget> groupsFromFirestore = [];
 
-    try {
-      QuerySnapshot<Map<String, dynamic>> querySnapshot =
-          await FirebaseFirestore.instance.collection('groups').get();
-      if (querySnapshot.docs.isNotEmpty) {
-        for (QueryDocumentSnapshot<Map<String, dynamic>> doc
-            in querySnapshot.docs) {
-          Map<String, dynamic> data = doc.data();
+  try {
+    QuerySnapshot<Map<String, dynamic>> querySnapshot =
+        await FirebaseFirestore.instance.collection('groups').get();
+    if (querySnapshot.docs.isNotEmpty) {
+      for (QueryDocumentSnapshot<Map<String, dynamic>> doc
+          in querySnapshot.docs) {
+        Map<String, dynamic> data = doc.data();
+        // Check if the group is not deleted
+        if (!(data['deleted'] ?? false)) {
           // Check if the logged-in user created the group or is a member of it
           if (data['creator'] == _currentUser.uid ||
               await _isUserMemberOfGroup(
@@ -78,12 +80,15 @@ class _HomePageState extends State<HomePage> {
           }
         }
       }
-    } catch (error) {
-      print("Failed to fetch groups from Firestore: $error");
     }
-
-    return groupsFromFirestore;
+  } catch (error) {
+    print("Failed to fetch groups from Firestore: $error");
   }
+
+  return groupsFromFirestore;
+}
+
+
 
   Future<bool> _isUserMemberOfGroup(DocumentReference groupReference) async {
     DocumentSnapshot groupSnapshot = await groupReference.get();
