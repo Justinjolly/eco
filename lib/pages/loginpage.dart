@@ -134,6 +134,22 @@ class _LoginPageState extends State<LoginPage> {
                 ),
                 Align(
                   alignment: Alignment.centerRight,
+                  child: TextButton(
+                    onPressed: () {
+                      // Navigate to the ForgotPasswordPage when clicked
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ForgotPasswordPage(),
+                        ),
+                      );
+                    },
+                    child: Text(
+                      'Forgot Password?',
+                      style: TextStyle(
+                          color: const Color.fromARGB(255, 255, 255, 255)),
+                    ),
+                  ),
                 ),
                 SizedBox(height: 16),
                 ElevatedButton(
