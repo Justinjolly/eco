@@ -1,70 +1,153 @@
+import 'package:app/main.dart';
+import 'package:app/pages/razor.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class MyApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return FutureBuilder<DocumentSnapshot>(
-      future: FirebaseFirestore.instance
-          .collection('amount')
-          .doc('your_document_id')
-          .get(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return CircularProgressIndicator(); // Show loading indicator while fetching data
-        }
-        if (snapshot.hasError) {
-          return Text('Error: ${snapshot.error}');
-        }
-        final groupName = snapshot.data!['groupName'];
-        final totalAmount = snapshot.data!['totalAmount'];
-        // Fetch groupName from Firestore
-        return MaterialApp(
-          home: TripDetailsPage(groupName: groupName, totalAmount: totalAmount),
-        );
-      },
-    );
-  }
-}
+
 
 class TripDetailsPage extends StatefulWidget {
+  final List<QueryDocumentSnapshot> documentSnapshot;
   final String groupName;
   final String totalAmount;
-  TripDetailsPage({required this.groupName, required this.totalAmount});
-  @override
+  final int index;
+
+  const TripDetailsPage(
+      {super.key,
+      required this.documentSnapshot,
+      required this.groupName,
+      required this.totalAmount,
+      required this.index});
+
   _TripDetailsPageState createState() => _TripDetailsPageState();
 }
 
 class _TripDetailsPageState extends State<TripDetailsPage> {
-  final List<Map<String, dynamic>> users = [
-    {'name': 'Dony', 'initial': 'D', 'paid': false},
-    {'name': 'Jibbin', 'initial': 'J', 'paid': false},
-    {'name': 'Justin', 'initial': 'J', 'paid': false},
-    {'name': 'Adwaith', 'initial': 'A', 'paid': false, 'requester': true},
-  ];
+  final users = [];
+  late String totalAmount = '';
+  late String groupName = '';
+  late String Amount = '';
+  late String userId = '';
+  late String userName = '';
 
-  void _markAsPaid(int index) {
+  @override
+  void initState() {
+    super.initState();
+    _fetchData();
+  }
+
+  Future<void> _fetchData() async {
+    final snapshot = await FirebaseFirestore.instance
+        .collection('amount')
+        .doc('xFAtIwZSorKMVWV0ObsT')
+        .get();
+    final data = snapshot.data();
+    userId = widget.documentSnapshot[widget.index]['userId'].toString();
+    final userSnapshot =
+        await FirebaseFirestore.instance.collection('users').doc(userId).get();
+    final userData = userSnapshot.data();
+
     setState(() {
-      users[index]['paid'] = true;
+      userName = userName;
+      userName = userData!['userName'].toString();
+      users.clear();
+      final splitAmounts =
+          widget.documentSnapshot[widget.index]['splitAmounts'];
+
+      for (var splitAmount in splitAmounts) {
+        final member = splitAmount['member'];
+        bool isRequester = false;
+
+        if (member != null) {
+          if (member is String) {
+            if (member == userName) {
+              isRequester = true;
+            }
+            users
+                .add({'name': member, 'paid': false, 'requester': isRequester});
+          } else if (member is int) {
+            if (member.toString() == userName) {
+              isRequester = true;
+            }
+            users.add({
+              'name': member.toString(),
+              'paid': false,
+              'requester': isRequester
+            });
+          }
+        }
+      }
+
+      print(users);
+
+      print(userId);
+
+      print(userName);
+      totalAmount =
+          widget.documentSnapshot[widget.index]['totalAmount'].toString();
+      groupName = widget.documentSnapshot[widget.index]['groupName'].toString();
     });
   }
 
+ void _markAsPaid(int index) {
+  setState(() {
+    // If the user is the creator, keep their status as paid
+    if (users[index]['name'] == userName) {
+      return;
+    }
+    
+    // Mark all users as unpaid except the creator
+    for (var i = 0; i < users.length; i++) {
+      if (users[i]['name'] != userName) {
+        users[i]['paid'] = false;
+      }
+    }
+
+    // Mark the current user as paid
+    users[index]['paid'] = true;
+
+    // If the user is a requester, find and mark them as paid
+    if (users[index].containsKey('requester') && users[index]['requester']) {
+      for (var i = 0; i < users.length; i++) {
+        if (users[i]['name'] == userName) {
+          users[i]['paid'] = true;
+          break; // Stop loop once the requester is found and marked as paid
+        }
+      }
+    }
+  });
+}
+
+
+
+
   int _countPaidUsers() {
-    // Start count from 1 if the requester is not marked as paid, otherwise count normally
-    int count = 1; // Assuming requester does not need to pay
-    count += users.where((user) => user['paid'] == true).length;
+    int count = 1;
+    for (var user in users) {
+      // Use null-aware operator to handle potential null value of 'paid'
+      if (user['paid'] ?? false) {
+        count++;
+      }
+    }
     return count;
   }
 
   @override
+  @override
   Widget build(BuildContext context) {
-    double splitAmount = 100.00 / users.length;
-    int paidUsers = _countPaidUsers(); // Dynamically count paid users
+    if (users.isEmpty || totalAmount.isEmpty) {
+      return Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
+    int paidUsers = _countPaidUsers();
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Trip'),
-        backgroundColor: Colors.blue,
+        title: Text(groupName),
+        backgroundColor: const Color.fromARGB(255, 0, 0, 0),
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
           onPressed: () => Navigator.of(context).pop(), // Navigate back
@@ -75,35 +158,30 @@ class _TripDetailsPageState extends State<TripDetailsPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            // Avatar, Name, and Total Amount Code remains unchanged
-            // ...
-
             CircleAvatar(
               radius: 40,
-              backgroundColor: Colors.grey.shade200,
+              backgroundColor: Color.fromARGB(255, 1, 112, 1),
               child: Text(
-                users.last['initial']!,
-                style: TextStyle(fontSize: 40, color: Colors.black),
+                userName[0], // Access the first character of the member's name
+                style: TextStyle(
+                  color: Color.fromARGB(255, 0, 0, 0),
+                  fontWeight: FontWeight.w900,
+                ),
               ),
             ),
             SizedBox(height: 10),
             Text(
-              users.last['name']!,
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              // users.last['name']!.toString(),
+              userName,
+              style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
             ),
-            SizedBox(height: 20),
+            SizedBox(height: 10),
             Text(
               'Total Amount',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
-            Text(
-              widget.totalAmount,
-              style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.green),
-            ),
-
+            SizedBox(width: 4.0),
+            Text('₹${totalAmount}', style: TextStyle(fontSize: 25)),
             SizedBox(height: 10),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 20),
@@ -130,11 +208,18 @@ class _TripDetailsPageState extends State<TripDetailsPage> {
                     leading: CircleAvatar(
                       backgroundColor: Colors.grey.shade200,
                       child: Text(
-                        user['initial'],
-                        style: TextStyle(color: Colors.black),
+                        userName[
+                            0], // Access the first character of the member's name
+                        style: TextStyle(
+                          color: const Color.fromARGB(255, 0, 0, 0),
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
-                    title: Text(user['name'], style: TextStyle(fontSize: 18)),
+                    title: Text(
+                        widget.documentSnapshot[widget.index]['splitAmounts']
+                            [index]['member'],
+                        style: TextStyle(fontSize: 18)),
                     subtitle: Text(
                       user.containsKey('requester') && user['requester']
                           ? "Sent this request"
@@ -149,7 +234,9 @@ class _TripDetailsPageState extends State<TripDetailsPage> {
                                       ? Colors.green
                                       : Colors.red),
                     ),
-                    trailing: Text('\$${splitAmount.toStringAsFixed(2)}'),
+                    trailing: Text(
+                        '₹${widget.documentSnapshot[widget.index]['splitAmounts'][index]['amount'].toString()}',
+                        style: TextStyle(fontSize: 18)),
                     onTap: () {
                       if (!user['paid'] &&
                           !(user.containsKey('requester') &&
@@ -190,6 +277,26 @@ class _TripDetailsPageState extends State<TripDetailsPage> {
           ],
         ),
       ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () {
+          int currentUserIndex = users.indexWhere((user) => user['name'] == userName);
+          // Mark the current user and others as paid or unpaid
+  _markAsPaid(currentUserIndex);
+  
+  // Update the UI
+  setState(() {});
+          // Action to be performed when the Pay button is pressed
+          Navigator.push(
+    context,
+    MaterialPageRoute(builder: (context) => PaymentPage()),
+  );
+
+        },
+        label: Text('Pay'),
+        icon: Icon(Icons.payment),
+        backgroundColor: Colors.blue, // Customize button color as needed
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 }

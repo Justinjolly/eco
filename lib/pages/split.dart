@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart'; 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -11,31 +11,27 @@ class ExpenseEntryScreen extends StatefulWidget {
   @override
   _ExpenseEntryScreenState createState() => _ExpenseEntryScreenState();
 }
+
 List<TextEditingController> _unequallyControllers = [];
+
 class _ExpenseEntryScreenState extends State<ExpenseEntryScreen> {
   List<String> groupMembersList = [];
   bool _showGroupMembers = false;
   bool _showUnequallyMembers = false;
   bool _showPercentageMembers = false;
   final TextEditingController _amountController = TextEditingController();
-  @override
-@override
-void initState() {
-  super.initState();
-  _unequallyControllers = List.generate(
-      groupMembersList.length > 1 ? groupMembersList.length - 1 : 0,
-      (index) => TextEditingController());
-}
-
-
 
   @override
   Widget build(BuildContext context) {
+    _unequallyControllers = List<TextEditingController>.generate(
+        groupMembersList.length > 1 ? groupMembersList.length - 1 : 0,
+        (index) => TextEditingController());
     final CollectionReference collectionRef =
         FirebaseFirestore.instance.collection('groups');
     return Scaffold(
       appBar: AppBar(
-        title: Text('Expense Entry', style: TextStyle(color: Colors.white)),
+        title:
+            const Text('Expense Entry', style: TextStyle(color: Colors.white)),
       ),
       body: StreamBuilder(
         stream: collectionRef
@@ -43,13 +39,13 @@ void initState() {
             .snapshots(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return CircularProgressIndicator();
+            return const CircularProgressIndicator();
           }
           if (snapshot.hasError) {
             return Text('Error: ${snapshot.error}');
           }
           if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-            return Text('No data available');
+            return const Text('No data available');
           }
           groupMembersList.clear();
           for (var member in snapshot.data!.docs[0]['members']) {
@@ -59,19 +55,20 @@ void initState() {
           return Column(
             children: [
               Padding(
-                padding: EdgeInsets.only(
+                padding: const EdgeInsets.only(
                     left: 150.0, bottom: 20.0, top: 20.0, right: 150.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     _buildAmountTextField(),
-                    SizedBox(height: 17.0),
+                    const SizedBox(height: 17.0),
                     _buildNoteTextField(),
                   ],
                 ),
               ),
               Padding(
-                padding: EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+                padding:
+                    const EdgeInsets.symmetric(vertical: 20, horizontal: 40),
                 child: Column(
                   children: [
                     Row(
@@ -84,7 +81,7 @@ void initState() {
                               setState(() {
                                 _showGroupMembers = !_showGroupMembers;
                                 _showUnequallyMembers = false;
-                                _showPercentageMembers = false;
+                                // _showPercentageMembers = false;
                               });
                             },
                             textColor: Colors.white,
@@ -97,26 +94,26 @@ void initState() {
                               setState(() {
                                 _showUnequallyMembers = !_showUnequallyMembers;
                                 _showGroupMembers = false;
-                                _showPercentageMembers = false;
+                                // _showPercentageMembers = false;
                               });
                             },
                             textColor: Colors.white,
                           ),
                         ),
-                        Expanded(
-                          child: SectionButton(
-                            title: 'Percentage',
-                            onPressed: () {
-                              setState(() {
-                                _showPercentageMembers =
-                                    !_showPercentageMembers;
-                                _showGroupMembers = false;
-                                _showUnequallyMembers = false;
-                              });
-                            },
-                            textColor: Colors.white,
-                          ),
-                        ),
+                        // Expanded(
+                        //   child: SectionButton(
+                        //     title: 'Percentage',
+                        //     onPressed: () {
+                        //       setState(() {
+                        //         _showPercentageMembers =
+                        //             !_showPercentageMembers;
+                        //         _showGroupMembers = false;
+                        //         _showUnequallyMembers = false;
+                        //       });
+                        //     },
+                        //     textColor: Colors.white,
+                        //   ),
+                        // ),
                       ],
                     ),
                     Visibility(
@@ -124,9 +121,9 @@ void initState() {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Divider(),
-                          SizedBox(height: 10),
-                          Text(
+                          const Divider(),
+                          const SizedBox(height: 10),
+                          const Text(
                             'Equally Distributed:',
                             style: TextStyle(
                               fontSize: 16,
@@ -134,7 +131,7 @@ void initState() {
                               color: Colors.white,
                             ),
                           ),
-                          SizedBox(height: 5),
+                          const SizedBox(height: 5),
                           _buildGroupMembersList(),
                         ],
                       ),
@@ -144,9 +141,9 @@ void initState() {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Divider(),
-                          SizedBox(height: 10),
-                          Text(
+                          const Divider(),
+                          const SizedBox(height: 10),
+                          const Text(
                             'Unequally Distributed:',
                             style: TextStyle(
                               fontSize: 16,
@@ -154,31 +151,31 @@ void initState() {
                               color: Colors.white,
                             ),
                           ),
-                          SizedBox(height: 5),
+                          const SizedBox(height: 5),
                           _buildUnequallyMembersList(),
                         ],
                       ),
                     ),
-                    Visibility(
-                      visible: _showPercentageMembers,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Divider(),
-                          SizedBox(height: 10),
-                          Text(
-                            'Group Members:',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
-                          ),
-                          SizedBox(height: 5),
-                          _buildPercentageMembersList(),
-                        ],
-                      ),
-                    ),
+                    // Visibility(
+                    //   visible: _showPercentageMembers,
+                    //   child: Column(
+                    //     crossAxisAlignment: CrossAxisAlignment.start,
+                    //     children: [
+                    //       const Divider(),
+                    //       const SizedBox(height: 10),
+                    //       const Text(
+                    //         'Group Members:',
+                    //         style: TextStyle(
+                    //           fontSize: 16,
+                    //           fontWeight: FontWeight.bold,
+                    //           color: Colors.white,
+                    //         ),
+                    //       ),
+                    //       const SizedBox(height: 5),
+                    //       _buildPercentageMembersList(),
+                    //     ],
+                    //   ),
+                    // ),
                   ],
                 ),
               ),
@@ -189,7 +186,7 @@ void initState() {
                     padding: const EdgeInsets.only(bottom: 20.0),
                     child: ElevatedButton(
                       onPressed: _onSplitButtonPressed,
-                      child: Text(
+                      child: const Text(
                         'Split',
                         style: TextStyle(
                           color: Color.fromARGB(255, 255, 255, 255),
@@ -209,9 +206,9 @@ void initState() {
   Widget _buildAmountTextField() {
     return TextField(
       controller: _amountController,
-      style: TextStyle(color: Colors.white),
+      style: const TextStyle(color: Colors.white),
       inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-      decoration: InputDecoration(
+      decoration: const InputDecoration(
         labelText: 'Amount',
         labelStyle: TextStyle(color: Colors.white),
       ),
@@ -225,93 +222,194 @@ void initState() {
         labelText: 'Note',
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10.0),
-          borderSide: BorderSide(color: Colors.black),
+          borderSide: const BorderSide(color: Colors.black),
         ),
         filled: true,
-        fillColor: Color.fromARGB(255, 19, 19, 21),
-        contentPadding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 10.0),
+        fillColor: const Color.fromARGB(255, 19, 19, 21),
+        contentPadding:
+            const EdgeInsets.symmetric(vertical: 15.0, horizontal: 10.0),
       ),
       maxLines: 1,
     );
   }
 
- void _onSplitButtonPressed() async {
-  final currentUser = FirebaseAuth.instance.currentUser;
-  if (currentUser != null) {
-    final String userId = currentUser.uid;
-    String userName = currentUser.displayName ?? 'Unknown';
-    if (userName == 'Unknown') {
-      // If display name is not available, use email as the username
-      userName = currentUser.email ?? 'Unknown';
-    }
-    int expenseAmount = _amountController.text.isNotEmpty
-        ? int.parse(_amountController.text)
-        : 0;
-    try {
-      final CollectionReference amountRef =
-          FirebaseFirestore.instance.collection('amount');
+  void _onSplitButtonPressed() async {
+    final currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser != null) {
+      final String userId = currentUser.uid;
+      String userName = currentUser.displayName ?? 'Unknown';
+      if (userName == 'Unknown') {
+        // If display name is not available, use email as the username
+        userName = currentUser.email ?? 'Unknown';
+      }
+      int expenseAmount = _amountController.text.isNotEmpty
+          ? int.parse(_amountController.text)
+          : 0;
+      try {
+        final CollectionReference amountRef =
+            FirebaseFirestore.instance.collection('amount');
 
-      // Create a list to hold member names and their split amounts as objects
-      List<Map<String, dynamic>> splitAmountsList = [];
+        // Create a list to hold member names and their split amounts as objects
+        List<Map<String, dynamic>> splitAmountsList = [];
 
-      if (_showGroupMembers) {
-        // Split Equally
-        int splitAmount = expenseAmount ~/ groupMembersList.length;
-        for (var member in groupMembersList) {
-          splitAmountsList.add({'member': member, 'amount': splitAmount});
-        }
-      } if (_showUnequallyMembers) {
-  // Split Unequally
-         if (_unequallyControllers.isNotEmpty) {
-          int totalSplitAmount = 0;
-          for (int i = 0; i < groupMembersList.length - 1; i++) {
-            int splitAmount = int.parse(_unequallyControllers[i].text.isNotEmpty
-            ? _unequallyControllers[i].text
-            : '0');
-            splitAmountsList.add({'member': groupMembersList[i], 'amount': splitAmount});
-            totalSplitAmount += splitAmount;
+        if (_showGroupMembers) {
+          // Split Equally
+          int splitAmount = expenseAmount ~/ groupMembersList.length;
+          for (var member in groupMembersList) {
+            splitAmountsList.add({'member': member, 'amount': splitAmount});
           }
-    // Assign the remaining amount to the last member
-          int remainingAmount = expenseAmount - totalSplitAmount;
-          splitAmountsList.add({'member': groupMembersList.last, 'amount': remainingAmount});
-  }
-}
+        }
+        if (_showUnequallyMembers) {
+          // Split Unequally
+          if (_unequallyControllers.isNotEmpty) {
+            print('loop2');
+            int totalSplitAmount = 0;
+            for (int i = 0; i < _unequallyControllers.length - 1; i++) {
+              int splitAmount = int.parse(
+                  _unequallyControllers[i].text.isNotEmpty
+                      ? _unequallyControllers[i].text
+                      : '0');
+              print('${_unequallyControllers[i]}');
+              splitAmountsList
+                  .add({'member': groupMembersList[i], 'amount': splitAmount});
+              totalSplitAmount += splitAmount;
+            }
+            // Assign the remaining amount to the last member
+            int remainingAmount = expenseAmount - totalSplitAmount;
+            splitAmountsList.add(
+                {'member': groupMembersList.last, 'amount': remainingAmount});
+          }
+        }
+        if (_showPercentageMembers) {
+          // Split Unequally
+          if (_unequallyControllers.isNotEmpty) {
+            print('loop2');
+            int totalSplitAmount = 0;
+            for (int i = 0; i < _unequallyControllers.length - 1; i++) {
+              int splitAmount = int.parse(
+                  _unequallyControllers[i].text.isNotEmpty
+                      ? _unequallyControllers[i].text
+                      : '0');
+              print('${_unequallyControllers[i]}');
+              splitAmountsList
+                  .add({'member': groupMembersList[i], 'amount': splitAmount});
+              totalSplitAmount += splitAmount;
+            }
+            // Assign the remaining amount to the last member
+            int remainingAmount = 100 - totalSplitAmount;
+            splitAmountsList.add(
+                {'member': groupMembersList.last, 'amount': remainingAmount});
+          }
+        }
 
-      // Store member names, split amounts, total amount, and user details in a single document
-      await amountRef.add({
-        'userId': userId,
-        'userName': userName,
-        'groupName': widget.groupName,
-        'totalAmount': expenseAmount,
-        'splitAmounts': splitAmountsList,
-        'timestamp': Timestamp.now(),
-      });
+        // Store member names, split amounts, total amount, and user details in a single document
+        await amountRef.add({
+          'userId': userId,
+          'userName': userName,
+          'groupName': widget.groupName,
+          'totalAmount': expenseAmount,
+          'splitAmounts': splitAmountsList,
+          'timestamp': Timestamp.now(),
+        });
 
-      Navigator.pop(context);
-    } catch (e) {
-      print('Error storing data: $e');
+        Navigator.pop(context);
+      } catch (e) {
+        print('Error storing data: $e');
+      }
     }
   }
-}
+
+  // Widget _buildUnequallyMembersList() {
+  //   final amount = _amountController.text.isNotEmpty
+  //       ? int.parse(_amountController.text)
+  //       : 0;
+  //  _unequallyControllers = List<TextEditingController>.generate(
+  //       groupMembersList.length,
+  //       (index) => TextEditingController(
+  //           text: (amount ~/ groupMembersList.length).toString()));
+
+  //   int calculateSum() {
+  //     return _unequallyControllers.fold<int>(
+  //         0,
+  //         (previousValue, controller) =>
+  //             previousValue +
+  //             int.parse(controller.text.isEmpty ? '0' : controller.text));
+  //   }
+
+  // void adjustLastField() {
+  //   final sum = calculateSum();
+  //   final lastController = _unequallyControllers.last;
+  //   final lastValue =
+  //       int.parse(lastController.text.isEmpty ? '0' : lastController.text);
+  //   final excess = sum - amount;
+  //   final newValue = lastValue - excess;
+
+  //   lastController.text = newValue.toString();
+  // }
+
+  // void onChangedCallback(int index) {
+  //   adjustLastField();
+  // }
+
+  //   return Column(
+  //     crossAxisAlignment: CrossAxisAlignment.start,
+  //     children: List.generate(groupMembersList.length, (index) {
+  //       final memberName = groupMembersList[index];
+  //       return Row(
+  //         children: [
+  //           Expanded(
+  //             child: Text(
+  //               memberName,
+  //               style: const TextStyle(color: Colors.white),
+  //             ),
+  //           ),
+  //           const SizedBox(width: 10),
+  //           Expanded(
+  //             flex: 2,
+  //             child: TextField(
+  //               controller: _unequallyControllers[index],
+  //               style: const TextStyle(color: Colors.white),
+  //               inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+  //               onChanged: (_) => onChangedCallback(index),
+  //               decoration: InputDecoration(
+  //                 border: OutlineInputBorder(
+  //                   borderRadius: BorderRadius.circular(10.0),
+  //                   borderSide: const BorderSide(color: Colors.black),
+  //                 ),
+  //                 filled: true,
+  //                 fillColor: const Color.fromARGB(255, 52, 52, 52),
+  //                 contentPadding:
+  //                     const EdgeInsets.symmetric(vertical: 15.0, horizontal: 10.0),
+  //               ),
+  //               keyboardType: TextInputType.number,
+  //             ),
+  //           ),
+  //         ],
+  //       );
+  //     }),
+  //   );
+  // }
+
   Widget _buildUnequallyMembersList() {
     final amount = _amountController.text.isNotEmpty
         ? int.parse(_amountController.text)
         : 0;
-    final controllers = List<TextEditingController>.generate(
+    _unequallyControllers = List<TextEditingController>.generate(
         groupMembersList.length,
         (index) => TextEditingController(
             text: (amount ~/ groupMembersList.length).toString()));
 
     int calculateSum() {
-      return controllers.fold<int>(
+      return _unequallyControllers.fold<int>(
           0,
           (previousValue, controller) =>
-              previousValue + int.parse(controller.text.isEmpty ? '0' : controller.text));
+              previousValue +
+              int.parse(controller.text.isEmpty ? '0' : controller.text));
     }
 
     void adjustLastField() {
       final sum = calculateSum();
-      final lastController = controllers.last;
+      final lastController = _unequallyControllers.last;
       final lastValue =
           int.parse(lastController.text.isEmpty ? '0' : lastController.text);
       final excess = sum - amount;
@@ -320,7 +418,10 @@ void initState() {
       lastController.text = newValue.toString();
     }
 
-    void onChangedCallback(int index) {
+    _unequallyControllers = List<TextEditingController>.generate(
+        groupMembersList.length, (index) => TextEditingController());
+
+    void onChangedCallback() {
       adjustLastField();
     }
 
@@ -328,98 +429,40 @@ void initState() {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: List.generate(groupMembersList.length, (index) {
         final memberName = groupMembersList[index];
-        return Row(
-          children: [
-            Expanded(
-              child: Text(
-                memberName,
-                style: TextStyle(color: Colors.white),
-              ),
-            ),
-            SizedBox(width: 10),
-            Expanded(
-              flex: 2,
-              child: TextField(
-                controller: controllers[index],
-                style: TextStyle(color: Colors.white),
-                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                onChanged: (_) => onChangedCallback(index),
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                    borderSide: BorderSide(color: Colors.black),
-                  ),
-                  filled: true,
-                  fillColor: const Color.fromARGB(255, 52, 52, 52),
-                  contentPadding:
-                      EdgeInsets.symmetric(vertical: 15.0, horizontal: 10.0),
-                ),
-                keyboardType: TextInputType.number,
-              ),
-            ),
-          ],
-        );
-      }),
-    );
-  }
-
-  Widget _buildPercentageMembersList() {
-    final controllers = List<TextEditingController>.generate(
-        groupMembersList.length, (index) => TextEditingController());
-
-    void onChangedCallback() {
-      int totalPercentage = controllers.fold<int>(
-          0,
-          (previousValue, controller) =>
-              previousValue +
-              int.parse(controller.text.isEmpty ? '0' : controller.text));
-      int excess = totalPercentage - 100;
-      if (excess != 0) {
-        int lastValue =
-            int.parse(controllers.last.text.isEmpty ? '0' : controllers.last.text);
-        lastValue -= excess;
-        controllers.last.text = lastValue.toString();
-      }
-    }
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: List.generate(groupMembersList.length, (index) {
-        final memberName = groupMembersList[index];
-        final controller = controllers[index];
+        final controller = _unequallyControllers[index];
 
         return Row(
           children: [
             Expanded(
               child: Text(
                 memberName,
-                style: TextStyle(color: Colors.white),
+                style: const TextStyle(color: Colors.white),
               ),
             ),
-            SizedBox(width: 10),
+            const SizedBox(width: 10),
             Expanded(
               flex: 2,
               child: TextField(
-                controller: controller,
-                style: TextStyle(color: Colors.white),
+                controller: _unequallyControllers[index],
+                style: const TextStyle(color: Colors.white),
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                 onChanged: (_) => onChangedCallback(),
                 decoration: InputDecoration(
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10.0),
-                    borderSide: BorderSide(color: Colors.black),
+                    borderSide: const BorderSide(color: Colors.black),
                   ),
                   filled: true,
                   fillColor: const Color.fromARGB(255, 52, 52, 52),
-                  contentPadding:
-                      EdgeInsets.symmetric(vertical: 15.0, horizontal: 10.0),
-                  suffixIcon: Padding(
-                    padding: EdgeInsets.all(12.0),
-                    child: Text(
-                      '%',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  ),
+                  contentPadding: const EdgeInsets.symmetric(
+                      vertical: 15.0, horizontal: 10.0),
+                  // suffixIcon: const Padding(
+                  //   padding: EdgeInsets.all(12.0),
+                  //   child: Text(
+                  //     '%',
+                  //     style: TextStyle(color: Colors.white),
+                  //   ),
+                  // ),
                 ),
                 keyboardType: TextInputType.number,
               ),
@@ -429,7 +472,7 @@ void initState() {
       }),
     );
   }
-  
+
   Widget _buildGroupMembersList() {
     final amount = _amountController.text.isNotEmpty
         ? int.parse(_amountController.text)
@@ -444,28 +487,28 @@ void initState() {
             Expanded(
               child: Text(
                 memberName,
-                style: TextStyle(color: Colors.white),
+                style: const TextStyle(color: Colors.white),
               ),
             ),
-            SizedBox(width: 10),
+            const SizedBox(width: 10),
             Expanded(
               flex: 2,
               child: TextField(
                 controller: TextEditingController(
                     text: equallyDistributedAmount.toString()),
-                style: TextStyle(color: Colors.white),
+                style: const TextStyle(color: Colors.white),
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                 onChanged: (value) {},
                 enabled: false,
                 decoration: InputDecoration(
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10.0),
-                    borderSide: BorderSide(color: Colors.black),
+                    borderSide: const BorderSide(color: Colors.black),
                   ),
                   filled: true,
                   fillColor: const Color.fromARGB(255, 52, 52, 52),
-                  contentPadding:
-                      EdgeInsets.symmetric(vertical: 15.0, horizontal: 10.0),
+                  contentPadding: const EdgeInsets.symmetric(
+                      vertical: 15.0, horizontal: 10.0),
                 ),
                 keyboardType: TextInputType.number,
               ),
