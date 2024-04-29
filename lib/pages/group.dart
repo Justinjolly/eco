@@ -179,23 +179,21 @@ class _GroupPageState extends State<GroupPage> {
                         DocumentSnapshot documentSnapshot = documents[index];
 
                         return GestureDetector(
-                          onTap: (){
+                          onTap: () {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => TripDetailsPage(
-                                  documentSnapshot: documents,
-                                  index: index,
+                                builder: (context) => TripDetailsPage(  documentSnapshot: documents,
                                   groupName:documentSnapshot['groupName'],
-                                  totalAmount: documentSnapshot['totalAmount'].toStringAsFixed(2),
-                                ), // Replace AnotherPage with the desired page
+                                  totalAmount: documentSnapshot['totalAmount'].toStringAsFixed(2), index: index,)
                               ),
-              );
+                            );
                           },
                           child: SplitAmountCard(
-                                          totalAmount: documentSnapshot['totalAmount'],
-                                          groupName: documentSnapshot['groupName'],
-                                        ),
+                            totalAmount:
+                                (documentSnapshot['totalAmount']).toDouble(),
+                            groupName: documentSnapshot['groupName'],
+                          ),
                         );
                       },
                     ),

@@ -1,8 +1,12 @@
+import 'package:app/main.dart';
+import 'package:app/pages/razor.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+
+
 class TripDetailsPage extends StatefulWidget {
-  final List <QueryDocumentSnapshot> documentSnapshot;
+  final List<QueryDocumentSnapshot> documentSnapshot;
   final String groupName;
   final String totalAmount;
   final int index;
@@ -11,7 +15,8 @@ class TripDetailsPage extends StatefulWidget {
       {super.key,
       required this.documentSnapshot,
       required this.groupName,
-      required this.totalAmount, required this.index});
+      required this.totalAmount,
+      required this.index});
 
   _TripDetailsPageState createState() => _TripDetailsPageState();
 }
@@ -45,54 +50,75 @@ class _TripDetailsPageState extends State<TripDetailsPage> {
       userName = userName;
       userName = userData!['userName'].toString();
       users.clear();
-final splitAmounts = widget.documentSnapshot[widget.index]['splitAmounts'];
+      final splitAmounts =
+          widget.documentSnapshot[widget.index]['splitAmounts'];
 
-for (var splitAmount in splitAmounts) {
-  final member = splitAmount['member'];
-  bool isRequester = false;
-  
-  if (member != null) {
-    if (member is String) {
-      if (member == userName) {
-        isRequester = true;
-      }
-      users.add({'name': member, 'paid': false, 'requester': isRequester});
-    } else if (member is int) {
-      if (member.toString() == userName) {
-        isRequester = true;
-      }
-      users.add({'name': member.toString(), 'paid': false, 'requester': isRequester});
-    }
-  }
-}
+      for (var splitAmount in splitAmounts) {
+        final member = splitAmount['member'];
+        bool isRequester = false;
 
+        if (member != null) {
+          if (member is String) {
+            if (member == userName) {
+              isRequester = true;
+            }
+            users
+                .add({'name': member, 'paid': false, 'requester': isRequester});
+          } else if (member is int) {
+            if (member.toString() == userName) {
+              isRequester = true;
+            }
+            users.add({
+              'name': member.toString(),
+              'paid': false,
+              'requester': isRequester
+            });
+          }
+        }
+      }
 
       print(users);
 
       print(userId);
 
       print(userName);
-      totalAmount = widget.documentSnapshot[widget.index]['totalAmount'].toString();
+      totalAmount =
+          widget.documentSnapshot[widget.index]['totalAmount'].toString();
       groupName = widget.documentSnapshot[widget.index]['groupName'].toString();
     });
   }
 
-  void _markAsPaid(int index) {
-    setState(() {
-      // Mark the user as paid
-      users[index]['paid'] = true;
+ void _markAsPaid(int index) {
+  setState(() {
+    // If the user is the creator, keep their status as paid
+    if (users[index]['name'] == userName) {
+      return;
+    }
+    
+    // Mark all users as unpaid except the creator
+    for (var i = 0; i < users.length; i++) {
+      if (users[i]['name'] != userName) {
+        users[i]['paid'] = false;
+      }
+    }
 
-      // If the user is a requester, find and mark them as paid
-      if (users[index].containsKey('requester') && users[index]['requester']) {
-        for (var i = 0; i < users.length; i++) {
-          if (users[i]['name'] == userName) {
-            users[i]['paid'] = true;
-            break; // Stop loop once the requester is found and marked as paid
-          }
+    // Mark the current user as paid
+    users[index]['paid'] = true;
+
+    // If the user is a requester, find and mark them as paid
+    if (users[index].containsKey('requester') && users[index]['requester']) {
+      for (var i = 0; i < users.length; i++) {
+        if (users[i]['name'] == userName) {
+          users[i]['paid'] = true;
+          break; // Stop loop once the requester is found and marked as paid
         }
       }
-    });
-  }
+    }
+  });
+}
+
+
+
 
   int _countPaidUsers() {
     int count = 1;
@@ -116,7 +142,6 @@ for (var splitAmount in splitAmounts) {
       );
     }
 
-    
     int paidUsers = _countPaidUsers();
 
     return Scaffold(
@@ -191,7 +216,10 @@ for (var splitAmount in splitAmounts) {
                         ),
                       ),
                     ),
-                    title: Text(widget.documentSnapshot[widget.index]['splitAmounts'][index]['member'], style: TextStyle(fontSize: 18)),
+                    title: Text(
+                        widget.documentSnapshot[widget.index]['splitAmounts']
+                            [index]['member'],
+                        style: TextStyle(fontSize: 18)),
                     subtitle: Text(
                       user.containsKey('requester') && user['requester']
                           ? "Sent this request"
@@ -206,7 +234,9 @@ for (var splitAmount in splitAmounts) {
                                       ? Colors.green
                                       : Colors.red),
                     ),
-                    trailing: Text('₹${widget.documentSnapshot[widget.index]['splitAmounts'][index]['amount'].toString()}', style: TextStyle(fontSize: 18)),
+                    trailing: Text(
+                        '₹${widget.documentSnapshot[widget.index]['splitAmounts'][index]['amount'].toString()}',
+                        style: TextStyle(fontSize: 18)),
                     onTap: () {
                       if (!user['paid'] &&
                           !(user.containsKey('requester') &&
@@ -249,13 +279,24 @@ for (var splitAmount in splitAmounts) {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
+          int currentUserIndex = users.indexWhere((user) => user['name'] == userName);
+          // Mark the current user and others as paid or unpaid
+  _markAsPaid(currentUserIndex);
+  
+  // Update the UI
+  setState(() {});
           // Action to be performed when the Pay button is pressed
+          Navigator.push(
+    context,
+    MaterialPageRoute(builder: (context) => PaymentPage()),
+  );
+
         },
         label: Text('Pay'),
         icon: Icon(Icons.payment),
         backgroundColor: Colors.blue, // Customize button color as needed
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-);
-}
+    );
+  }
 }
