@@ -68,7 +68,7 @@ class _ExpenseEntryScreenState extends State<ExpenseEntryScreen> {
               ),
               Padding(
                 padding:
-                    const EdgeInsets.symmetric(vertical: 20, horizontal: 150),
+                    const EdgeInsets.symmetric(vertical: 20, horizontal: 40),
                 child: Column(
                   children: [
                     Row(
