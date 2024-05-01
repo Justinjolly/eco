@@ -3,6 +3,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:app/pages/homepage.dart'; // Import the HomePage widget
 import 'groupcreate.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+
 class AddFriendPage extends StatefulWidget {
   final String groupId; // Group ID parameter
   final String userId;
@@ -20,11 +22,22 @@ class _AddFriendPageState extends State<AddFriendPage> {
   List<String> allUsers = [];
   List<String> displayedUsers = [];
   Set<String> selectedUsers = Set();
+    FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+
 
   @override
   void initState() {
     super.initState();
     _fetchUserData();
+    _initializeLocalNotifications();
+  }
+
+  void _initializeLocalNotifications() {
+    const AndroidInitializationSettings initializationSettingsAndroid =
+        AndroidInitializationSettings('@mipmap/ic_launcher');
+    final InitializationSettings initializationSettings =
+        InitializationSettings(android: initializationSettingsAndroid);
+    flutterLocalNotificationsPlugin.initialize(initializationSettings);
   }
 
   void _fetchUserData() {
@@ -79,17 +92,38 @@ class _AddFriendPageState extends State<AddFriendPage> {
     }
   }
 
+Future<void> _showgroupNotification() async {
+    const AndroidNotificationDetails androidPlatformChannelSpecifics =
+        AndroidNotificationDetails(
+      'Group created',
+      'New group has been created',
+      importance: Importance.max,
+      priority: Priority.high,
+      showWhen: false,
+    );
+    const NotificationDetails platformChannelSpecifics =
+        NotificationDetails(android: androidPlatformChannelSpecifics);
+
+    await flutterLocalNotificationsPlugin.show(
+      1,
+      "Group created",
+      'New group has been created',
+      platformChannelSpecifics,
+    );
+  }
+
   void showCreationSuccessDialog() {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text("Success"),
-          content: Text("Group has been created successfully."),
+          title: Text("Confirmation"),
+          content: Text("Do you want to create this Group."),
           actions: <Widget>[
             TextButton(
-              child: Text('OK'),
+              child: Text('Confirm'),
               onPressed: () {
+                _showgroupNotification();
                 Navigator.of(context).pushAndRemoveUntil(
                   MaterialPageRoute(builder: (context) => HomePage()),
                   ModalRoute.withName('/')
