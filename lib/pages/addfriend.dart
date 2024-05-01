@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:app/pages/homepage.dart'; // Import the HomePage widget
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:app/pages/homepage.dart'; // Import the HomePage widget
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 class AddFriendPage extends StatefulWidget {
   final String groupId; // Group ID parameter
@@ -19,12 +20,39 @@ class AddFriendPage extends StatefulWidget {
 class _AddFriendPageState extends State<AddFriendPage> {
   List<String> allUsers = [];
   List<String> displayedUsers = [];
-  Set<String> selectedUsers = Set();
+  Set<String> selectedUsers = Set<String>();
 
   @override
   void initState() {
     super.initState();
+    initFirebaseMessaging();
     _fetchUserData();
+  }
+
+  void initFirebaseMessaging() async {
+    FirebaseMessaging messaging = FirebaseMessaging.instance;
+    NotificationSettings settings = await messaging.requestPermission(
+      alert: true,
+      badge: true,
+      sound: true,
+      provisional: false,
+    );
+
+    if (settings.authorizationStatus == AuthorizationStatus.authorized) {
+      print('User granted permission');
+      String? token = await messaging.getToken();
+      print("FirebaseMessaging token: $token");
+
+      if (token != null && FirebaseAuth.instance.currentUser != null) {
+        FirebaseFirestore.instance.collection('users').doc(FirebaseAuth.instance.currentUser!.uid).set({
+          'fcmToken': token,
+        }, SetOptions(merge: true));
+      }
+    } else if (settings.authorizationStatus == AuthorizationStatus.provisional) {
+      print('User granted provisional permission');
+    } else {
+      print('User declined or has not accepted permission');
+    }
   }
 
   void _fetchUserData() {
@@ -32,12 +60,7 @@ class _AddFriendPageState extends State<AddFriendPage> {
       setState(() {
         allUsers = querySnapshot.docs.map((doc) {
           Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-          // Check if 'userName' field is not null before adding it to the list
-          if (data['userName'] != null) {
-            return data['userName'] as String;
-          } else {
-            return ''; // Return empty string for null values
-          }
+          return data['userName'] != null ? data['userName'] as String : '';
         }).toList();
         displayedUsers = List.from(allUsers);
       });
@@ -65,7 +88,6 @@ class _AddFriendPageState extends State<AddFriendPage> {
   }
 
   void addToFriends(String groupId) {
-    // Fetch the user ID of the logged-in user
     User? currentUser = FirebaseAuth.instance.currentUser;
 
     if (currentUser != null) {
@@ -76,27 +98,31 @@ class _AddFriendPageState extends State<AddFriendPage> {
           .then((userData) {
         String userName = userData.data()?['userName'] ?? '';
         if (userName.isNotEmpty) {
-          print('Added $userName to friends');
-          // Add the current signed-in user to the selected users
+          // Adding current user to selected users to ensure they're included in the group.
           selectedUsers.add(userName);
 
-          // Add all selected users to the group
-          FirebaseFirestore.instance.collection('groups').doc(groupId).update({
-            'members': FieldValue.arrayUnion(selectedUsers.toList())
-          }).then((_) {
-            // Store the group name and members in the 'friends' collection
+          // Update the group document in Firestore
+          FirebaseFirestore.instance.collection('groups').doc(groupId).set({
+            'members': selectedUsers.toList(),
+          }, SetOptions(merge: true)).then((_) {
             FirebaseFirestore.instance.collection('friends').add({
               'creatorName': userName,
               'members': selectedUsers.toList()
             }).then((_) {
               print('Users added to the friends collection successfully');
-              // Clear the selected users list
               selectedUsers.clear();
+              // Navigate to HomePage or another appropriate page
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => HomePage(),
+                ),
+              );
             }).catchError((error) {
               print('Error adding users to the friends collection: $error');
             });
           }).catchError((error) {
-            print('Error adding users to the group: $error');
+            print('Error updating group members: $error');
           });
         } else {
           print('Failed to fetch username for user ID: ${currentUser.uid}');
@@ -193,15 +219,6 @@ class _AddFriendPageState extends State<AddFriendPage> {
             child: ElevatedButton(
               onPressed: () {
                 addToFriends(widget.groupId);
-                // Add selected users to the group
-                // Add selected users to the group
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => HomePage(),
-                  ),
-                );
-                print('Creating group...');
               },
               child: Text('Done'),
             ),
