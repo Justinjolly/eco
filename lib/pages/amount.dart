@@ -238,38 +238,38 @@ class _TripDetailsPageState extends State<TripDetailsPage> {
                         '₹${widget.documentSnapshot[widget.index]['splitAmounts'][index]['amount'].toString()}',
                         style: TextStyle(fontSize: 18)),
                     onTap: () {
-                      if (!user['paid'] &&
-                          !(user.containsKey('requester') &&
-                              user['requester'])) {
-                        showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return AlertDialog(
-                              title: Text("Mark as Paid"),
-                              content: Text(
-                                  "Do you want to mark ${user['name']} as paid?"),
-                              actions: <Widget>[
-                                TextButton(
-                                  child: Text("Cancel"),
-                                  onPressed: () {
-                                    Navigator.of(context)
-                                        .pop(); // Close the dialog
-                                  },
-                                ),
-                                TextButton(
-                                  child: Text("Mark as Paid"),
-                                  onPressed: () {
-                                    _markAsPaid(index);
-                                    Navigator.of(context)
-                                        .pop(); // Close the dialog
-                                  },
-                                ),
-                              ],
-                            );
-                          },
-                        );
-                      }
-                    },
+  if (!user.containsKey('requester') || !user['requester']) {
+    if (!user['paid']) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text("Mark as Paid"),
+            content: Text(
+              "Do you want to mark ${user['name']} as paid?",
+            ),
+            actions: <Widget>[
+              TextButton(
+                child: Text("Cancel"),
+                onPressed: () {
+                  Navigator.of(context).pop(); // Close the dialog
+                },
+              ),
+              TextButton(
+                child: Text("Mark as Paid"),
+                onPressed: () {
+                  _markAsPaid(index);
+                  Navigator.of(context).pop(); // Close the dialog
+                },
+              ),
+            ],
+          );
+        },
+      );
+    }
+  }
+},
+
                   );
                 },
               ),
