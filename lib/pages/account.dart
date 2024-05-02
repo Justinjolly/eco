@@ -1,5 +1,6 @@
 import 'package:app/main.dart';
 import 'package:app/pages/HomePage.dart';
+import 'package:app/pages/datapreview.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -7,6 +8,7 @@ import 'package:app/pages/balances.dart';
 import 'package:app/pages/qr.dart';
 import 'package:app/pages/settings.dart';
 import 'package:app/pages/emailsettings.dart';
+import 'datapreview.dart';
 
 class AccountPage extends StatefulWidget {
   @override
@@ -123,23 +125,23 @@ class _AccountPageState extends State<AccountPage> {
                 ],
               ),
             ),
-            ListTile(
-              leading: Icon(
-                Icons.qr_code,
-                size: 30,
-              ),
-              title: Text(
-                'Scan Code',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              onTap: () {
-                // Navigate to balances page
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => QRScanPage()),
-                );
-              },
-            ),
+            // ListTile(
+            //   leading: Icon(
+            //     Icons.qr_code,
+            //     size: 30,
+            //   ),
+            //   title: Text(
+            //     'Scan Code',
+            //     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            //   ),
+            //   onTap: () {
+            //     // Navigate to balances page
+            //     Navigator.push(
+            //       context,
+            //       MaterialPageRoute(builder: (context) => QRScanPage()),
+            //     );
+            //   },
+            // ),
             ListTile(
               leading: Icon(
                 Icons.settings,
@@ -157,23 +159,23 @@ class _AccountPageState extends State<AccountPage> {
                 );
               },
             ),
-            ListTile(
-              leading: Icon(
-                Icons.notification_add,
-                size: 30,
-              ),
-              title: Text(
-                'Notification Settings',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              onTap: () {
-                // Navigate to email settings page
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => EmailSettingsPage()),
-                );
-              },
-            ),
+            // ListTile(
+            //   leading: Icon(
+            //     Icons.notification_add,
+            //     size: 30,
+            //   ),
+            //   title: Text(
+            //     'Notification Settings',
+            //     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            //   ),
+            //   onTap: () {
+            //     // Navigate to email settings page
+            //     Navigator.push(
+            //       context,
+            //       MaterialPageRoute(builder: (context) => EmailSettingsPage()),
+            //     );
+            //   },
+            // ),
             ListTile(
               leading: Icon(
                 Icons.graphic_eq,
@@ -187,7 +189,7 @@ class _AccountPageState extends State<AccountPage> {
                 // Navigate to email settings page
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => EmailSettingsPage()),
+                  MaterialPageRoute(builder: (context) => ExpenseGraph(userId: _user!.uid)),
                 );
               },
             ),

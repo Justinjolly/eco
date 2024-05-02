@@ -18,61 +18,85 @@ class _ActivityPageState extends State<ActivityPage> {
     _groupActivities = _getGroupActivities();
   }
 
- Future<List<GroupActivity>> _getGroupActivities() async {
-  String userId = FirebaseAuth.instance.currentUser?.uid ?? '';
+  Future<List<GroupActivity>> _getGroupActivities() async {
+    String userId = FirebaseAuth.instance.currentUser?.uid ?? '';
 
-  QuerySnapshot<Map<String, dynamic>> snapshot = await FirebaseFirestore
-      .instance
-      .collection('groups')
-      .where('creator', isEqualTo: userId)
-      .get();
+    QuerySnapshot<Map<String, dynamic>> groupSnapshot = await FirebaseFirestore
+        .instance
+        .collection('groups')
+        .where('creator', isEqualTo: userId)
+        .get();
 
-  QuerySnapshot<Map<String, dynamic>> memberSnapshot = await FirebaseFirestore
-      .instance
-      .collection('groups')
-      .where('members', arrayContains: userId)
-      .get();
+    QuerySnapshot<Map<String, dynamic>> memberSnapshot = await FirebaseFirestore
+        .instance
+        .collection('groups')
+        .where('members', arrayContains: userId)
+        .get();
 
-  Set<String> addedGroups = {}; // Set to keep track of added group IDs
+    Set<String> addedGroups = {}; // Set to keep track of added group IDs
 
-  List<GroupActivity> groupActivities = [];
+    List<GroupActivity> groupActivities = [];
 
-  snapshot.docs.forEach((doc) {
-    String groupId = doc.id;
-    if (!addedGroups.contains(groupId)) {
+    List<String> groupNames = [];
+
+    groupSnapshot.docs.forEach((doc) {
+      String groupId = doc.id;
       String groupName = doc['groupName'];
-      String creationDate = doc.data().containsKey('creationDate') ? _formatDate(doc['creationDate']) : 'Not specified';
-      groupActivities.add(GroupActivity(
-        groupName: groupName,
-        creationDate: creationDate,
-      ));
-      addedGroups.add(groupId); // Add group ID to set
-    }
-  });
+      groupNames.add(groupName);
+    });
 
-  memberSnapshot.docs.forEach((doc) {
-    String groupId = doc.id;
-    if (!addedGroups.contains(groupId)) {
+    memberSnapshot.docs.forEach((doc) {
+      String groupId = doc.id;
       String groupName = doc['groupName'];
-      String creationDate = doc.data().containsKey('creationDate') ? _formatDate(doc['creationDate']) : 'Not specified';
-      groupActivities.add(GroupActivity(
-        groupName: groupName,
-        creationDate: creationDate,
-      ));
-      addedGroups.add(groupId); // Add group ID to set
+      groupNames.add(groupName);
+    });
+
+    for (String groupName in groupNames) {
+      QuerySnapshot<Map<String, dynamic>> amountSnapshot = await FirebaseFirestore
+          .instance
+          .collection('amount')
+          .where('groupName', isEqualTo: groupName)
+          .get();
+
+      Map<String, List<String>> splitDetailsByDate = {};
+
+      amountSnapshot.docs.forEach((doc) {
+        String date = doc.data().containsKey('timestamp') ? _formatDate(doc['timestamp']) : 'Not specified';
+
+        List<dynamic> splitAmounts = doc['splitAmounts'];
+        int totalAmount = splitAmounts.fold<int>(0, (sum, split) => sum + (split['amount'] as int));
+
+        String splitMessage = 'Split of $totalAmount created on $date in group $groupName';
+
+        splitDetailsByDate.update(date, (value) => value + [splitMessage], ifAbsent: () => [splitMessage]);
+      });
+
+      splitDetailsByDate.forEach((date, splitMessages) {
+        String groupCreatedMessage = 'Group "$groupName" created on $date';
+        String? splitMessage = splitMessages.isNotEmpty
+            ? '${groupCreatedMessage}\n\nSplit details:\n${splitMessages.join('\n')}'
+            : null;
+
+        groupActivities.add(GroupActivity(
+          groupName: groupName,
+          creationDate: date,
+          splitMessage: splitMessage,
+        ));
+      });
     }
-  });
 
-  return groupActivities;
-}
+    return groupActivities;
+  }
 
-
-
-
-  String _formatDate(String date) {
-    // Assuming date is in the format dd-mm-yyyy
-    List<String> parts = date.split('-');
-    return '${parts[0]}-${parts[1]}-${parts[2]}';
+  String _formatDate(dynamic date) {
+    if (date is Timestamp) {
+      DateTime dateTime = date.toDate();
+      return '${dateTime.day}-${dateTime.month}-${dateTime.year}';
+    } else {
+      // Assuming date is in the format dd-mm-yyyy
+      List<String> parts = date.split('-');
+      return '${parts[0]}-${parts[1]}-${parts[2]}';
+    }
   }
 
   @override
@@ -95,8 +119,20 @@ class _ActivityPageState extends State<ActivityPage> {
               itemBuilder: (BuildContext context, int index) {
                 final groupActivity = snapshot.data![index];
                 return ListTile(
-                  title: Text(
-                    'Group "${groupActivity.groupName}" created on ${groupActivity.creationDate}',
+                  title: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Text(
+                      //   'Group "${groupActivity.groupName}" created on ${groupActivity.creationDate}',
+                      // ),
+                      if (groupActivity.splitMessage != null)
+                        Text(
+                          groupActivity.splitMessage!,
+                          style: TextStyle(
+                            color: Colors.grey,
+                          ),
+                        ),
+                    ],
                   ),
                 );
               },
@@ -111,15 +147,11 @@ class _ActivityPageState extends State<ActivityPage> {
 class GroupActivity {
   final String groupName;
   final String creationDate;
+  final String? splitMessage;
 
   GroupActivity({
     required this.groupName,
     required this.creationDate,
+    this.splitMessage,
   });
-}
-
-void main() {
-  runApp(MaterialApp(
-    home: ActivityPage(),
-  ));
 }

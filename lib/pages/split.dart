@@ -2,6 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
+
 
 class ExpenseEntryScreen extends StatefulWidget {
   final String groupName;
@@ -234,90 +236,104 @@ class _ExpenseEntryScreenState extends State<ExpenseEntryScreen> {
   }
 
   void _onSplitButtonPressed() async {
-    final currentUser = FirebaseAuth.instance.currentUser;
-    if (currentUser != null) {
-      final String userId = currentUser.uid;
-      String userName = currentUser.displayName ?? 'Unknown';
-      if (userName == 'Unknown') {
-        // If display name is not available, use email as the username
-        userName = currentUser.email ?? 'Unknown';
+  final currentUser = FirebaseAuth.instance.currentUser;
+  if (currentUser != null) {
+    final String userId = currentUser.uid;
+    String userName = currentUser.displayName ?? 'Unknown';
+    if (userName == 'Unknown') {
+      // If display name is not available, use email as the username
+      userName = currentUser.email ?? 'Unknown';
+    }
+    int expenseAmount = _amountController.text.isNotEmpty
+        ? int.parse(_amountController.text)
+        : 0;
+    try {
+      final CollectionReference amountRef =
+          FirebaseFirestore.instance.collection('amount');
+
+      // Create a list to hold member names and their split amounts as objects
+      List<Map<String, dynamic>> splitAmountsList = [];
+
+      if (_showGroupMembers) {
+        // Split Equally
+        int splitAmount = expenseAmount ~/ groupMembersList.length;
+        for (var member in groupMembersList) {
+          splitAmountsList.add({'member': member, 'amount': splitAmount});
+        }
       }
-      int expenseAmount = _amountController.text.isNotEmpty
-          ? int.parse(_amountController.text)
-          : 0;
-      try {
-        final CollectionReference amountRef =
-            FirebaseFirestore.instance.collection('amount');
-
-        // Create a list to hold member names and their split amounts as objects
-        List<Map<String, dynamic>> splitAmountsList = [];
-
-        if (_showGroupMembers) {
-          // Split Equally
-          int splitAmount = expenseAmount ~/ groupMembersList.length;
-          for (var member in groupMembersList) {
-            splitAmountsList.add({'member': member, 'amount': splitAmount});
+      if (_showUnequallyMembers) {
+        // Split Unequally
+        if (_unequallyControllers.isNotEmpty) {
+          print('loop2');
+          int totalSplitAmount = 0;
+          for (int i = 0; i < _unequallyControllers.length - 1; i++) {
+            int splitAmount = int.parse(
+                _unequallyControllers[i].text.isNotEmpty
+                    ? _unequallyControllers[i].text
+                    : '0');
+            print('${_unequallyControllers[i]}');
+            splitAmountsList
+                .add({'member': groupMembersList[i], 'amount': splitAmount});
+            totalSplitAmount += splitAmount;
           }
+          // Assign the remaining amount to the last member
+          int remainingAmount = expenseAmount - totalSplitAmount;
+          splitAmountsList.add(
+              {'member': groupMembersList.last, 'amount': remainingAmount});
         }
-        if (_showUnequallyMembers) {
-          // Split Unequally
-          if (_unequallyControllers.isNotEmpty) {
-            print('loop2');
-            int totalSplitAmount = 0;
-            for (int i = 0; i < _unequallyControllers.length - 1; i++) {
-              int splitAmount = int.parse(
-                  _unequallyControllers[i].text.isNotEmpty
-                      ? _unequallyControllers[i].text
-                      : '0');
-              print('${_unequallyControllers[i]}');
-              splitAmountsList
-                  .add({'member': groupMembersList[i], 'amount': splitAmount});
-              totalSplitAmount += splitAmount;
-            }
-            // Assign the remaining amount to the last member
-            int remainingAmount = expenseAmount - totalSplitAmount;
-            splitAmountsList.add(
-                {'member': groupMembersList.last, 'amount': remainingAmount});
+      }
+      if (_showPercentageMembers) {
+        // Split Unequally
+        if (_unequallyControllers.isNotEmpty) {
+          print('loop2');
+          int totalSplitAmount = 0;
+          for (int i = 0; i < _unequallyControllers.length - 1; i++) {
+            int splitAmount = int.parse(
+                _unequallyControllers[i].text.isNotEmpty
+                    ? _unequallyControllers[i].text
+                    : '0');
+            print('${_unequallyControllers[i]}');
+            splitAmountsList
+                .add({'member': groupMembersList[i], 'amount': splitAmount});
+            totalSplitAmount += splitAmount;
           }
+          // Assign the remaining amount to the last member
+          int remainingAmount = 100 - totalSplitAmount;
+          splitAmountsList.add(
+              {'member': groupMembersList.last, 'amount': remainingAmount});
         }
-        if (_showPercentageMembers) {
-          // Split Unequally
-          if (_unequallyControllers.isNotEmpty) {
-            print('loop2');
-            int totalSplitAmount = 0;
-            for (int i = 0; i < _unequallyControllers.length - 1; i++) {
-              int splitAmount = int.parse(
-                  _unequallyControllers[i].text.isNotEmpty
-                      ? _unequallyControllers[i].text
-                      : '0');
-              print('${_unequallyControllers[i]}');
-              splitAmountsList
-                  .add({'member': groupMembersList[i], 'amount': splitAmount});
-              totalSplitAmount += splitAmount;
-            }
-            // Assign the remaining amount to the last member
-            int remainingAmount = 100 - totalSplitAmount;
-            splitAmountsList.add(
-                {'member': groupMembersList.last, 'amount': remainingAmount});
-          }
-        }
+      }
 
-        // Store member names, split amounts, total amount, and user details in a single document
-        await amountRef.add({
+      // Store member names, split amounts, total amount, and user details in a single document
+      await amountRef.add({
+        'userId': userId,
+        'userName': userName,
+        'groupName': widget.groupName,
+        'totalAmount': expenseAmount,
+        'splitAmounts': splitAmountsList,
+        'timestamp': DateFormat('dd-MM-yyyy').format(DateTime.now()),
+      });
+
+      // Create a new collection to store split details for each user
+      final CollectionReference userSplitDetailsRef =
+          FirebaseFirestore.instance.collection('user_split_details');
+
+      // Store only split amount and date for each user
+      for (var memberSplit in splitAmountsList) {
+        await userSplitDetailsRef.add({
           'userId': userId,
-          'userName': userName,
-          'groupName': widget.groupName,
-          'totalAmount': expenseAmount,
-          'splitAmounts': splitAmountsList,
-          'timestamp': Timestamp.now(),
+          'splitAmount': memberSplit['amount'],
+          'timestamp': DateFormat('dd-MM-yyyy').format(DateTime.now()),
         });
-
-        Navigator.pop(context);
-      } catch (e) {
-        print('Error storing data: $e');
       }
+
+      Navigator.pop(context);
+    } catch (e) {
+      print('Error storing data: $e');
     }
   }
+}
+
 
   // Widget _buildUnequallyMembersList() {
   //   final amount = _amountController.text.isNotEmpty
