@@ -85,8 +85,7 @@ class _EmailSettingsPageState extends State<EmailSettingsPage> {
                   saveChanges();
                 },
                 style: ElevatedButton.styleFrom(
-                  primary: Colors.blue,  // Button color
-                  onPrimary: Colors.white,  // Text color
+                  foregroundColor: Colors.white, backgroundColor: Colors.blue,  // Text color
                   padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
                 ),
                 child: Text('Save Changes', style: TextStyle(fontSize: 16)),

@@ -2,9 +2,9 @@ import 'package:app/pages/card.dart';
 import 'package:app/pages/group.dart';
 import 'package:app/pages/groupcreate.dart';
 import 'package:flutter/material.dart';
-import 'package:app/pages/navbar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/widgets.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -49,21 +49,21 @@ Future<List<GroupWidget>> _fetchGroupsFromFirestore() async {
     QuerySnapshot<Map<String, dynamic>> querySnapshot =
         await FirebaseFirestore.instance.collection('groups').get();
     if (querySnapshot.docs.isNotEmpty) {
-      for (QueryDocumentSnapshot<Map<String, dynamic>> doc
-          in querySnapshot.docs) {
-        Map<String, dynamic> data = doc.data();
+      for (QueryDocumentSnapshot<Map<String, dynamic>> doc in querySnapshot.docs) {
+  Map<String, dynamic> data = doc.data();
         // Check if the group is not deleted
         if (!(data['deleted'] ?? false)) {
           // Check if the logged-in user created the group or is a member of it
           if (data['creator'] == _currentUser.uid ||
               await _isUserMemberOfGroup(
                   doc.reference as DocumentReference<Map<String, dynamic>>)) {
-            // Convert 'groupType' to double
-            double groupType =
-                double.tryParse(data['groupType'].toString()) ?? 0;
+            String groupType = data['groupType'].toString();
+
+            print(groupType);
             groupsFromFirestore.add(GroupWidget(
               name: data['groupName'] ?? '',
-              totalDebt: groupType,
+              groupType: groupType,
+              
               onTap: () {
                 // Navigate to the group page and pass the group name
                 Navigator.push(
@@ -75,6 +75,7 @@ Future<List<GroupWidget>> _fetchGroupsFromFirestore() async {
                     ),
                   ),
                 );
+                print(groupType);
               },
             ));
           }
@@ -240,12 +241,13 @@ void _applyFilter() {
 
 class GroupWidget extends StatefulWidget {
   final String name;
-  final double totalDebt;
+  final String groupType;
+
   final VoidCallback onTap;
 
   const GroupWidget({
     required this.name,
-    required this.totalDebt,
+    required this.groupType,
     required this.onTap,
   });
 
@@ -258,7 +260,6 @@ class _GroupWidgetState extends State<GroupWidget> {
 
   @override
   Widget build(BuildContext context) {
-    Color amountColor = widget.totalDebt > 0 ? Colors.red : Colors.green;
     Color backgroundColor = isMouseOver
         ? const Color.fromARGB(255, 81, 82, 82).withOpacity(0.5)
         : Colors.transparent;
@@ -285,15 +286,9 @@ class _GroupWidgetState extends State<GroupWidget> {
             ),
           ),
           subtitle: Text(
-            'Total Debt: ${widget.totalDebt.toString()}',
+            'Group Description: ${widget.groupType.toString()}',
             style: TextStyle(
               color: Colors.white,
-            ),
-          ),
-          trailing: Text(
-            widget.totalDebt.toString(),
-            style: TextStyle(
-              color: amountColor,
             ),
           ),
         ),

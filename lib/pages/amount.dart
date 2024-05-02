@@ -1,9 +1,7 @@
-import 'package:app/main.dart';
 import 'package:app/pages/razor.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-
-
+import 'package:firebase_auth/firebase_auth.dart';
 
 class TripDetailsPage extends StatefulWidget {
   final List<QueryDocumentSnapshot> documentSnapshot;
@@ -28,19 +26,22 @@ class _TripDetailsPageState extends State<TripDetailsPage> {
   late String Amount = '';
   late String userId = '';
   late String userName = '';
+  late String currentID='';
+  late String currentuse='';
+  late User? currentUser;
 
-  @override
-  void initState() {
+ void initState() {
     super.initState();
-    _fetchData();
+    _fetchCurrentUser();
   }
 
-  Future<void> _fetchData() async {
-    final snapshot = await FirebaseFirestore.instance
-        .collection('amount')
-        .doc('xFAtIwZSorKMVWV0ObsT')
-        .get();
-    final data = snapshot.data();
+  Future<void> _fetchCurrentUser() async {
+     currentUser = FirebaseAuth.instance.currentUser;
+    currentID=currentUser!.uid;
+    print(currentID);
+    final cuser =
+        await FirebaseFirestore.instance.collection('users').doc(currentID).get();
+    print(cuser.data());
     userId = widget.documentSnapshot[widget.index]['userId'].toString();
     final userSnapshot =
         await FirebaseFirestore.instance.collection('users').doc(userId).get();
@@ -49,6 +50,8 @@ class _TripDetailsPageState extends State<TripDetailsPage> {
     setState(() {
       userName = userName;
       userName = userData!['userName'].toString();
+      currentuse = cuser['userName'].toString();
+      print(currentuse);
       users.clear();
       final splitAmounts =
           widget.documentSnapshot[widget.index]['splitAmounts'];
@@ -238,38 +241,38 @@ class _TripDetailsPageState extends State<TripDetailsPage> {
                         '₹${widget.documentSnapshot[widget.index]['splitAmounts'][index]['amount'].toString()}',
                         style: TextStyle(fontSize: 18)),
                     onTap: () {
-                      if (!user['paid'] &&
-                          !(user.containsKey('requester') &&
-                              user['requester'])) {
-                        showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return AlertDialog(
-                              title: Text("Mark as Paid"),
-                              content: Text(
-                                  "Do you want to mark ${user['name']} as paid?"),
-                              actions: <Widget>[
-                                TextButton(
-                                  child: Text("Cancel"),
-                                  onPressed: () {
-                                    Navigator.of(context)
-                                        .pop(); // Close the dialog
-                                  },
-                                ),
-                                TextButton(
-                                  child: Text("Mark as Paid"),
-                                  onPressed: () {
-                                    _markAsPaid(index);
-                                    Navigator.of(context)
-                                        .pop(); // Close the dialog
-                                  },
-                                ),
-                              ],
-                            );
-                          },
-                        );
-                      }
-                    },
+  if (!user.containsKey('requester') || !user['requester']) {
+    if (!user['paid']) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text("Mark as Paid"),
+            content: Text(
+              "Do you want to mark ${user['name']} as paid?",
+            ),
+            actions: <Widget>[
+              TextButton(
+                child: Text("Cancel"),
+                onPressed: () {
+                  Navigator.of(context).pop(); // Close the dialog
+                },
+              ),
+              TextButton(
+                child: Text("Mark as Paid"),
+                onPressed: () {
+                  _markAsPaid(index);
+                  Navigator.of(context).pop(); // Close the dialog
+                },
+              ),
+            ],
+          );
+        },
+      );
+    }
+  }
+},
+
                   );
                 },
               ),
@@ -277,25 +280,27 @@ class _TripDetailsPageState extends State<TripDetailsPage> {
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          int currentUserIndex = users.indexWhere((user) => user['name'] == userName);
-          // Mark the current user and others as paid or unpaid
-  _markAsPaid(currentUserIndex);
-  
-  // Update the UI
-  setState(() {});
-          // Action to be performed when the Pay button is pressed
-          Navigator.push(
-    context,
-    MaterialPageRoute(builder: (context) => PaymentPage()),
-  );
+floatingActionButton: FloatingActionButton.extended(
+  onPressed: () {
+    int currentUserIndex = users.indexWhere((user) => user['name'] == currentuse);
+    
+    // Mark the current user and others as paid or unpaid
+    _markAsPaid(currentUserIndex);
+    
+    // Update the UI
+    setState(() {});
+    
+    // Action to be performed when the Pay button is pressed
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => PaymentPage()),
+    );
+  },
+  label: Text('Pay'),
+  icon: Icon(Icons.payment),
+  backgroundColor: Colors.blue, // Customize button color as needed
+),
 
-        },
-        label: Text('Pay'),
-        icon: Icon(Icons.payment),
-        backgroundColor: Colors.blue, // Customize button color as needed
-      ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }

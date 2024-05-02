@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:intl/intl.dart';
 
 
@@ -14,6 +15,8 @@ class ExpenseEntryScreen extends StatefulWidget {
   _ExpenseEntryScreenState createState() => _ExpenseEntryScreenState();
 }
 
+
+
 List<TextEditingController> _unequallyControllers = [];
 
 class _ExpenseEntryScreenState extends State<ExpenseEntryScreen> {
@@ -22,6 +25,44 @@ class _ExpenseEntryScreenState extends State<ExpenseEntryScreen> {
   bool _showUnequallyMembers = false;
   bool _showPercentageMembers = false;
   final TextEditingController _amountController = TextEditingController();
+FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+
+
+@override
+  void initState() {
+
+    _initializeLocalNotifications();
+  }
+
+ void _initializeLocalNotifications() {
+    const AndroidInitializationSettings initializationSettingsAndroid =
+        AndroidInitializationSettings('@mipmap/ic_launcher');
+    final InitializationSettings initializationSettings =
+        InitializationSettings(android: initializationSettingsAndroid);
+    flutterLocalNotificationsPlugin.initialize(initializationSettings);
+  }
+
+Future<void> _showgroupNotification() async {
+    const AndroidNotificationDetails androidPlatformChannelSpecifics =
+        AndroidNotificationDetails(
+      'Split',
+      'New split has been created',
+      importance: Importance.max,
+      priority: Priority.high,
+      showWhen: false,
+    );
+    const NotificationDetails platformChannelSpecifics =
+        NotificationDetails(android: androidPlatformChannelSpecifics);
+
+    await flutterLocalNotificationsPlugin.show(
+      1,
+      "split",
+      'New split has been created',
+      platformChannelSpecifics,
+    );
+  }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -102,20 +143,6 @@ class _ExpenseEntryScreenState extends State<ExpenseEntryScreen> {
                             textColor: Colors.white,
                           ),
                         ),
-                        // Expanded(
-                        //   child: SectionButton(
-                        //     title: 'Percentage',
-                        //     onPressed: () {
-                        //       setState(() {
-                        //         _showPercentageMembers =
-                        //             !_showPercentageMembers;
-                        //         _showGroupMembers = false;
-                        //         _showUnequallyMembers = false;
-                        //       });
-                        //     },
-                        //     textColor: Colors.white,
-                        //   ),
-                        // ),
                       ],
                     ),
                     Visibility(
@@ -158,26 +185,6 @@ class _ExpenseEntryScreenState extends State<ExpenseEntryScreen> {
                         ],
                       ),
                     ),
-                    // Visibility(
-                    //   visible: _showPercentageMembers,
-                    //   child: Column(
-                    //     crossAxisAlignment: CrossAxisAlignment.start,
-                    //     children: [
-                    //       const Divider(),
-                    //       const SizedBox(height: 10),
-                    //       const Text(
-                    //         'Group Members:',
-                    //         style: TextStyle(
-                    //           fontSize: 16,
-                    //           fontWeight: FontWeight.bold,
-                    //           color: Colors.white,
-                    //         ),
-                    //       ),
-                    //       const SizedBox(height: 5),
-                    //       _buildPercentageMembersList(),
-                    //     ],
-                    //   ),
-                    // ),
                   ],
                 ),
               ),
@@ -187,7 +194,10 @@ class _ExpenseEntryScreenState extends State<ExpenseEntryScreen> {
                   child: Padding(
                     padding: const EdgeInsets.only(bottom: 20.0),
                     child: ElevatedButton(
-                      onPressed: _onSplitButtonPressed,
+                       onPressed: () {
+                     _onSplitButtonPressed();  // Your existing function
+                     _showgroupNotification();        // Another function to call
+                       },
                       child: const Text(
                         'Split',
                         style: TextStyle(
@@ -335,77 +345,7 @@ class _ExpenseEntryScreenState extends State<ExpenseEntryScreen> {
 }
 
 
-  // Widget _buildUnequallyMembersList() {
-  //   final amount = _amountController.text.isNotEmpty
-  //       ? int.parse(_amountController.text)
-  //       : 0;
-  //  _unequallyControllers = List<TextEditingController>.generate(
-  //       groupMembersList.length,
-  //       (index) => TextEditingController(
-  //           text: (amount ~/ groupMembersList.length).toString()));
-
-  //   int calculateSum() {
-  //     return _unequallyControllers.fold<int>(
-  //         0,
-  //         (previousValue, controller) =>
-  //             previousValue +
-  //             int.parse(controller.text.isEmpty ? '0' : controller.text));
-  //   }
-
-  // void adjustLastField() {
-  //   final sum = calculateSum();
-  //   final lastController = _unequallyControllers.last;
-  //   final lastValue =
-  //       int.parse(lastController.text.isEmpty ? '0' : lastController.text);
-  //   final excess = sum - amount;
-  //   final newValue = lastValue - excess;
-
-  //   lastController.text = newValue.toString();
-  // }
-
-  // void onChangedCallback(int index) {
-  //   adjustLastField();
-  // }
-
-  //   return Column(
-  //     crossAxisAlignment: CrossAxisAlignment.start,
-  //     children: List.generate(groupMembersList.length, (index) {
-  //       final memberName = groupMembersList[index];
-  //       return Row(
-  //         children: [
-  //           Expanded(
-  //             child: Text(
-  //               memberName,
-  //               style: const TextStyle(color: Colors.white),
-  //             ),
-  //           ),
-  //           const SizedBox(width: 10),
-  //           Expanded(
-  //             flex: 2,
-  //             child: TextField(
-  //               controller: _unequallyControllers[index],
-  //               style: const TextStyle(color: Colors.white),
-  //               inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-  //               onChanged: (_) => onChangedCallback(index),
-  //               decoration: InputDecoration(
-  //                 border: OutlineInputBorder(
-  //                   borderRadius: BorderRadius.circular(10.0),
-  //                   borderSide: const BorderSide(color: Colors.black),
-  //                 ),
-  //                 filled: true,
-  //                 fillColor: const Color.fromARGB(255, 52, 52, 52),
-  //                 contentPadding:
-  //                     const EdgeInsets.symmetric(vertical: 15.0, horizontal: 10.0),
-  //               ),
-  //               keyboardType: TextInputType.number,
-  //             ),
-  //           ),
-  //         ],
-  //       );
-  //     }),
-  //   );
-  // }
-
+ 
   Widget _buildUnequallyMembersList() {
     final amount = _amountController.text.isNotEmpty
         ? int.parse(_amountController.text)
@@ -472,13 +412,7 @@ class _ExpenseEntryScreenState extends State<ExpenseEntryScreen> {
                   fillColor: const Color.fromARGB(255, 52, 52, 52),
                   contentPadding: const EdgeInsets.symmetric(
                       vertical: 15.0, horizontal: 10.0),
-                  // suffixIcon: const Padding(
-                  //   padding: EdgeInsets.all(12.0),
-                  //   child: Text(
-                  //     '%',
-                  //     style: TextStyle(color: Colors.white),
-                  //   ),
-                  // ),
+                  
                 ),
                 keyboardType: TextInputType.number,
               ),
